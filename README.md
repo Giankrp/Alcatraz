@@ -210,7 +210,7 @@ Diagrama (simplificado):
 
 ```mermaid
 flowchart TD
-  A[nuxt.config.ts\nmodules:@nuxt/ui, tailwindcss/vite] --> B[app/pages]
+  [nuxt.config.ts\nmodules:@nuxt/ui, tailwindcss/vite] --> B[app/pages]
   A --> C[assets/css]
   B --> D[index.vue]
   B --> E[login.vue]
