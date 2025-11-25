@@ -1,82 +1,71 @@
-# Nuxt Minimal Starter
+# Alcatraz
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Aplicación construida con Nuxt 4 (Vue 3) que presenta una landing y un flujo de autenticación moderno usando `@nuxt/ui` y validación con `zod`. Orientada a un gestor de contraseñas y notas cifradas, con foco en accesibilidad, rendimiento y un modo oscuro consistente.
+
+Para guía oficial de Nuxt revisa la [documentación](https://nuxt.com/docs/getting-started/introduction).
 
 ## Setup
 
-Make sure to install dependencies:
+Instala las dependencias:
 
 ```bash
-# npm
-npm install
-
 # pnpm
 pnpm install
 
-# yarn
+# npm / yarn / bun
+npm install
 yarn install
-
-# bun
 bun install
 ```
 
 ## Development Server
 
-Start the development server on `http://localhost:3000`:
+Arranca el servidor de desarrollo en `http://localhost:3000`:
 
 ```bash
-# npm
-npm run dev
-
 # pnpm
 pnpm dev
 
-# yarn
+# npm / yarn / bun
+npm run dev
 yarn dev
-
-# bun
 bun run dev
 ```
 
 ## Production
 
-Build the application for production:
+Construye la aplicación para producción:
 
 ```bash
-# npm
-npm run build
-
 # pnpm
 pnpm build
 
-# yarn
+# npm / yarn / bun
+npm run build
 yarn build
-
-# bun
 bun run build
 ```
 
-Locally preview production build:
+Previsualiza el build de producción localmente:
 
 ```bash
-# npm
-npm run preview
-
 # pnpm
 pnpm preview
 
-# yarn
+# npm / yarn / bun
+npm run preview
 yarn preview
-
-# bun
 bun run preview
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+Consulta la [documentación de despliegue](https://nuxt.com/docs/getting-started/deployment) para más información.
 
-# Alcatraz
+## Estado del proyecto
 
-Aplicación construida con Nuxt 4 que presenta una landing y un flujo de autenticación moderno usando `@nuxt/ui` y validación con `zod`. El objetivo es ofrecer una experiencia pulida para un gestor de contraseñas y notas cifradas, con diseño enfocado en accesibilidad, rendimiento y un modo oscuro consistente.
+- Framework: Nuxt 4 + Vue 3
+- UI: `@nuxt/ui` con Tailwind v4 (`@tailwindcss/vite`)
+- Validación: `zod`
+- Tipado: TypeScript
 
 ## Propósito del proyecto
 
@@ -86,9 +75,9 @@ Aplicación construida con Nuxt 4 que presenta una landing y un flujo de autenti
 
 ## Requisitos del sistema
 
-- Node.js 18 o superior (recomendado 18.18+).
-- pnpm 10 (o npm/yarn/bun).
-- Navegador moderno (Chrome, Firefox, Edge, Safari) para desarrollo.
+- Node.js 18 o superior (recomendado 18.18+)
+- pnpm 10 (o npm/yarn/bun)
+- Navegador moderno (Chrome, Firefox, Edge, Safari)
 
 Dependencias principales:
 
@@ -119,7 +108,7 @@ bun install
 
 - No se requieren variables de entorno para arrancar el proyecto.
 - La configuración de módulos se encuentra en `nuxt.config.ts` y carga `@nuxt/ui` y `tailwindcss/vite`.
-- Los estilos globales están en `assets/css/main.css` y se importan vía `nuxt.config.ts`.
+- Los estilos globales están en `app/assets/css/main.css` y deben importarse en `nuxt.config.ts` con `css: ["~/app/assets/css/main.css"]`.
 
 Si vas a integrar autenticación real (OAuth/sesiones), añade la configuración correspondiente en tiempo de ejecución y variables de entorno.
 
@@ -155,7 +144,8 @@ import type { AuthFormField, ButtonProps, FormSubmitEvent } from '@nuxt/ui'
 const schema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
-  remember: z.boolean().optional()
+  // Usa default(false) si quieres evitar undefined en el checkbox
+  remember: z.boolean().default(false)
 })
 
 const fields = ref<AuthFormField[]>([
@@ -193,11 +183,11 @@ Alcatraz/
 │  ├─ pages/
 │  │  ├─ index.vue
 │  │  └─ login.vue
-│  └─ components/
-│     ├─ AuthHeader.vue
-│     └─ SecurityCard.vue
-├─ assets/
-│  └─ css/main.css
+│  ├─ components/
+│  │  ├─ AuthHeader.vue
+│  │  └─ SecurityCard.vue
+│  └─ assets/
+│     └─ css/main.css
 ├─ public/
 │  └─ robots.txt
 ├─ nuxt.config.ts
@@ -210,8 +200,8 @@ Diagrama (simplificado):
 
 ```mermaid
 flowchart TD
-  [nuxt.config.ts\nmodules:@nuxt/ui, tailwindcss/vite] --> B[app/pages]
-  A --> C[assets/css]
+  A[nuxt.config.ts\nmodules:@nuxt/ui, tailwindcss/vite\ncss:~/app/assets/css/main.css] --> B[app/pages]
+  A --> C[app/assets/css]
   B --> D[index.vue]
   B --> E[login.vue]
   E --> F[UAuthForm + zod]
@@ -219,6 +209,27 @@ flowchart TD
   G --> H[AuthHeader]
   G --> I[SecurityCard]
 ```
+
+## Convenciones del proyecto
+
+- Usa `NuxtLink` para navegación interna; reserva `<a>` para enlaces externos.
+- Prefiere tokens de `@nuxt/ui` (`bg-background`, `text-foreground`) en vez de overrides globales del `body`.
+- Mantén componentes en `app/components` y páginas en `app/pages`.
+- Evita añadir `vue-router`: Nuxt provee routing automáticamente.
+
+## Checklist rápida
+
+- Node 18+ instalado y gestor `pnpm` configurado.
+- Dependencias instaladas con `pnpm install`.
+- `nuxt.config.ts` incluye `css: ["~/app/assets/css/main.css"]`.
+- Rutas funcionales: `/` y `/login`.
+- Validación `zod` coherente con los nombres de campos del formulario.
+
+## Problemas conocidos y recomendaciones
+
+- Estilos globales: si los colores no corresponden al tema, elimina overrides de `body` y usa tokens de `@nuxt/ui`.
+- Dependencias: retira `vue-router` si no hay importaciones; no es necesario en Nuxt.
+- Enlaces del Footer: evita enlaces a rutas no existentes para prevenir 404.
 
 ## Licencia
 
