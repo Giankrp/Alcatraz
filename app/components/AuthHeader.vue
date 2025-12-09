@@ -9,7 +9,7 @@ interface Props {
 
 const props = defineProps<Props>()
 const alignClass = props.align === 'left' ? 'items-start text-left' : 'items-center text-center'
-const bubbleClass = props.inverted ? 'bg-white text-black' : 'bg-black text-white'
+const bubbleClass = 'bg-black text-white'
 </script>
 
 <template>

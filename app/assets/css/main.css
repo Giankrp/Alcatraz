@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
+:root {
+  color-scheme: dark;
+}
+
 body {
   @apply bg-black text-white;
 }

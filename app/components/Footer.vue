@@ -8,8 +8,8 @@
       <!-- Brand -->
       <div>
         <div class="flex items-center gap-3">
-          <div class="size-8 rounded-full bg-white grid place-items-center  text-primary">
-            <UIcon name="i-heroicons-lock-closed" class="size-5 bg-black" />
+          <div class="size-8 rounded-full bg-black grid place-items-center text-white">
+            <UIcon name="i-heroicons-lock-closed" class="size-5" />
           </div>
           <span class="font-semibold">Alcatraz</span>
         </div>

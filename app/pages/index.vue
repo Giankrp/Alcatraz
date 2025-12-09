@@ -1,35 +1,16 @@
 <script lang="ts" setup>
-
-
+useHead({
+  title: 'Gestor de contraseñas y notas cifradas',
+  meta: [
+    { name: 'description', content: 'Alcatraz: seguridad de nivel máximo para tus contraseñas y notas con cifrado AES-256 y arquitectura zero-knowledge.' },
+    { property: 'og:title', content: 'Alcatraz — Seguridad máxima para tus datos' },
+    { property: 'og:description', content: 'Protege contraseñas y notas cifradas con AES-256 y zero-knowledge.' }
+  ]
+})
 </script>
 
 <template>
-  <div class="min-h-screen bg-background text-foreground">
-    <!-- Header (sticky) -->
-    <header class="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border">
-      <UContainer class="h-14 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="size-8 rounded-full grid place-items-center bg-white text-primary">
-            <UIcon name="i-heroicons-lock-closed" class="size-5 bg-black" />
-          </div>
-          <span class="font-semibold">Alcatraz</span>
-        </div>
-
-        <nav class="hidden md:flex items-center gap-8 text-sm">
-          <ULink to="#caracteristicas">Características</ULink>
-          <ULink to="#seguridad">Seguridad</ULink>
-          <ULink to="#precios">Precios</ULink>
-        </nav>
-
-        <div class="flex items-center gap-3">
-          <ULink to="/login">Iniciar Sesión</ULink>
-          <UButton to="/login" color="neutral" variant="solid" size="sm">
-            Comenzar Gratis
-          </UButton>
-        </div>
-      </UContainer>
-    </header>
-
+  <div>
     <!-- Hero -->
     <UContainer class="pt-16 pb-24">
       <div class="flex justify-center">
@@ -207,7 +188,7 @@
     </UContainer>
 
     <!-- CTA final -->
-    <section class="bg-white text-black">
+    <section class="bg-black text-white">
       <UContainer class="py-24 text-center">
         <h2 class="text-4xl md:text-5xl font-extrabold">
           Comienza a proteger tus datos hoy mismo
@@ -217,13 +198,13 @@
         </p>
 
         <div class="mt-8 flex justify-center gap-4">
-          <UButton to="/registro" color="neutral" variant="outline" icon="i-heroicons-arrow-right-16-solid" class="bg-black text-white">
+          <UButton to="/registro" color="neutral" variant="solid" icon="i-heroicons-arrow-right-16-solid" class="bg-black text-white border border-white/20">
             Comenzar Gratis
           </UButton>
-          <UButton to="/contacto" color="neutral" variant="outline" class="bg-black text-white">Hablar con Ventas</UButton>
+          <UButton to="/contacto" color="neutral" variant="outline" class="bg-black text-white border border-white/20">Hablar con Ventas</UButton>
         </div>
 
-        <div class="mt-6 flex flex-wrap justify-center gap-6 text-base text-neutral-500 ">
+      <div class="mt-6 flex flex-wrap justify-center gap-6 text-base text-neutral-300">
           <span class="inline-flex items-center gap-2">
             <UIcon name="i-heroicons-check-circle" class="size-4" />
             Sin tarjeta de crédito
@@ -239,9 +220,5 @@
         </div>
       </UContainer>
     </section>
-
-    <!-- Footer -->
-    <Footer />
   </div>
 </template>
-

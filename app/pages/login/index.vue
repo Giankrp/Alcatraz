@@ -1,41 +1,15 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { z } from 'zod'
-import type { AuthFormField, ButtonProps, FormSubmitEvent } from "@nuxt/ui"
+import { useAuthForm } from "~/composables/useAuthForm"
 
-
-const schema = z.object({
-  email: z.string({ required_error: 'Introduce un email' }).email('Introduce un email válido'),
-  password: z.string({ required_error: 'Ingresa tu contraseña' }).min(8, 'Mínimo 8 caracteres'),
-  remember: z.boolean().optional()
+const { schema, fields, providers, submitted, onSubmit, resetFeedback } = useAuthForm()
+useHead({
+  title: 'Iniciar sesión',
+  meta: [
+    { name: 'description', content: 'Accede a tu bóveda segura de contraseñas y notas cifradas en Alcatraz.' },
+    { property: 'og:title', content: 'Iniciar sesión — Alcatraz' },
+    { property: 'og:description', content: 'Tu acceso seguro a la bóveda de contraseñas y notas cifradas.' }
+  ]
 })
-
-type Schema = z.infer<typeof schema>
-
-const fields = ref<AuthFormField[]>([
-  { name: 'email', type: 'email', label: 'Email', placeholder: 'tu@correo.com', required: true, icon: 'i-heroicons-envelope' },
-  { name: 'password', type: 'password', label: 'Contraseña', placeholder: '••••••••', required: true, icon: 'i-heroicons-lock-closed' },
-  { name: 'remember', type: 'checkbox', label: 'Recordar credenciales' }
-])
-
-const providers = ref<ButtonProps[]>([
-  { label: 'Google', icon: 'i-logos-google-icon', color: 'neutral', variant: 'solid', class: 'provider-glass text-white' },
-  { label: 'GitHub', icon: 'i-logos-github-icon', color: 'neutral', variant: 'solid', class: 'provider-glass text-white' },
-  { label: 'Apple', icon: 'i-material-icon-theme:applescript', color: 'neutral', variant: 'solid', class: 'provider-glass text-white' }
-])
-
-const submitted = ref(false)
-
-function onSubmit(event: FormSubmitEvent<Schema>) {
-  submitted.value = false
-  setTimeout(() => {
-    submitted.value = true
-  }, 800)
-}
-
-function resetFeedback() {
-  submitted.value = false
-}
 </script>
 
 <template>
