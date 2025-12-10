@@ -3,8 +3,8 @@
 </script>
 
 <template>
-  <footer class="border-t bg-white text-black">
-    <UContainer class="py-14 grid gap-12 md:grid-cols-4 ">
+  <footer class="border-t border-white/20 bg-black text-white">
+    <UContainer class="py-14 grid gap-12 md:grid-cols-4">
       <!-- Brand -->
       <div>
         <div class="flex items-center gap-3">
@@ -52,9 +52,9 @@
       </div>
     </UContainer>
 
-    <div class="border-t">
+    <div class="border-t border-white/20">
       <UContainer class="py-6 text-center text-sm opacity-70">
-        © 2025 Alcatraz. Todos los derechos reservados.
+        &copy; {{new Date().getFullYear()}} Alcatraz. Todos los derechos reservados.
       </UContainer>
     </div>
   </footer>

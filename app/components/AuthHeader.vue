@@ -27,25 +27,5 @@ const bubbleClass = 'bg-black text-white'
   </header>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
 
-<!--
-Uso:
-
-<AuthHeader
-  title="Inicia sesión"
-  subtitle="Bienvenido de vuelta. Protegemos tus datos con máxima seguridad."
-  icon="i-heroicons-lock-closed"
-  align="center"
-/>
-
-Props:
-- title (string, requerido): título principal del encabezado.
-- subtitle (string, opcional): subtítulo descriptivo.
-- icon (string, opcional): nombre del ícono (UIcon) a mostrar.
-- align ("left" | "center", opcional): alineación del contenido.
-
-Accesibilidad:
-- Usa un <header> con aria-label y tipografía con buen contraste.
--->

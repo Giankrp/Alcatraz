@@ -124,14 +124,33 @@ const menuItems = computed<NavigationMenuItem[][]>(() => [
     <UDashboardGroup unit="rem">
       <Transition name="sidebar-slide" appear>
         <div :class="['animated-sidebar', sidebarAnim]">
-        <UDashboardSidebar v-show="open" v-model:open="open" v-model:collapsed="collapsed" resizable collapsible :collapsed-size="4">
+      <UDashboardSidebar
+        v-show="open"
+        v-model:open="open"
+        v-model:collapsed="collapsed"
+        resizable
+        collapsible
+        :collapsed-size="4"
+        class="bg-black/70 backdrop-blur-md border border-white/10"
+      >
         <template #header="{ collapsed }">
-          <div class="relative flex items-center gap-3 px-2" :class="[collapsed ? 'justify-center' : 'justify-between', !collapsed && 'pr-12']">
-            <div class="size-8 rounded-xl bg-black text-white grid place-items-center border border-white/10">
-              <UIcon name="i-heroicons-lock-closed" class="size-5" />
+          <div class="relative flex items-center w-full" :class="collapsed ? 'justify-center' : 'justify-between px-2'">
+            <div v-if="!collapsed" class="flex items-center gap-3 min-w-0 pr-12">
+              <div class="size-8 rounded-xl bg-black text-white grid place-items-center border border-white/10 shrink-0">
+                <UIcon name="i-heroicons-lock-closed" class="size-5" />
+              </div>
+              <span class="font-semibold text-sm tracking-tight truncate">Alcatraz</span>
             </div>
-            <span v-if="!collapsed" class="font-semibold text-sm tracking-tight truncate">Alcatraz</span>
-            <UDashboardSidebarCollapse class="absolute right-2 top-1/2 -translate-y-1/2" size="lg" square variant="subtle" :aria-expanded="!collapsed" aria-label="Alternar barra lateral" />
+            
+            <UDashboardSidebarCollapse 
+              class="collapse-btn" 
+              :class="collapsed ? 'relative' : 'absolute right-2 top-1/2 -translate-y-1/2'"
+              size="xl" 
+              square 
+              variant="ghost" 
+              :aria-expanded="!collapsed" 
+              aria-label="Alternar barra lateral" 
+            />
           </div>
         </template>
 
@@ -150,24 +169,34 @@ const menuItems = computed<NavigationMenuItem[][]>(() => [
         <template #header>
           <UDashboardNavbar :title="selectedLabel">
             <template #leading>
-              <UButton variant="ghost" color="neutral" size="sm" icon="i-heroicons-bars-3" @click="open = !open" aria-label="Mostrar/ocultar sidebar" />
+              <UButton
+                variant="ghost"
+                color="neutral"
+                size="sm"
+                class="btn btn-icon btn-muted sidebar-toggle"
+                @click="open = !open"
+                aria-label="Mostrar/ocultar barra lateral"
+              >
+                <span class="sr-only">Alternar barra lateral</span>
+                <UIcon :name="open ? 'i-heroicons-x-mark' : 'i-heroicons-bars-3'" class="size-6" />
+              </UButton>
             </template>
             <template #trailing>
               <div class="flex items-center gap-2">
-                <UButton variant="solid" class="btn-primary" icon="i-heroicons-plus">Nuevo</UButton>
-                <UButton variant="ghost" class="btn-ghost" icon="i-heroicons-magnifying-glass">Buscar</UButton>
+                <UButton variant="solid" class="btn btn-sm" icon="i-heroicons-plus">Nuevo</UButton>
+                <UButton variant="ghost" class="btn btn-sm btn-ghost" icon="i-heroicons-magnifying-glass">Buscar</UButton>
               </div>
             </template>
           </UDashboardNavbar>
         </template>
 
-        <div class="p-4 md:p-8">
+        <div class="p-4 md:p-8 pb-24 overflow-y-auto" style="scrollbar-gutter: stable;">
           <div class="card-grid">
             <UCard v-for="i in filteredItems" :key="i.id" class="bg-black">
               <template #header>
                 <div class="flex items-center gap-3">
                   <div class="icon-pill">
-                    <UIcon :name="i.icon" class="size-5" />
+                    <UIcon :name="i.icon" class="size-6" />
                   </div>
                   <div class="flex items-center gap-2">
                     <div class="text-base sm:text-lg font-semibold">{{ i.title }}</div>
@@ -187,10 +216,10 @@ const menuItems = computed<NavigationMenuItem[][]>(() => [
               </div>
 
               <div class="mt-4 flex gap-2 pt-4 border-t border-white/5">
-                <UButton size="xs" variant="solid" class="btn-primary" icon="i-heroicons-clipboard-document">Copiar</UButton>
-                <UButton size="xs" variant="ghost" class="btn-ghost" icon="i-heroicons-pencil-square">Editar</UButton>
+                <UButton size="xs" variant="solid" class="btn btn-xs" icon="i-heroicons-clipboard-document">Copiar</UButton>
+                <UButton size="xs" variant="ghost" class="btn btn-xs btn-ghost" icon="i-heroicons-pencil-square">Editar</UButton>
                 <div class="flex-1"></div>
-                <UButton size="xs" variant="ghost" class="btn-ghost" icon="i-heroicons-star"></UButton>
+                <UButton size="xs" variant="ghost" class="btn btn-xs btn-muted" icon="i-heroicons-star"></UButton>
               </div>
             </UCard>
           </div>
@@ -231,6 +260,7 @@ const menuItems = computed<NavigationMenuItem[][]>(() => [
 }
 @media (min-width: 640px) { .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; } }
 @media (min-width: 768px) { .card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; } }
+@media (min-width: 1024px) { .card-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.75rem; } }
 @media (min-width: 1280px) { .card-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.75rem; } }
 
 .card-surface {
@@ -245,7 +275,10 @@ const menuItems = computed<NavigationMenuItem[][]>(() => [
 .card-surface:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(0,0,0,0.4); background: rgba(255,255,255,0.08); }
 
 .icon-pill {
-  padding: 8px;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
   border-radius: 12px;
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.12);
@@ -293,4 +326,25 @@ const menuItems = computed<NavigationMenuItem[][]>(() => [
 .sidebar-slide-enter-to { transform: translate3d(0, 0, 0); opacity: 1; }
 .sidebar-slide-leave-from { transform: translate3d(0, 0, 0); opacity: 1; }
 .sidebar-slide-leave-to { transform: translate3d(-100px, 0, 0); opacity: 0; }
+
+.sidebar-toggle {
+  padding: 0;
+  width: 60px;
+  height: 60px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.14);
+}
+.collapse-btn {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+}
+.collapse-btn :deep(svg) {
+  width: 28px;
+  height: 28px;
+}
 </style>

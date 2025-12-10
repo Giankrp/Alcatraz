@@ -193,15 +193,15 @@ useHead({
         <h2 class="text-4xl md:text-5xl font-extrabold">
           Comienza a proteger tus datos hoy mismo
         </h2>
-        <p class="mt-4 text-neutral-600">
+        <p class="mt-4 text-neutral-300">
           Únete a más de 100,000 usuarios. Prueba gratis 30 días, sin tarjeta.
         </p>
 
         <div class="mt-8 flex justify-center gap-4">
-          <UButton to="/registro" color="neutral" variant="solid" icon="i-heroicons-arrow-right-16-solid" class="bg-black text-white border border-white/20">
+          <UButton to="/registro" color="neutral" variant="solid" icon="i-heroicons-arrow-right-16-solid" class="btn btn-lg">
             Comenzar Gratis
           </UButton>
-          <UButton to="/contacto" color="neutral" variant="outline" class="bg-black text-white border border-white/20">Hablar con Ventas</UButton>
+          <UButton to="/contacto" color="neutral" variant="outline" class="btn btn-lg btn-ghost">Hablar con Ventas</UButton>
         </div>
 
       <div class="mt-6 flex flex-wrap justify-center gap-6 text-base text-neutral-300">

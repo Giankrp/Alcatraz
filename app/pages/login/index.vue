@@ -48,7 +48,7 @@ useHead({
             :fields="fields"
             :providers="providers"
             :separator="{ label: 'o continúa con' }"
-            :submit="{ label: 'Acceder', icon: 'i-heroicons-arrow-right-16-solid', color: 'neutral', variant: 'solid', class: 'bg-black text-white border border-white/20 hover:bg-black/90' }"
+            :submit="{ label: 'Acceder', icon: 'i-heroicons-arrow-right-16-solid', color: 'neutral', variant: 'solid', class: 'btn btn-lg' }"
             class="w-full space-y-6 auth-dark"
             @submit="onSubmit"
             @error="resetFeedback"

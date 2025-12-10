@@ -4,8 +4,8 @@ const showHeader = computed(() => !route.path.startsWith('/boveda'))
 </script>
 
 <template>
-  <div class="min-h-screen bg-background text-foreground">
-    <header v-if="showHeader" class="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border">
+  <div class="min-h-screen bg-black text-white flex flex-col">
+    <header v-if="showHeader" class="sticky top-0 z-20 bg-black/80 backdrop-blur-md border-b border-white/20">
       <UContainer class="h-14 flex items-center justify-between">
         <div class="flex items-center gap-3">
           <div class="size-8 rounded-full grid place-items-center bg-black text-white">
@@ -30,10 +30,10 @@ const showHeader = computed(() => !route.path.startsWith('/boveda'))
       </UContainer>
     </header>
 
-    <main>
+    <main class="flex-1 min-h-0">
       <slot />
     </main>
 
-    <Footer />
+    <Footer v-if="showHeader" />
   </div>
 </template>
