@@ -1,12 +1,19 @@
+<script setup lang="ts">
+const route = useRoute()
+const showHeader = computed(() => !route.path.startsWith('/boveda'))
+</script>
+
 <template>
   <div class="min-h-screen bg-background text-foreground">
-    <header class="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border">
+    <header v-if="showHeader" class="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border">
       <UContainer class="h-14 flex items-center justify-between">
         <div class="flex items-center gap-3">
           <div class="size-8 rounded-full grid place-items-center bg-black text-white">
             <UIcon name="i-heroicons-lock-closed" class="size-5" />
           </div>
-          <span class="font-semibold">Alcatraz</span>
+          <span class="font-semibold">
+            <ULink to="/">Alcatraz</ULink>
+          </span>
         </div>
 
         <nav class="hidden md:flex items-center gap-8 text-sm">

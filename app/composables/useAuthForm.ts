@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { navigateTo } from '#app'
 import { z } from 'zod'
 import type { AuthFormField, ButtonProps, FormSubmitEvent } from '@nuxt/ui'
 
@@ -29,6 +30,7 @@ export function useAuthForm() {
     submitted.value = false
     setTimeout(() => {
       submitted.value = true
+      navigateTo('/boveda')
     }, 800)
   }
 

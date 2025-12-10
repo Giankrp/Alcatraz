@@ -3,8 +3,8 @@
 </script>
 
 <template>
-  <footer class="border-t">
-    <UContainer class="py-14 grid gap-12 md:grid-cols-4">
+  <footer class="border-t bg-white text-black">
+    <UContainer class="py-14 grid gap-12 md:grid-cols-4 ">
       <!-- Brand -->
       <div>
         <div class="flex items-center gap-3">

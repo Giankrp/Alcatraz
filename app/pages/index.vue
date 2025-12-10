@@ -30,7 +30,7 @@ useHead({
       </p>
 
       <div class="mt-10 flex items-center justify-center gap-4">
-        <UButton to="/registro" color="neutral" variant="solid" trailing-icon="i-heroicons-arrow-right-16-solid" class="hover:translate-x-1 transition-transform">
+        <UButton to="/login" color="neutral" variant="solid" trailing-icon="i-heroicons-arrow-right-16-solid" class="hover:translate-x-1 transition-transform">
           Comenzar Ahora
         </UButton>
         <UButton to="/demo" variant="outline" color="neutral" class="bg-black text-white font-semibold text-xs px-4 py-2 hover:bg-black/90  hover:translate-x-1 transition-transform">Ver Demo</UButton>
@@ -137,8 +137,8 @@ useHead({
               Cifrado AES-256 en reposo y en tránsito
             </li>
             <li class="flex items-center gap-3 opacity-70">
-              <UIcon name="i-heroicons-check-circle" class="size-5" />
-              Derivación de claves con PBKDF2 y 100,000 iteraciones
+              <UIcon name="i-heroicons-check-circle" class="size-8" />
+              Derivación de claves con Argon2id, el estándar de seguridad de última generación
             </li>
             <li class="flex items-center gap-3 opacity-70">
               <UIcon name="i-heroicons-check-circle" class="size-5" />
