@@ -6,7 +6,11 @@
 }
 
 body {
-  @apply bg-black text-white antialiased;
+  @apply bg-black text-white subpixel-antialiased font-sans;
+}
+
+html {
+  color-scheme: dark;
 }
 
 :root {
@@ -47,12 +51,10 @@ a:focus-visible {
   outline-offset: 2px;
 }
 
-button, [role="button"], .btn-primary, .btn-ghost, .sidebar-toggle {
-  min-width: 48px;
-  min-height: 48px;
+button, .btn, .btn-primary, .btn-ghost, .sidebar-toggle {
   transition: transform .2s ease, color .2s ease, background .2s ease, box-shadow .2s ease;
 }
-button:focus-visible, .btn-primary:focus-visible, .btn-ghost:focus-visible, .sidebar-toggle:focus-visible {
+button:focus-visible, .btn:focus-visible, .btn-primary:focus-visible, .btn-ghost:focus-visible, .sidebar-toggle:focus-visible {
   outline: none;
   box-shadow: 0 0 0 2px rgba(255,255,255,.22);
 }
@@ -63,6 +65,8 @@ button:focus-visible, .btn-primary:focus-visible, .btn-ghost:focus-visible, .sid
   justify-content: center;
   gap: .5rem;
   padding: .625rem 1rem;
+  min-width: 48px;
+  min-height: 48px;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.18);
   background: #000;
@@ -86,8 +90,8 @@ button:focus-visible, .btn-primary:focus-visible, .btn-ghost:focus-visible, .sid
 }
 .btn-muted:hover { background: rgba(255,255,255,0.12); }
 
-.btn-xs { padding: .375rem .625rem; border-radius: 10px; }
-.btn-sm { padding: .5rem .875rem; }
-.btn-lg { padding: .75rem 1.25rem; }
+.btn-xs { padding: .375rem .625rem; min-width: 32px; min-height: 32px; border-radius: 10px; }
+.btn-sm { padding: .5rem .875rem; min-width: 40px; min-height: 40px; }
+.btn-lg { padding: .75rem 1.25rem; min-width: 52px; min-height: 52px; }
 
 .btn-icon { width: 48px; height: 48px; padding: 0; }

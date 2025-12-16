@@ -137,7 +137,7 @@ useHead({
               Cifrado AES-256 en reposo y en tránsito
             </li>
             <li class="flex items-center gap-3 opacity-70">
-              <UIcon name="i-heroicons-check-circle" class="size-8" />
+              <UIcon name="i-heroicons-check-circle" class="size-5" />
               Derivación de claves con Argon2id, el estándar de seguridad de última generación
             </li>
             <li class="flex items-center gap-3 opacity-70">

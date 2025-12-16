@@ -329,22 +329,22 @@ const menuItems = computed<NavigationMenuItem[][]>(() => [
 
 .sidebar-toggle {
   padding: 0;
-  width: 60px;
-  height: 60px;
+  width: 48px;
+  height: 48px;
   display: grid;
   place-items: center;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.14);
 }
 .collapse-btn {
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
   display: grid;
   place-items: center;
   border-radius: 12px;
 }
 .collapse-btn :deep(svg) {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
 }
 </style>

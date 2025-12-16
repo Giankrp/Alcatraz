@@ -79,6 +79,10 @@ useHead({
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   overflow: hidden;
 }
+.glass-card-dark {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 .glass-card-dark::before {
   content: "";
   position: absolute;
@@ -109,6 +113,7 @@ useHead({
 }
 
 .login-bg {
+  isolation: isolate;
   background:
     radial-gradient(1000px 500px at 10% 10%, rgba(255,255,255,0.08), rgba(255,255,255,0)),
     radial-gradient(800px 400px at 80% 20%, rgba(255,255,255,0.06), rgba(255,255,255,0)),
@@ -143,6 +148,17 @@ useHead({
   background: #000;
   color: #fff;
   border: 1px solid rgba(255,255,255,0.25);
+}
+.auth-dark :deep(input[type="checkbox"]) {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  margin: 0;
+  vertical-align: middle;
+}
+.auth-dark :deep(label) {
+  cursor: pointer;
 }
 .auth-dark :deep(input::placeholder),
 .auth-dark :deep(textarea::placeholder) {

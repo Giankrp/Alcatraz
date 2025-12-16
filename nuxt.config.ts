@@ -5,6 +5,11 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@nuxt/ui'],
   css: ["~/assets/css/main.css"],
+  colorMode: {
+    preference: 'dark',
+    fallback: 'dark',
+    classSuffix: ''
+  },
   app: {
     head: {
       titleTemplate: '%s · Alcatraz',
