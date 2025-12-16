@@ -13,20 +13,26 @@ Contiene la capa de interfaz (páginas y componentes) de la aplicación Nuxt. Aq
 app/
 ├─ pages/
 │  ├─ index.vue
-│  └─ login.vue
+│  ├─ login.vue
+│  └─ boveda/index.vue
 └─ components/
    ├─ AuthHeader.vue
-   └─ SecurityCard.vue
+   ├─ SecurityCard.vue
+   └─ Footer.vue
 ```
 
 ```mermaid
 flowchart TD
   P[pages] --> I[index.vue]
   P --> L[login.vue]
+  P --> V[boveda/index.vue]
   C[components] --> AH[AuthHeader.vue]
   C --> SC[SecurityCard.vue]
+  C --> FT[Footer.vue]
   L --> AH
   I --> SC
+  I --> FT
+  V --> FT
 ```
 
 ## Dependencias específicas
@@ -84,6 +90,8 @@ function onSubmit(e: FormSubmitEvent<any>) {
 - Mantén la validación alineada con los `name` de campos del formulario.
 - Evita estilos en línea complejos; usa utilidades de Tailwind y la API de `ui` de Nuxt UI.
 - Revisa accesibilidad: `aria-label`, contraste, foco visible.
+- La ruta `/boveda` oculta la cabecera del layout por diseño.
+- El sidebar del dashboard persiste colapso y apertura en `localStorage`.
 
 ## Troubleshooting
 

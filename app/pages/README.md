@@ -11,12 +11,14 @@ Contiene las páginas de la aplicación (`.vue`) que Nuxt enruta automáticament
 
 - `index.vue`: landing con cards y secciones informativas.
 - `login.vue`: formulario de autenticación basado en `UAuthForm` + `zod`.
+- `boveda/index.vue`: dashboard con `UDashboardGroup` y sidebar responsive.
 
 ## Diagrama de navegación
 
 ```mermaid
 flowchart TD
   R[/\/] --> L[/login/]
+  L --> B[/boveda/]
 ```
 
 ## Dependencias específicas
@@ -49,6 +51,8 @@ flowchart TD
 - Evitar duplicación de lógica entre páginas; extrae componentes cuando sea necesario.
 - Mantener contrastes altos para modo oscuro (`bg-neutral-950`, `text-white`).
 - Usar slots de `UAuthForm` para enlaces y mensajes (e.g., `#password-hint`, `#footer`).
+- La ruta `/boveda` oculta el header del layout `default.vue`.
+- El sidebar en `/boveda` persiste colapso/apertura en `localStorage`.
 
 ## Troubleshooting
 

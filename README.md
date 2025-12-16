@@ -132,6 +132,7 @@ Rutas de ejemplo:
 
 - Landing: `/` (`app/pages/index.vue`).
 - Inicio de sesión: `/login` (`app/pages/login.vue`).
+- Bóveda: `/boveda` (`app/pages/boveda/index.vue`).
 
 Formulario de autenticación (extracto):
 
@@ -182,15 +183,18 @@ Alcatraz/
 ├─ app/
 │  ├─ pages/
 │  │  ├─ index.vue
-│  │  └─ login.vue
+│  │  ├─ login.vue
+│  │  └─ boveda/index.vue
 │  ├─ components/
 │  │  ├─ AuthHeader.vue
-│  │  └─ SecurityCard.vue
+│  │  ├─ SecurityCard.vue
+│  │  └─ Footer.vue
 │  └─ assets/
 │     └─ css/main.css
 ├─ public/
 │  └─ robots.txt
 ├─ nuxt.config.ts
+├─ app/layouts/default.vue
 ├─ package.json
 ├─ tsconfig.json
 └─ README.md
@@ -204,10 +208,15 @@ flowchart TD
   A --> C[app/assets/css]
   B --> D[index.vue]
   B --> E[login.vue]
+  B --> V[boveda/index.vue]
+  L[app/layouts/default.vue] --> D
+  L --> E
+  L --> V
   E --> F[UAuthForm + zod]
   D --> G[Landing + componentes]
   G --> H[AuthHeader]
   G --> I[SecurityCard]
+  L --> J[Footer]
 
 ```
 
@@ -216,7 +225,21 @@ flowchart TD
 - Usa `NuxtLink` para navegación interna; reserva `<a>` para enlaces externos.
 - Prefiere tokens de `@nuxt/ui` (`bg-background`, `text-foreground`) en vez de overrides globales del `body`.
 - Mantén componentes en `app/components` y páginas en `app/pages`.
-- Evita añadir `vue-router`: Nuxt provee routing automáticamente.
+- No necesitas añadir manualmente `vue-router`: Nuxt provee routing automáticamente.
+- La cabecera global se oculta en rutas que empiezan por `/boveda` desde `app/layouts/default.vue`.
+
+## Bóveda (Dashboard)
+
+- Ruta: `/boveda`.
+- Usa `UDashboardGroup`, `UDashboardSidebar`, `UDashboardPanel` de `@nuxt/ui`.
+- Comportamiento responsive:
+  - En escritorio (≥ 1024px) el sidebar se renderiza siempre y puede colapsarse.
+  - En móvil (< 1024px) el sidebar se abre/cierra como overlay desde el botón del navbar.
+- Persistencia:
+  - El estado de colapso se guarda en `localStorage`.
+  - El estado de apertura en móvil también se guarda para mantener la preferencia en recargas.
+- Accesibilidad:
+  - Botones con `aria-label` dinámico y elementos ocultos con `sr-only` para lectores de pantalla.
 
 ## Checklist rápida
 
@@ -224,6 +247,7 @@ flowchart TD
 - Dependencias instaladas con `pnpm install`.
 - `nuxt.config.ts` incluye `css: ["~/app/assets/css/main.css"]`.
 - Rutas funcionales: `/` y `/login`.
+- Verifica `/boveda` para probar el dashboard y su barra lateral responsive.
 - Validación `zod` coherente con los nombres de campos del formulario.
 
 ## Problemas conocidos y recomendaciones

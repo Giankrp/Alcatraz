@@ -68,38 +68,89 @@ const filteredItems = computed(() => {
   }
   return items.filter(i => !i.trashed)
 })
-const open = ref(true)
+const open = ref(false)
 const collapsed = ref(false)
-const sidebarAnim = ref('')
+const isDesktop = ref(false)
+
+const toggleIcon = computed(() => {
+  if (isDesktop.value) return collapsed.value ? 'i-heroicons-chevron-double-right' : 'i-heroicons-chevron-double-left'
+  return open.value ? 'i-heroicons-x-mark' : 'i-heroicons-bars-3'
+})
+
+const toggleLabel = computed(() => {
+  if (isDesktop.value) return collapsed.value ? 'Expandir barra lateral' : 'Colapsar barra lateral'
+  return open.value ? 'Ocultar barra lateral' : 'Mostrar barra lateral'
+})
+
+function toggleSidebar() {
+  if (isDesktop.value) {
+    collapsed.value = !collapsed.value
+    return
+  }
+  open.value = !open.value
+}
+
+const STORAGE_OPEN_KEY = 'alcatraz:vault-sidebar-open'
+const STORAGE_COLLAPSED_KEY = 'alcatraz:vault-sidebar-collapsed'
+
+function readStoredBool(key: string, fallback: boolean) {
+  if (typeof window === 'undefined') return fallback
+  const raw = window.localStorage.getItem(key)
+  if (raw === null) return fallback
+  return raw === 'true'
+}
+
+function writeStoredBool(key: string, value: boolean) {
+  if (typeof window === 'undefined') return
+  window.localStorage.setItem(key, String(value))
+}
+
+let mediaQuery: MediaQueryList | null = null
+let onMediaChange: ((e: MediaQueryListEvent) => void) | null = null
+
 onMounted(() => {
-  const raw = typeof window !== 'undefined' ? window.localStorage.getItem('alcatraz:sidebar-open') : null
-  if (raw !== null) {
-    open.value = raw === 'true'
+  if (typeof window === 'undefined') return
+
+  mediaQuery = window.matchMedia('(min-width: 1024px)')
+  const applyDesktop = (matches: boolean) => {
+    isDesktop.value = matches
+    if (matches) {
+      open.value = false
+      return
+    }
+    open.value = readStoredBool(STORAGE_OPEN_KEY, false)
   }
-  const rawCollapsed = typeof window !== 'undefined' ? window.localStorage.getItem('alcatraz:sidebar-collapsed') : null
-  if (rawCollapsed !== null) {
-    collapsed.value = rawCollapsed === 'true'
+
+  applyDesktop(mediaQuery.matches)
+
+  collapsed.value = readStoredBool(STORAGE_COLLAPSED_KEY, false)
+
+  onMediaChange = (e) => applyDesktop(e.matches)
+  if (mediaQuery.addEventListener) {
+    mediaQuery.addEventListener('change', onMediaChange)
+  }
+  else if (mediaQuery.addListener) {
+    mediaQuery.addListener(onMediaChange)
   }
 })
 
-watch(open, v => {
-  sidebarAnim.value = v ? 'opening' : 'closing'
-  setTimeout(() => {
-    sidebarAnim.value = ''
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem('alcatraz:sidebar-open', String(v))
-    }
-  }, 300)
+onBeforeUnmount(() => {
+  if (!mediaQuery || !onMediaChange) return
+  if (mediaQuery.removeEventListener) {
+    mediaQuery.removeEventListener('change', onMediaChange)
+  }
+  else if (mediaQuery.removeListener) {
+    mediaQuery.removeListener(onMediaChange)
+  }
 })
 
-watch(collapsed, v => {
-  sidebarAnim.value = v ? 'closing' : 'opening'
-  setTimeout(() => {
-    sidebarAnim.value = ''
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem('alcatraz:sidebar-collapsed', String(v))
-    }
-  }, 300)
+watch(open, (v) => {
+  if (isDesktop.value) return
+  writeStoredBool(STORAGE_OPEN_KEY, v)
+})
+
+watch(collapsed, (v) => {
+  writeStoredBool(STORAGE_COLLAPSED_KEY, v)
 })
 const menuItems = computed<NavigationMenuItem[][]>(() => [
   [
@@ -122,35 +173,37 @@ const menuItems = computed<NavigationMenuItem[][]>(() => [
 <template>
   <div class="min-h-screen vault-bg text-white">
     <UDashboardGroup unit="rem">
-      <Transition name="sidebar-slide" appear>
-        <div :class="['animated-sidebar', sidebarAnim]">
       <UDashboardSidebar
-        v-show="open"
         v-model:open="open"
         v-model:collapsed="collapsed"
-        resizable
-        collapsible
+        :resizable="isDesktop"
+        :collapsible="isDesktop"
         :collapsed-size="4"
         class="bg-black/70 backdrop-blur-md border border-white/10"
       >
-        <template #header="{ collapsed }">
-          <div class="relative flex items-center w-full" :class="collapsed ? 'justify-center' : 'justify-between px-2'">
-            <div v-if="!collapsed" class="flex items-center gap-3 min-w-0 pr-12">
+        <template #header="{ collapsed: isCollapsed, collapse }">
+          <div class="relative flex items-center w-full" :class="isCollapsed ? 'justify-center' : 'justify-between px-2'">
+            <div v-if="!isCollapsed" class="flex items-center gap-3 min-w-0 pr-12">
               <div class="size-8 rounded-xl bg-black text-white grid place-items-center border border-white/10 shrink-0">
                 <UIcon name="i-heroicons-lock-closed" class="size-5" />
               </div>
               <span class="font-semibold text-sm tracking-tight truncate">Alcatraz</span>
             </div>
             
-            <UDashboardSidebarCollapse 
-              class="collapse-btn" 
-              :class="collapsed ? 'relative' : 'absolute right-2 top-1/2 -translate-y-1/2'"
-              size="xl" 
-              square 
-              variant="ghost" 
-              :aria-expanded="!collapsed" 
-              aria-label="Alternar barra lateral" 
-            />
+            <UButton
+              v-if="isDesktop"
+              class="collapse-btn"
+              :class="isCollapsed ? 'relative' : 'absolute right-2 top-1/2 -translate-y-1/2'"
+              variant="ghost"
+              color="neutral"
+              size="sm"
+              :aria-expanded="!isCollapsed"
+              :aria-label="isCollapsed ? 'Expandir barra lateral' : 'Colapsar barra lateral'"
+              @click="collapse?.(!isCollapsed)"
+            >
+              <span class="sr-only">{{ isCollapsed ? 'Expandir barra lateral' : 'Colapsar barra lateral' }}</span>
+              <UIcon :name="isCollapsed ? 'i-heroicons-chevron-double-right' : 'i-heroicons-chevron-double-left'" class="size-6" />
+            </UButton>
           </div>
         </template>
 
@@ -162,8 +215,6 @@ const menuItems = computed<NavigationMenuItem[][]>(() => [
           :items="menuItems"
         />
       </UDashboardSidebar>
-      </div>
-      </Transition>
 
       <UDashboardPanel>
         <template #header>
@@ -174,11 +225,11 @@ const menuItems = computed<NavigationMenuItem[][]>(() => [
                 color="neutral"
                 size="sm"
                 class="btn btn-icon btn-muted sidebar-toggle"
-                @click="open = !open"
-                aria-label="Mostrar/ocultar barra lateral"
+                @click="toggleSidebar"
+                :aria-label="toggleLabel"
               >
-                <span class="sr-only">Alternar barra lateral</span>
-                <UIcon :name="open ? 'i-heroicons-x-mark' : 'i-heroicons-bars-3'" class="size-6" />
+                <span class="sr-only">{{ toggleLabel }}</span>
+                <UIcon :name="toggleIcon" class="size-6" />
               </UButton>
             </template>
             <template #trailing>
@@ -192,7 +243,7 @@ const menuItems = computed<NavigationMenuItem[][]>(() => [
 
         <div class="p-4 md:p-8 pb-24 overflow-y-auto" style="scrollbar-gutter: stable;">
           <div class="card-grid">
-            <UCard v-for="i in filteredItems" :key="i.id" class="bg-black">
+            <UCard v-for="i in filteredItems" :key="i.id" class="card-surface">
               <template #header>
                 <div class="flex items-center gap-3">
                   <div class="icon-pill">

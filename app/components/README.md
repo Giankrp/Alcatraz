@@ -11,6 +11,7 @@ Componentes reutilizables de UI para la aplicación.
 
 - `AuthHeader.vue`: encabezado accesible para vistas de autenticación.
 - `SecurityCard.vue`: tarjeta informativa usada en la landing.
+- `Footer.vue`: pie de página con enlaces y branding.
 
 ## Dependencias específicas
 
@@ -46,6 +47,7 @@ Componentes reutilizables de UI para la aplicación.
 
 - Mantener props claras y tipadas; no mezclar lógica de negocio.
 - Revisar accesibilidad (roles, `aria-*`, foco visible).
+- El `Footer` se oculta en rutas bajo `/boveda` mediante el layout `default.vue`.
 
 ## Troubleshooting
 
