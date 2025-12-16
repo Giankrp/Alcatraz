@@ -198,7 +198,7 @@ useHead({
         </p>
 
         <div class="mt-8 flex justify-center gap-4">
-          <UButton to="/registro" color="neutral" variant="solid" icon="i-heroicons-arrow-right-16-solid" class="btn btn-lg">
+          <UButton to="/login" color="neutral" variant="solid" icon="i-heroicons-arrow-right-16-solid" class="btn btn-lg">
             Comenzar Gratis
           </UButton>
           <UButton to="/contacto" color="neutral" variant="outline" class="btn btn-lg btn-ghost">Hablar con Ventas</UButton>
