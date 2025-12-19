@@ -171,6 +171,7 @@ const menuItems = computed<NavigationMenuItem[][]>(() => [
 </script>
 
 <template>
+ 
   <div class="min-h-screen vault-bg text-white">
     <UDashboardGroup unit="rem">
       <UDashboardSidebar
@@ -187,7 +188,7 @@ const menuItems = computed<NavigationMenuItem[][]>(() => [
               <div class="size-8 rounded-xl bg-black text-white grid place-items-center border border-white/10 shrink-0">
                 <UIcon name="i-heroicons-lock-closed" class="size-5" />
               </div>
-              <span class="font-semibold text-sm tracking-tight truncate">Alcatraz</span>
+              <ULink to="/" class="font-semibold text-sm tracking-tight truncate">Alcatraz</ULink>
             </div>
             
             <UButton

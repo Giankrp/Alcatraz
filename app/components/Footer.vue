@@ -24,7 +24,7 @@
         <ul class="mt-3 space-y-2 text-sm opacity-90">
           <li><ULink to="#caracteristicas">Características</ULink></li>
           <li><ULink to="#seguridad">Seguridad</ULink></li>
-          <li><ULink to="#precios">Precios</ULink></li>
+          <li><ULink to="/pricing">Precios</ULink></li>
           <li><ULink to="/descargas">Descargas</ULink></li>
         </ul>
       </div>
