@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui'
+import type { VaultItem } from '~/types/vault'
+
 useHead({
   title: 'Tu Bóveda',
   meta: [
@@ -7,16 +9,7 @@ useHead({
   ]
 })
 
-const items = [
-  { id: 1, title: 'GitHub', username: 'user@example.com', url: 'https://github.com', icon: 'i-heroicons-code-bracket', type: 'password', folder: 'work', trashed: false },
-  { id: 2, title: 'Gmail', username: 'user@example.com', url: 'https://mail.google.com', icon: 'i-heroicons-envelope', type: 'password', folder: 'personal', trashed: false },
-  { id: 3, title: 'Banco', username: 'user@bank.com', url: 'https://bank.example', icon: 'i-heroicons-shield-check', type: 'password', folder: 'personal', trashed: false },
-  { id: 4, title: 'Visa', username: '**** **** **** 1234', url: 'https://visa.example', icon: 'i-heroicons-credit-card', type: 'card', folder: 'personal', trashed: false },
-  { id: 5, title: 'Nota Segura', username: 'Nota confidencial', url: '#', icon: 'i-heroicons-document-text', type: 'note', folder: 'work', trashed: false },
-  { id: 6, title: 'DNI PDF', username: 'Documento', url: '#', icon: 'i-heroicons-document', type: 'document', folder: 'personal', trashed: false },
-  { id: 7, title: 'Perfil Personal', username: 'Juan Pérez', url: '#', icon: 'i-heroicons-user-circle', type: 'identity', folder: 'personal', trashed: false },
-  { id: 8, title: 'Antiguo Twitter', username: '@olduser', url: 'https://twitter.com', icon: 'i-heroicons-hashtag', type: 'password', folder: 'personal', trashed: true }
-]
+const { items, searchQuery } = useVault()
 
 const navigation = [
   {
@@ -56,18 +49,45 @@ const selectedLabel = computed(() => {
 
 const filteredItems = computed(() => {
   const s = selected.value
-  if (s === 'all') return items.filter(i => !i.trashed)
-  if (s === 'trash') return items.filter(i => i.trashed)
-  if (s === 'cards') return items.filter(i => i.type === 'card' && !i.trashed)
-  if (s === 'notes') return items.filter(i => i.type === 'note' && !i.trashed)
-  if (s === 'documents') return items.filter(i => i.type === 'document' && !i.trashed)
-  if (s === 'identities') return items.filter(i => i.type === 'identity' && !i.trashed)
-  if (s.startsWith('folders/')) {
-    const folder = s.split('/')[1]
-    return items.filter(i => i.folder === folder && !i.trashed)
+  let result = items.value
+
+  // 1. Filter by category/folder
+  if (s === 'trash') {
+    result = result.filter(i => i.trashed)
+  } else {
+    result = result.filter(i => !i.trashed) // Base filter for non-trash
+    
+    if (s === 'cards') result = result.filter(i => i.type === 'card')
+    else if (s === 'notes') result = result.filter(i => i.type === 'note')
+    else if (s === 'identities') result = result.filter(i => i.type === 'identity')
+    else if (s.startsWith('folders/')) {
+      const folder = s.split('/')[1]
+      result = result.filter(i => i.folder === folder)
+    }
   }
-  return items.filter(i => !i.trashed)
+
+  // 2. Filter by search query
+  if (searchQuery.value) {
+    const q = searchQuery.value.toLowerCase()
+    result = result.filter(i => 
+      i.title.toLowerCase().includes(q) || 
+      (i.type === 'password' && i.username.toLowerCase().includes(q)) ||
+      (i.type === 'identity' && (i.firstName.toLowerCase().includes(q) || i.lastName.toLowerCase().includes(q))) ||
+      (i.type === 'card' && i.holder.toLowerCase().includes(q))
+    )
+  }
+
+  return result
 })
+
+function getSubtitle(item: VaultItem) {
+  if (item.type === 'password') return item.username
+  if (item.type === 'card') return item.number
+  if (item.type === 'identity') return item.email
+  if (item.type === 'note') return 'Nota segura'
+  return '...'
+}
+
 const open = ref(false)
 const collapsed = ref(false)
 const isDesktop = ref(false)
@@ -160,7 +180,6 @@ const menuItems = computed<NavigationMenuItem[][]>(() => [
   [
     { label: 'Tarjetas de crédito', icon: 'i-heroicons-credit-card', active: selected.value === 'cards', onSelect: () => { selected.value = 'cards' } },
     { label: 'Notas seguras', icon: 'i-heroicons-document-text', active: selected.value === 'notes', onSelect: () => { selected.value = 'notes' } },
-    { label: 'Documentos', icon: 'i-heroicons-document', active: selected.value === 'documents', onSelect: () => { selected.value = 'documents' } },
     { label: 'Datos personales', icon: 'i-heroicons-user-circle', active: selected.value === 'identities', onSelect: () => { selected.value = 'identities' } }
   ],
   [
@@ -171,8 +190,7 @@ const menuItems = computed<NavigationMenuItem[][]>(() => [
 </script>
 
 <template>
- 
-  <div class="min-h-screen vault-bg text-white">
+  <div class="min-h-screen vault-bg text-white font-sans selection:bg-primary-500/30">
     <UDashboardGroup unit="rem">
       <UDashboardSidebar
         v-model:open="open"
@@ -180,21 +198,25 @@ const menuItems = computed<NavigationMenuItem[][]>(() => [
         :resizable="isDesktop"
         :collapsible="isDesktop"
         :collapsed-size="4"
-        class="bg-black/70 backdrop-blur-md border border-white/10"
+        class="sidebar-glass border-r border-white/5"
+        :ui="{ content: 'bg-transparent' }"
       >
         <template #header="{ collapsed: isCollapsed, collapse }">
-          <div class="relative flex items-center w-full" :class="isCollapsed ? 'justify-center' : 'justify-between px-2'">
-            <div v-if="!isCollapsed" class="flex items-center gap-3 min-w-0 pr-12">
-              <div class="size-8 rounded-xl bg-black text-white grid place-items-center border border-white/10 shrink-0">
-                <UIcon name="i-heroicons-lock-closed" class="size-5" />
+          <div class="relative flex items-center w-full py-4" :class="isCollapsed ? 'justify-center' : 'justify-between px-4'">
+            <div v-if="!isCollapsed" class="flex items-center gap-3 min-w-0 pr-2">
+              <div class="size-10 rounded-2xl  from-gray-900 to-black text-white grid place-items-center border border-white/10 shadow-lg shrink-0">
+                <UIcon name="i-heroicons-lock-closed" class="size-6 text-primary-400" />
               </div>
-              <ULink to="/" class="font-semibold text-sm tracking-tight truncate">Alcatraz</ULink>
+              <div class="flex flex-col">
+                <span class="font-bold text-base tracking-tight leading-none">Alcatraz</span>
+                <span class="text-[10px] text-gray-500 uppercase tracking-wider font-medium mt-1">Bóveda Segura</span>
+              </div>
             </div>
             
             <UButton
               v-if="isDesktop"
-              class="collapse-btn"
-              :class="isCollapsed ? 'relative' : 'absolute right-2 top-1/2 -translate-y-1/2'"
+              class="collapse-btn hover:bg-white/5 transition-colors"
+              :class="isCollapsed ? 'relative' : ''"
               variant="ghost"
               color="neutral"
               size="sm"
@@ -203,7 +225,7 @@ const menuItems = computed<NavigationMenuItem[][]>(() => [
               @click="collapse?.(!isCollapsed)"
             >
               <span class="sr-only">{{ isCollapsed ? 'Expandir barra lateral' : 'Colapsar barra lateral' }}</span>
-              <UIcon :name="isCollapsed ? 'i-heroicons-chevron-double-right' : 'i-heroicons-chevron-double-left'" class="size-6" />
+              <UIcon :name="isCollapsed ? 'i-heroicons-chevron-double-right' : 'i-heroicons-chevron-double-left'" class="size-5 text-gray-400" />
             </UButton>
           </div>
         </template>
@@ -214,189 +236,149 @@ const menuItems = computed<NavigationMenuItem[][]>(() => [
           :collapsed="collapsed"
           highlight
           :items="menuItems"
+          class="px-2"
+          :ui="{
+            viewportWrapper: 'space-y-2'
+          }"
         />
       </UDashboardSidebar>
 
       <UDashboardPanel>
         <template #header>
-          <UDashboardNavbar :title="selectedLabel">
+          <UDashboardNavbar :title="selectedLabel" class="bg-transparent! border-b! border-white/5! backdrop-blur-sm z-50">
             <template #leading>
-              <UButton
-                variant="ghost"
-                color="neutral"
-                size="sm"
-                class="btn btn-icon btn-muted sidebar-toggle"
-                @click="toggleSidebar"
-                :aria-label="toggleLabel"
-              >
-                <span class="sr-only">{{ toggleLabel }}</span>
-                <UIcon :name="toggleIcon" class="size-6" />
-              </UButton>
-            </template>
-            <template #trailing>
-              <div class="flex items-center gap-2">
-                <UButton variant="solid" class="btn btn-sm" icon="i-heroicons-plus">Nuevo</UButton>
-                <UButton variant="ghost" class="btn btn-sm btn-ghost" icon="i-heroicons-magnifying-glass">Buscar</UButton>
-              </div>
+              <UDashboardSidebarToggle />
             </template>
           </UDashboardNavbar>
         </template>
+        <div class="p-4 md:p-8 pb-24 overflow-y-auto min-h-full" style="scrollbar-gutter: stable;">
+          <!-- Toolbar -->
+          <div class="flex flex-col sm:flex-row gap-4 mb-6 justify-between items-start sm:items-center sticky top-0 z-40 py-2 -mt-2">
+             <!-- Search Input -->
+             <UInput
+               v-model="searchQuery"
+               icon="i-heroicons-magnifying-glass"
+               variant="outline"
+               placeholder="Buscar en la bóveda..."
+               class="w-full sm:w-72  backdrop-blur-md"
+               :ui="{ trailingIcon:'',base:'bg-black' }"
+               autocomplete="off"
+             />
 
-        <div class="p-4 md:p-8 pb-24 overflow-y-auto" style="scrollbar-gutter: stable;">
-          <div class="card-grid">
-            <UCard v-for="i in filteredItems" :key="i.id" class="card-surface">
-              <template #header>
-                <div class="flex items-center gap-3">
-                  <div class="icon-pill">
-                    <UIcon :name="i.icon" class="size-6" />
+             <!-- Create Button -->
+             <UButton 
+               to="/boveda/new"
+               icon="i-heroicons-plus"
+              
+               variant="solid"
+               class="w-full sm:w-auto border border-white/10"
+               size="md"
+               :ui="{ base:'bg-white/5 text-white hover:bg-white/10 transition-colors' }"
+             >
+               Nuevo Elemento
+             </UButton>
+          </div>
+
+          <div class="card-grid relative">
+            <TransitionGroup 
+              appear
+              enter-active-class="transition-all duration-300 ease-out"
+              enter-from-class="opacity-0 translate-y-4 scale-95"
+              enter-to-class="opacity-100 translate-y-0 scale-100"
+              leave-active-class="transition-all duration-200 ease-in absolute w-full"
+              leave-from-class="opacity-100 scale-100"
+              leave-to-class="opacity-0 scale-95"
+              move-class="transition-all duration-300 ease-in-out"
+            >
+              <div 
+                v-for="i in filteredItems" 
+                :key="i.id" 
+                class="group relative flex flex-col p-5 rounded-3xl card-glass transition-all duration-300 hover:-translate-y-1"
+              >
+                <!-- Card Header -->
+                <div class="flex justify-between items-start mb-5">
+                  <div class="relative">
+                    <div class="absolute inset-0 bg-primary-500/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="relative size-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-white/10 group-hover:border-white/20 transition-all duration-300">
+                      <UIcon :name="i.icon" class="size-6 text-gray-300 group-hover:text-white transition-colors" />
+                    </div>
                   </div>
-                  <div class="flex items-center gap-2">
-                    <div class="text-base sm:text-lg font-semibold">{{ i.title }}</div>
-                    <span class="badge">{{ i.type }}</span>
+                  <div class="px-3 py-1 rounded-full bg-white/5 border border-white/5 text-[10px] uppercase tracking-wider font-semibold text-gray-400">
+                    {{ i.type }}
                   </div>
                 </div>
-              </template>
-              <div class="space-y-2 text-sm opacity-85">
-                <div class="flex items-center gap-2">
-                  <UIcon name="i-heroicons-user" class="size-4 text-white/60" />
-                  {{ i.username }}
+
+                <!-- Card Content -->
+                <div class="mb-6">
+                  <h3 class="text-lg font-semibold text-white mb-1 group-hover:text-primary-200 transition-colors">{{ i.title }}</h3>
+                  <div class="flex items-center gap-2 text-sm text-gray-500 group-hover:text-gray-400 transition-colors">
+                    <UIcon name="i-heroicons-user" class="size-3.5" />
+                    <span class="truncate">{{ getSubtitle(i) }}</span>
+                  </div>
                 </div>
-                <div class="flex items-center gap-2">
-                  <UIcon name="i-heroicons-link" class="size-4 text-white/60" />
-                  <ULink :to="i.url" target="_blank" class="text-white/80 hover:text-white underline underline-offset-4 transition-colors">{{ i.url }}</ULink>
+
+                <!-- Card Actions -->
+                <div class="mt-auto flex items-center gap-2 pt-4 border-t border-white/5">
+                  <button class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white transition-all border border-transparent hover:border-white/10">
+                    <UIcon name="i-heroicons-clipboard-document" class="size-3.5" />
+                    Copiar
+                  </button>
+                  <button class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-transparent hover:bg-white/5 text-gray-400 hover:text-white transition-all">
+                    <UIcon name="i-heroicons-pencil-square" class="size-3.5" />
+                    Editar
+                  </button>
+                  <div class="flex-1"></div>
+                  <button class="p-1.5 rounded-lg text-gray-500 hover:text-yellow-400 hover:bg-white/5 transition-colors">
+                    <UIcon name="i-heroicons-star" class="size-4" />
+                  </button>
                 </div>
               </div>
-
-              <div class="mt-4 flex gap-2 pt-4 border-t border-white/5">
-                <UButton size="xs" variant="solid" class="btn btn-xs" icon="i-heroicons-clipboard-document">Copiar</UButton>
-                <UButton size="xs" variant="ghost" class="btn btn-xs btn-ghost" icon="i-heroicons-pencil-square">Editar</UButton>
-                <div class="flex-1"></div>
-                <UButton size="xs" variant="ghost" class="btn btn-xs btn-muted" icon="i-heroicons-star"></UButton>
-              </div>
-            </UCard>
+            </TransitionGroup>
           </div>
         </div>
+       
+       
       </UDashboardPanel>
     </UDashboardGroup>
+  
   </div>
 </template>
 
 <style scoped>
 .vault-bg {
-  background:
-    radial-gradient(900px 500px at 10% 10%, rgba(255,255,255,0.06), rgba(255,255,255,0)),
-    radial-gradient(700px 380px at 80% 20%, rgba(255,255,255,0.05), rgba(255,255,255,0)),
-    linear-gradient(180deg, #0b0b0d, #121217 60%, #0b0b0d);
+  background-color: #020202;
+  background-image: 
+    radial-gradient(circle at 0% 0%, rgba(30, 41, 59, 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 100% 0%, rgba(15, 23, 42, 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 50% 100%, rgba(30, 41, 59, 0.2) 0%, transparent 50%);
 }
 
-@keyframes slideIn {
-  0% { transform: translate3d(-100px, 0, 0); opacity: 0; }
-  100% { transform: translate3d(0, 0, 0); opacity: 1; }
-}
-@keyframes slideOut {
-  0% { transform: translate3d(0, 0, 0); opacity: 1; }
-  100% { transform: translate3d(-100px, 0, 0); opacity: 0; }
-}
-
-/* micro-interacciones generales */
-.provider-glass { /* mantener compatibilidad con clases existentes */
-  background: rgba(0,0,0,0.8);
-  border: 1px solid rgba(255,255,255,0.18);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+.sidebar-glass {
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(20px);
 }
 
 .card-grid {
   display: grid;
   grid-template-columns: repeat(1, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 1.25rem;
 }
-@media (min-width: 640px) { .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; } }
-@media (min-width: 768px) { .card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; } }
-@media (min-width: 1024px) { .card-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.75rem; } }
+@media (min-width: 640px) { .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1024px) { .card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; } }
 @media (min-width: 1280px) { .card-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.75rem; } }
 
-.card-surface {
-  position: relative;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255,255,255,0.08);
-  transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
-  will-change: transform;
-  border-radius: 16px;
-}
-.card-surface:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(0,0,0,0.4); background: rgba(255,255,255,0.08); }
-
-.icon-pill {
-  width: 40px;
-  height: 40px;
-  display: grid;
-  place-items: center;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.12);
+.card-glass {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.2), 0 8px 20px rgba(0,0,0,0.4);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 8px;
-  font-size: 12px;
-  line-height: 1;
-  color: #fff;
-  background: rgba(255,255,255,0.12);
-  border: 1px solid rgba(255,255,255,0.14);
-  border-radius: 9999px;
-}
-
-.btn-primary {
-  background: #000;
-  color: #fff;
-  border: 1px solid rgba(255,255,255,0.2);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.35);
-  transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
-}
-.btn-primary:hover { background: rgba(0,0,0,0.9); }
-.btn-primary:active { transform: translateY(1px); }
-
-.btn-ghost {
-  color: rgba(255,255,255,0.75);
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.16);
-  transition: transform .2s ease, color .2s ease, background .2s ease;
-}
-.btn-ghost:hover { color: #fff; background: rgba(255,255,255,0.08); }
-.btn-ghost:active { transform: translateY(1px); }
-.animated-sidebar {
-  transition: transform .3s ease-in-out, opacity .3s ease-in-out;
-}
-.animated-sidebar.opening { animation: slideIn .3s ease-in-out both; }
-.animated-sidebar.closing { animation: slideOut .3s ease-in-out both; }
-
-.sidebar-slide-enter-active,
-.sidebar-slide-leave-active { transition: transform .3s ease-in-out, opacity .3s ease-in-out; }
-.sidebar-slide-enter-from { transform: translate3d(-100px, 0, 0); opacity: 0; }
-.sidebar-slide-enter-to { transform: translate3d(0, 0, 0); opacity: 1; }
-.sidebar-slide-leave-from { transform: translate3d(0, 0, 0); opacity: 1; }
-.sidebar-slide-leave-to { transform: translate3d(-100px, 0, 0); opacity: 0; }
-
-.sidebar-toggle {
-  padding: 0;
-  width: 48px;
-  height: 48px;
-  display: grid;
-  place-items: center;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.14);
-}
-.collapse-btn {
-  width: 48px;
-  height: 48px;
-  display: grid;
-  place-items: center;
-  border-radius: 12px;
-}
-.collapse-btn :deep(svg) {
-  width: 24px;
-  height: 24px;
+.card-glass:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.05), 0 20px 40px rgba(0,0,0,0.6);
 }
 </style>

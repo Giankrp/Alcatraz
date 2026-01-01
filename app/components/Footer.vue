@@ -4,9 +4,9 @@
 
 <template>
   <footer class="border-t border-white/20 bg-black text-white">
-    <UContainer class="py-14 grid gap-12 md:grid-cols-4">
+    <UContainer class="py-8 md:py-14 grid gap-8 md:gap-12 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
       <!-- Brand -->
-      <div>
+      <div class="sm:col-span-2 md:col-span-1">
         <div class="flex items-center gap-3">
           <div class="size-8 rounded-full bg-black grid place-items-center text-white">
             <UIcon name="i-heroicons-lock-closed" class="size-5" />

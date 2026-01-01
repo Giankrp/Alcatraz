@@ -72,10 +72,10 @@ useHead({
 
     <!-- Características completas -->
     <UContainer id="caracteristicas" class="pt-8 pb-24">
-      <h2 class="text-center text-4xl md:text-5xl font-extrabold">Todo lo que necesitas para estar seguro</h2>
-      <p class="mt-4 text-center opacity-70">Funciones diseñadas para proteger tu información más valiosa</p>
+      <h2 class="text-center text-3xl sm:text-4xl md:text-5xl font-extrabold">Todo lo que necesitas para estar seguro</h2>
+      <p class="mt-4 text-center opacity-70 px-4">Funciones diseñadas para proteger tu información más valiosa</p>
 
-      <div class="mt-10 grid gap-6 md:grid-cols-3">
+      <div class="mt-10 grid gap-6 sm:grid-cols-2 md:grid-cols-3">
         <!-- Usa SecurityCard con UCard internamente -->
         <SecurityCard
           title="Gestor de Contraseñas"
