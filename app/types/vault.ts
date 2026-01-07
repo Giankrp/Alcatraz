@@ -35,6 +35,8 @@ export interface IdentityItem extends BaseVaultItem {
   email: string;
   phone: string;
   address: string;
+  licenseNumber?: string;
+  passportNumber?: string;
 }
 
 export type VaultItem = PasswordItem | NoteItem | CardItem | IdentityItem;

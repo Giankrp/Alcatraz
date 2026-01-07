@@ -1,6 +1,9 @@
 <script setup lang="ts">
 const emit = defineEmits(['select'])
 
+const isEditing = ref(false)
+const router = useRouter()
+
 const types = [
   { id: 'password', label: 'Contraseña', icon: 'i-heroicons-key', color: 'text-primary-400', desc: 'Guardar credenciales de inicio de sesión' },
   { id: 'note', label: 'Nota Segura', icon: 'i-heroicons-document-text', color: 'text-yellow-400', desc: 'Información sensible cifrada' },
@@ -10,7 +13,19 @@ const types = [
 </script>
 
 <template>
+  
   <div class="space-y-4">
+      <div class="flex justify-between items-center">
+      <UButton
+        icon="i-heroicons-arrow-left"
+        color="neutral"
+        variant="ghost"
+        @click="isEditing ? (isEditing = false) : router.push('/boveda')"
+        class="hover:bg-white/10"
+      >
+        {{ isEditing ? 'Cancelar Edición' : 'Volver a la Bóveda' }}
+      </UButton>
+    </div>
     <div class="text-center mb-6">
       <h3 class="text-xl font-bold text-white mb-2">¿Qué deseas guardar?</h3>
       <p class="text-gray-400 text-sm">Selecciona el tipo de elemento que quieres añadir a tu bóveda.</p>

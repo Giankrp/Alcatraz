@@ -52,12 +52,20 @@ export const useVault = () => {
     items.value = items.value.filter(i => i.id !== id)
   }
 
+  const updateItem = (id: number, updatedFields: Partial<VaultItem>) => {
+    const item = items.value.find(i => i.id === id)
+    if (item) {
+      Object.assign(item, updatedFields)
+    }
+  }
+
   return {
     items,
     searchQuery,
     addItem,
     removeItem,
     restoreItem,
-    deleteItemPermanent
+    deleteItemPermanent,
+    updateItem
   }
 }

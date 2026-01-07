@@ -4,8 +4,8 @@ import { z } from 'zod'
 import type { AuthFormField, ButtonProps, FormSubmitEvent } from '@nuxt/ui'
 
 const schema = z.object({
-  email: z.string({ required_error: 'Introduce un email' }).email('Introduce un email válido'),
-  password: z.string({ required_error: 'Ingresa tu contraseña' }).min(8, 'Mínimo 8 caracteres'),
+  email: z.email('Introduce un email válido'),
+  password: z.string().min(8, 'Mínimo 8 caracteres'),
   remember: z.boolean().optional()
 })
 

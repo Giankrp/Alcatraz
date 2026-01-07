@@ -2,6 +2,12 @@
 import type { NavigationMenuItem } from '@nuxt/ui'
 import type { VaultItem } from '~/types/vault'
 
+definePageMeta({
+  layout: 'vault'
+})
+
+const router = useRouter()
+
 useHead({
   title: 'Tu Bóveda',
   meta: [
@@ -293,12 +299,13 @@ const menuItems = computed<NavigationMenuItem[][]>(() => [
               <div 
                 v-for="i in filteredItems" 
                 :key="i.id" 
-                class="group relative flex flex-col p-5 rounded-3xl card-glass transition-all duration-300 hover:-translate-y-1"
+                class="group relative flex flex-col p-5 rounded-3xl card-glass transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+                @click="router.push(`/boveda/${i.id}`)"
               >
                 <!-- Card Header -->
                 <div class="flex justify-between items-start mb-5">
                   <div class="relative">
-                    <div class="absolute inset-0 bg-primary-500/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="absolute inset-0 bg-white/10 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     <div class="relative size-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-white/10 group-hover:border-white/20 transition-all duration-300">
                       <UIcon :name="i.icon" class="size-6 text-gray-300 group-hover:text-white transition-colors" />
                     </div>
@@ -315,22 +322,6 @@ const menuItems = computed<NavigationMenuItem[][]>(() => [
                     <UIcon name="i-heroicons-user" class="size-3.5" />
                     <span class="truncate">{{ getSubtitle(i) }}</span>
                   </div>
-                </div>
-
-                <!-- Card Actions -->
-                <div class="mt-auto flex items-center gap-2 pt-4 border-t border-white/5">
-                  <button class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white transition-all border border-transparent hover:border-white/10">
-                    <UIcon name="i-heroicons-clipboard-document" class="size-3.5" />
-                    Copiar
-                  </button>
-                  <button class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-transparent hover:bg-white/5 text-gray-400 hover:text-white transition-all">
-                    <UIcon name="i-heroicons-pencil-square" class="size-3.5" />
-                    Editar
-                  </button>
-                  <div class="flex-1"></div>
-                  <button class="p-1.5 rounded-lg text-gray-500 hover:text-yellow-400 hover:bg-white/5 transition-colors">
-                    <UIcon name="i-heroicons-star" class="size-4" />
-                  </button>
                 </div>
               </div>
             </TransitionGroup>

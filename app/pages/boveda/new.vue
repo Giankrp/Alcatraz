@@ -52,8 +52,8 @@ function handleSave(data: any) {
   <div class="min-h-screen vault-bg text-white font-sans selection:bg-primary-500/30 flex items-center justify-center p-4">
     <div class="w-full max-w-lg bg-[#0f1115]/90 border border-white/10 rounded-2xl shadow-2xl relative overflow-hidden p-6">
       <!-- Background Effects -->
-      <div class="absolute top-0 right-0 -mt-16 -mr-16 size-64 bg-primary-500/10 rounded-full blur-3xl pointer-events-none"></div>
-      <div class="absolute bottom-0 left-0 -mb-16 -ml-16 size-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute top-0 right-0 -mt-16 -mr-16 size-64 bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute bottom-0 left-0 -mb-16 -ml-16 size-64 bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
 
       <!-- Content -->
       <div class="relative z-10">
