@@ -15,7 +15,7 @@ const router = useRouter()
 const { items, updateItem } = useVault()
 const toast = useToast()
 
-const itemId = computed(() => parseInt(route.params.id as string))
+const itemId = computed(() => route.params.id as string)
 const item = computed(() => items.value.find(i => i.id === itemId.value))
 
 const isEditing = ref(false)

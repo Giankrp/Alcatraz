@@ -1,71 +1,190 @@
-import type { VaultItem, VaultItemType } from '~/types/vault'
+import type { VaultItem, VaultItemDTO } from '~/types/vault'
 
 export const useVault = () => {
-  const items = useState<VaultItem[]>('vault-items', () => [
-    { id: 1, title: 'GitHub', username: 'user@example.com', url: 'https://github.com', icon: 'i-heroicons-code-bracket', type: 'password', folder: 'work', trashed: false },
-    { id: 2, title: 'Gmail', username: 'user@example.com', url: 'https://mail.google.com', icon: 'i-heroicons-envelope', type: 'password', folder: 'personal', trashed: false },
-    { id: 3, title: 'Banco', username: 'user@bank.com', url: 'https://bank.example', icon: 'i-heroicons-shield-check', type: 'password', folder: 'personal', trashed: false },
-    { id: 4, title: 'Visa', holder: 'Juan Perez', number: '1234 5678 9345 1234', expiry: '12/25', cvv: '123', icon: 'i-heroicons-credit-card', type: 'card', folder: 'personal', trashed: false },
-    { id: 5, title: 'Nota Segura', note: 'Nota confidencial', icon: 'i-heroicons-document-text', type: 'note', folder: 'work', trashed: false },
-    { id: 6, title: 'Perfil Personal', firstName: 'Juan', lastName: 'Pérez', email: 'juan@example.com', phone: '123456789', address: 'Calle 123', icon: 'i-heroicons-user-circle', type: 'identity', folder: 'personal', trashed: false },
-    // Mock items adjusted to match interfaces
-  ])
-
+  const { encryptData, decryptData } = useCrypto()
+  const { masterPassword } = useMasterPassword()
+  
   const searchQuery = useState<string>('vault-search', () => '')
+  const items = useState<VaultItem[]>('vault-items', () => [])
 
-  const addItem = (item: Omit<VaultItem, 'id' | 'icon' | 'trashed'>) => {
-    const newId = items.value.length > 0 ? Math.max(...items.value.map(i => i.id || 0)) + 1 : 1
-    
-    let icon = 'i-heroicons-question-mark-circle'
-    if (item.type === 'password') icon = 'i-heroicons-key'
-    if (item.type === 'note') icon = 'i-heroicons-document-text'
-    if (item.type === 'card') icon = 'i-heroicons-credit-card'
-    if (item.type === 'identity') icon = 'i-heroicons-user-circle'
-
-    // We need to cast because the input item is a union, but we are constructing a full object.
-    // In a real app, we might want a factory function per type.
-    const newItem = {
-      ...item,
-      id: newId,
-      icon,
-      trashed: false
-    } as VaultItem
-
-    items.value.unshift(newItem)
+  // Helper para separar datos sensibles de metadatos
+  const extractSensitiveData = (item: Partial<VaultItem>) => {
+    const { id, title, folder, trashed, icon, type, ...sensitive } = item
+    return sensitive
   }
 
-  const removeItem = (id: number) => {
-    const item = items.value.find(i => i.id === id)
-    if (item) {
-      item.trashed = true
+  const fetchItems = async () => {
+    if (!masterPassword.value) {
+      console.warn('Master password not set. Cannot decrypt items.')
+      return
+    }
+
+    try {
+      const dtos = await $fetch<VaultItemDTO[]>('/api/items')
+      
+      const decryptedItems: VaultItem[] = []
+      
+      for (const dto of dtos) {
+        try {
+          // Descifrar el blob
+          const sensitiveData = await decryptData(
+            { 
+              blob: dto.encrypted_data, 
+              iv: dto.iv, 
+              salt: dto.salt 
+            }, 
+            masterPassword.value
+          )
+
+          // Reconstruir el item completo para la UI
+          decryptedItems.push({
+            id: dto.id,
+            type: dto.type,
+            title: dto.title,
+            icon: dto.icon,
+            folder: dto.folder_id || 'personal', // Asumiendo folder_id string
+            trashed: dto.trashed,
+            ...sensitiveData // username, password, note, etc.
+          } as VaultItem)
+
+        } catch (err) {
+          console.error(`Failed to decrypt item ${dto.id}:`, err)
+          // Podríamos mostrar items corruptos/bloqueados en la UI en lugar de ignorarlos
+        }
+      }
+
+      items.value = decryptedItems
+    } catch (error) {
+      console.error('Error fetching vault items:', error)
     }
   }
 
-  const restoreItem = (id: number) => {
-    const item = items.value.find(i => i.id === id)
-    if (item) {
-      item.trashed = false
+  const addItem = async (item: Omit<VaultItem, 'id' | 'icon' | 'trashed'>) => {
+    if (!masterPassword.value) throw new Error('Vault locked')
+
+    try {
+      // 1. Preparar metadatos
+      let icon = 'i-heroicons-question-mark-circle'
+      if (item.type === 'password') icon = 'i-heroicons-key'
+      if (item.type === 'note') icon = 'i-heroicons-document-text'
+      if (item.type === 'card') icon = 'i-heroicons-credit-card'
+      if (item.type === 'identity') icon = 'i-heroicons-user-circle'
+
+      // 2. Cifrar datos sensibles
+      const sensitiveData = extractSensitiveData(item as VaultItem)
+      const cryptoResult = await encryptData(sensitiveData, masterPassword.value)
+
+      // 3. Crear DTO para backend
+      const payload = {
+        title: item.title,
+        type: item.type,
+        folder_id: item.folder,
+        icon: icon,
+        encrypted_data: cryptoResult.blob,
+        iv: cryptoResult.iv,
+        salt: cryptoResult.salt
+      }
+
+      // 4. Enviar
+      const responseDTO = await $fetch<VaultItemDTO>('/api/items', {
+        method: 'POST',
+        body: payload
+      })
+
+      // 5. Actualizar UI (usamos los datos que ya tenemos en memoria + ID del server)
+      const newItem: VaultItem = {
+        ...item,
+        id: responseDTO.id,
+        icon,
+        trashed: false
+      } as VaultItem
+
+      items.value.unshift(newItem)
+      return newItem
+    } catch (error) {
+      console.error('Error adding item:', error)
+      throw error
     }
   }
 
-  const deleteItemPermanent = (id: number) => {
-    items.value = items.value.filter(i => i.id !== id)
+  const updateItem = async (id: string, updatedFields: Partial<VaultItem>) => {
+    if (!masterPassword.value) throw new Error('Vault locked')
+
+    try {
+      const index = items.value.findIndex(i => i.id === id)
+      if (index === -1) return
+
+      // Fusionar cambios en memoria para obtener el estado final deseado
+      const currentItem = items.value[index]
+      const mergedItem = { ...currentItem, ...updatedFields } as VaultItem
+      
+      // Preparar payload
+      const payload: any = {}
+      
+      // Si cambiaron metadatos planos
+      if (updatedFields.title) payload.title = updatedFields.title
+      if (updatedFields.folder) payload.folder_id = updatedFields.folder
+      if (updatedFields.trashed !== undefined) payload.trashed = updatedFields.trashed
+      // Nota: type no suele cambiar
+
+      // Si cambiaron datos sensibles, hay que re-cifrar TODO el bloque sensible
+      // Detectar si hay cambios en campos sensibles es complejo, así que por seguridad
+      // re-ciframos siempre que sea una edición de contenido.
+      const sensitiveKeys = ['username', 'password', 'url', 'note', 'number', 'cvv', 'firstName', 'licenseNumber']
+      const hasSensitiveChanges = Object.keys(updatedFields).some(k => sensitiveKeys.includes(k))
+
+      if (hasSensitiveChanges || updatedFields.title) { // Si editamos, re-ciframos para rotar IV/Salt también (buena práctica)
+         const sensitiveData = extractSensitiveData(mergedItem)
+         const cryptoResult = await encryptData(sensitiveData, masterPassword.value)
+         
+         payload.encrypted_data = cryptoResult.blob
+         payload.iv = cryptoResult.iv
+         payload.salt = cryptoResult.salt
+      }
+
+      // Enviar al backend
+      await $fetch(`/api/items/${id}`, {
+        method: 'PUT',
+        body: payload
+      })
+
+      // Actualizar UI
+      if (items.value[index]) {
+        Object.assign(items.value[index], updatedFields)
+      }
+
+    } catch (error) {
+      console.error('Error updating item:', error)
+      throw error
+    }
   }
 
-  const updateItem = (id: number, updatedFields: Partial<VaultItem>) => {
-    const item = items.value.find(i => i.id === id)
-    if (item) {
-      Object.assign(item, updatedFields)
+  const removeItem = async (id: string) => {
+    await updateItem(id, { trashed: true })
+  }
+
+  const restoreItem = async (id: string) => {
+    await updateItem(id, { trashed: false })
+  }
+
+  const deleteItemPermanent = async (id: string) => {
+    try {
+      await $fetch(`/api/items/${id}`, { method: 'DELETE' })
+      items.value = items.value.filter(i => i.id !== id)
+    } catch (error) {
+      console.error('Error deleting item permanently:', error)
+      throw error
     }
   }
 
   return {
     items,
     searchQuery,
+    fetchItems,
     addItem,
+    updateItem,
     removeItem,
     restoreItem,
-    deleteItemPermanent,
-    updateItem
+    deleteItemPermanent
   }
 }
