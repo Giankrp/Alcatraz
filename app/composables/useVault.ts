@@ -5,7 +5,7 @@ export const useVault = () => {
     { id: 1, title: 'GitHub', username: 'user@example.com', url: 'https://github.com', icon: 'i-heroicons-code-bracket', type: 'password', folder: 'work', trashed: false },
     { id: 2, title: 'Gmail', username: 'user@example.com', url: 'https://mail.google.com', icon: 'i-heroicons-envelope', type: 'password', folder: 'personal', trashed: false },
     { id: 3, title: 'Banco', username: 'user@bank.com', url: 'https://bank.example', icon: 'i-heroicons-shield-check', type: 'password', folder: 'personal', trashed: false },
-    { id: 4, title: 'Visa', holder: 'Juan Perez', number: '**** **** **** 1234', expiry: '12/25', cvv: '123', icon: 'i-heroicons-credit-card', type: 'card', folder: 'personal', trashed: false },
+    { id: 4, title: 'Visa', holder: 'Juan Perez', number: '1234 5678 9345 1234', expiry: '12/25', cvv: '123', icon: 'i-heroicons-credit-card', type: 'card', folder: 'personal', trashed: false },
     { id: 5, title: 'Nota Segura', note: 'Nota confidencial', icon: 'i-heroicons-document-text', type: 'note', folder: 'work', trashed: false },
     { id: 6, title: 'Perfil Personal', firstName: 'Juan', lastName: 'Pérez', email: 'juan@example.com', phone: '123456789', address: 'Calle 123', icon: 'i-heroicons-user-circle', type: 'identity', folder: 'personal', trashed: false },
     // Mock items adjusted to match interfaces

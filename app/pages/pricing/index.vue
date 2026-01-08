@@ -1,6 +1,16 @@
 <script lang="ts" setup>
 import type { PricingPlanProps } from '@nuxt/ui'
 
+const commonUi = {
+  root: 'relative grid rounded-2xl p-8 gap-6 bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl transition-transform duration-300 hover:scale-[1.02]',
+  title: 'text-white text-2xl font-bold tracking-tight',
+  description: 'text-neutral-400 text-sm leading-relaxed mt-2',
+  price: 'text-white text-4xl font-bold tracking-tight',
+  billingCycle: 'text-neutral-500 text-sm font-medium',
+  featureIcon: 'size-5 shrink-0 text-white',
+  featureTitle: 'text-neutral-300 text-sm',
+}
+
 const plans: PricingPlanProps[] = [
   {
     title: 'Solo',
@@ -14,26 +24,16 @@ const plans: PricingPlanProps[] = [
       'Generador de contraseñas',
       'Autocompletado en sitios',
     ],
-    button: { label: 'Empezar', to: '/login', color: 'neutral', variant: 'outline', class: 'btn btn-lg' },
-    ui: {
-      root: 'relative grid rounded-xl p-6 lg:p-8 xl:p-10 gap-6 bg-black text-white border border-white/10 shadow-[0_12px_32px_rgba(0,0,0,0.35)]',
-      title: 'text-white text-2xl sm:text-3xl text-pretty font-semibold',
-      description: 'text-white/70 text-base text-pretty mt-2',
-      price: 'text-white text-3xl sm:text-4xl font-semibold',
-      discount: 'text-white/50 line-through text-xl sm:text-2xl',
-      billingPeriod: 'text-white/60 truncate text-xs font-medium',
-      billingCycle: 'text-white/60 truncate text-xs font-medium',
-      featureIcon: 'size-5 shrink-0 text-white/70',
-      featureTitle: 'text-white/70 text-sm truncate',
-      terms: 'text-xs/5 text-white/60 text-center text-balance'
-    }
+    button: { label: 'Empezar', to: '/login', color: 'neutral', variant: 'outline', size: 'lg', block: true },
+    ui: commonUi
   },
   {
     title: 'Pro',
     description: 'Para usuarios avanzados que quieren más control, auditoría y seguridad extra.',
     price: '€20',
     billingCycle: '/mes',
-    badge: { label: 'Mejor valor', color: 'neutral', variant: 'soft' },
+    badge: { label: 'Mejor valor', color: 'neutral', variant: 'solid' },
+    highlight: true,
     scale: true,
     features: [
       'Todo lo de Solo',
@@ -42,19 +42,11 @@ const plans: PricingPlanProps[] = [
       'Carpetas y etiquetas avanzadas',
       'Compartir ítems de forma segura',
     ],
-    button: { label: 'Elegir Pro', to: '/login', color: 'neutral', variant: 'solid', class: 'btn btn-lg' },
-    class: 'ring-1 ring-white/25',
+    button: { label: 'Elegir Pro', to: '/login', color: 'neutral', variant: 'solid', size: 'lg', block: true },
+    class: 'ring-2 ring-white/20 relative z-10',
     ui: {
-      root: 'relative grid rounded-xl p-6 lg:p-8 xl:p-10 gap-6 bg-black text-white border border-white/10 shadow-[0_24px_64px_rgba(0,0,0,0.55)]',
-      title: 'text-white text-2xl sm:text-3xl text-pretty font-semibold',
-      description: 'text-white/70 text-base text-pretty mt-2',
-      price: 'text-white text-3xl sm:text-4xl font-semibold',
-      discount: 'text-white/50 line-through text-xl sm:text-2xl',
-      billingPeriod: 'text-white/60 truncate text-xs font-medium',
-      billingCycle: 'text-white/60 truncate text-xs font-medium',
-      featureIcon: 'size-5 shrink-0 text-white/70',
-      featureTitle: 'text-white/70 text-sm truncate',
-      terms: 'text-xs/5 text-white/60 text-center text-balance'
+      ...commonUi,
+      root: 'relative grid rounded-2xl p-8 gap-6 bg-white/10 backdrop-blur-xl border border-white/20 shadow-[0_0_40px_rgba(255,255,255,0.1)] transition-transform duration-300 hover:scale-[1.02]',
     }
   },
   {
@@ -62,7 +54,6 @@ const plans: PricingPlanProps[] = [
     description: 'Seguridad y control empresarial: cumplimiento, gestión y soporte de alto nivel.',
     price: '€59',
     billingCycle: '/usuario/mes',
-    badge: { label: 'Exclusivo', color: 'neutral', variant: 'soft' },
     features: [
       'Todo lo de Pro',
       'SSO (SAML/OIDC)',
@@ -71,36 +62,32 @@ const plans: PricingPlanProps[] = [
       'Políticas y controles de acceso',
       'SLA, soporte 24/7 y gestor dedicado',
     ],
-    button: { label: 'Hablar con ventas', to: '/contacto', color: 'neutral', variant: 'solid', class: 'btn btn-lg' },
-    class: 'border-white/20',
-    ui: {
-      root: 'relative grid rounded-xl p-6 lg:p-8 xl:p-10 gap-6 bg-black text-white border border-white/10 shadow-[0_12px_32px_rgba(0,0,0,0.35)]',
-      title: 'text-white text-2xl sm:text-3xl text-pretty font-semibold',
-      description: 'text-white/70 text-base text-pretty mt-2',
-      price: 'text-white text-3xl sm:text-4xl font-semibold',
-      discount: 'text-white/50 line-through text-xl sm:text-2xl',
-      billingPeriod: 'text-white/60 truncate text-xs font-medium',
-      billingCycle: 'text-white/60 truncate text-xs font-medium',
-      featureIcon: 'size-5 shrink-0 text-white/70',
-      featureTitle: 'text-white/70 text-sm truncate',
-      terms: 'text-xs/5 text-white/60 text-center text-balance'
-    }
+    button: { label: 'Hablar con ventas', to: '/contacto', color: 'neutral', variant: 'soft', size: 'lg', block: true },
+    ui: commonUi
   }
 ]
 </script>
 
 
 <template>
-  <div class="min-h-screen bg-black text-white">
-    <UContainer class="py-16 sm:py-20">
-      <div class="max-w-2xl">
-        <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight">Precios</h1>
-        <p class="mt-4 text-base sm:text-lg opacity-75">
-          Planes diseñados para el look general de Alcatraz (oscuro, limpio y consistente).
+  <div class="relative min-h-screen bg-black text-white overflow-hidden">
+    <!-- Background Effects -->
+    <div class="absolute inset-0 pointer-events-none">
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-200 h-150 bg-neutral-900/30 rounded-full blur-3xl opacity-50"></div>
+      <div class="absolute bottom-0 right-0 w-150 h-150 bg-neutral-900/20 rounded-full blur-3xl opacity-30"></div>
+    </div>  
+
+    <UContainer class="relative z-10 py-16 sm:py-24">
+      <div class="text-center max-w-3xl mx-auto mb-16 space-y-4">
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white">
+          Planes simples y transparentes
+        </h1>
+        <p class="text-lg sm:text-xl text-neutral-400">
+          Elige el plan que mejor se adapte a tus necesidades de seguridad. Sin costes ocultos.
         </p>
       </div>
-
-      <UPricingPlans :plans="plans" class="mt-10" />
+      
+      <UPricingPlans :plans="plans" />
     </UContainer>
   </div>
 </template>
