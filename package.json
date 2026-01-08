@@ -10,16 +10,16 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@nuxt/ui": "^4.1.0",
-    "@tailwindcss/vite": "^4.1.17",
-    "nuxt": "^4.2.1",
-    "tailwindcss": "^4.1.17",
-    "vue": "^3.5.22",
-    "vue-router": "^4.6.3",
+    "@nuxt/ui": "4.3.0",
+    "@tailwindcss/vite": "4.1.18",
+    "nuxt": "4.2.2",
+    "tailwindcss": "4.1.18",
+    "vue": "3.5.26",
+    "vue-router": "4.6.4",
     "zod": "^4.3.5"
   },
   "packageManager": "pnpm@10.20.0+sha512.cf9998222162dd85864d0a8102e7892e7ba4ceadebbf5a31f9c2fce48dfce317a9c53b9f6464d1ef9042cba2e02ae02a9f7c143a2b438cd93c91840f0192b9dd",
   "devDependencies": {
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-tsconfig-paths": "^6.0.3"
   }
 }
