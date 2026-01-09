@@ -1,5 +1,6 @@
 export const useCrypto = () => {
   // Configuración de seguridad estándar militar
+
   const ALGORITHM = { name: 'AES-GCM', length: 256 }
   const HASH = 'SHA-256'
   const ITERATIONS = 100000 // Alto número de iteraciones para resistir fuerza bruta
@@ -10,18 +11,32 @@ export const useCrypto = () => {
   }
 
   const base64ToBuffer = (base64: string): Uint8Array => {
-    const binaryString = atob(base64)
-    const bytes = new Uint8Array(binaryString.length)
-    for (let i = 0; i < binaryString.length; i++) {
-      bytes[i] = binaryString.charCodeAt(i)
+    try {
+      // Limpiar y normalizar la cadena Base64
+      let cleanBase64 = base64.replace(/[\n\r\s]/g, '') // Eliminar espacios
+      cleanBase64 = cleanBase64.replace(/-/g, '+').replace(/_/g, '/') // Convertir URL-safe a estándar
+      
+      // Añadir padding si es necesario
+      while (cleanBase64.length % 4) {
+        cleanBase64 += '='
+      }
+
+      const binaryString = atob(cleanBase64)
+      const bytes = new Uint8Array(binaryString.length)
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i)
+      }
+      return bytes
+    } catch (e) {
+      console.error('base64ToBuffer failed for input:', base64)
+      throw e
     }
-    return bytes
   }
 
   /**
    * Deriva una clave criptográfica segura a partir de la contraseña maestra
    */
-  const deriveKey = async (password: string, salt: Uint8Array): Promise<CryptoKey> => {
+  const deriveKey = async (password: string, salt: BufferSource): Promise<CryptoKey> => {
     const enc = new TextEncoder()
     const keyMaterial = await window.crypto.subtle.importKey(
       'raw',
@@ -34,7 +49,7 @@ export const useCrypto = () => {
     return window.crypto.subtle.deriveKey(
       {
         name: 'PBKDF2',
-        salt: salt.byteLength,
+        salt: salt as BufferSource,
         iterations: ITERATIONS,
         hash: HASH
       },
@@ -81,12 +96,12 @@ export const useCrypto = () => {
       const salt = base64ToBuffer(encryptedPackage.salt)
       const iv = base64ToBuffer(encryptedPackage.iv)
       const ciphertext = base64ToBuffer(encryptedPackage.blob)
-      const key = await deriveKey(masterPassword, salt)
+      const key = await deriveKey(masterPassword, salt as BufferSource)
 
       const decryptedBuffer = await window.crypto.subtle.decrypt(
-        { name: 'AES-GCM', iv },
+        { name: 'AES-GCM', iv: iv as BufferSource },
         key,
-        ciphertext
+        ciphertext as BufferSource
       )
 
       const dec = new TextDecoder()

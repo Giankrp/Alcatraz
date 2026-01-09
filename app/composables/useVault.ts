@@ -1,5 +1,5 @@
 import type { VaultItem, VaultItemDTO } from '~/types/vault'
-
+const host = "localhost:8080"
 export const useVault = () => {
   const { encryptData, decryptData } = useCrypto()
   const { masterPassword } = useMasterPassword()
@@ -20,13 +20,31 @@ export const useVault = () => {
     }
 
     try {
-      const dtos = await $fetch<VaultItemDTO[]>('/api/items')
+      const dtos = await $fetch<any[]>(`http://${host}/vault/items`)
+      console.log('Received DTOs:', dtos)
       
       const decryptedItems: VaultItem[] = []
       
-      for (const dto of dtos) {
+      for (const rawDto of dtos) {
+        // Normalizar claves (snake_case vs PascalCase)
+        const dto: VaultItemDTO = {
+            id: rawDto.id || rawDto.ID,
+            type: rawDto.type || rawDto.Type,
+            title: rawDto.title || rawDto.Title,
+            icon: rawDto.icon || rawDto.Icon,
+            folder_id: rawDto.folder_id || rawDto.FolderId || rawDto.folderId,
+            trashed: rawDto.trashed ?? rawDto.Trashed ?? false,
+            encrypted_data: rawDto.encrypted_data || rawDto.EncryptedData,
+            iv: rawDto.iv || rawDto.IV || rawDto.Iv,
+            salt: rawDto.salt || rawDto.Salt
+        }
+
         try {
           // Descifrar el blob
+          if (!dto.encrypted_data || !dto.iv || !dto.salt) {
+             throw new Error('Missing crypto fields in DTO')
+          }
+
           const sensitiveData = await decryptData(
             { 
               blob: dto.encrypted_data, 
@@ -86,7 +104,7 @@ export const useVault = () => {
       }
 
       // 4. Enviar
-      const responseDTO = await $fetch<VaultItemDTO>('/api/items', {
+      const rawResponse = await $fetch<VaultItem>(`http://${host}/vault/items`, {
         method: 'POST',
         body: payload
       })
@@ -94,7 +112,7 @@ export const useVault = () => {
       // 5. Actualizar UI (usamos los datos que ya tenemos en memoria + ID del server)
       const newItem: VaultItem = {
         ...item,
-        id: responseDTO.id,
+        id: rawResponse.id || '',
         icon,
         trashed: false
       } as VaultItem
@@ -143,7 +161,7 @@ export const useVault = () => {
       }
 
       // Enviar al backend
-      await $fetch(`/api/items/${id}`, {
+      await $fetch<VaultItem>(`http://${host}/vault/items/${id}`, {
         method: 'PUT',
         body: payload
       })
@@ -169,7 +187,7 @@ export const useVault = () => {
 
   const deleteItemPermanent = async (id: string) => {
     try {
-      await $fetch(`/api/items/${id}`, { method: 'DELETE' })
+      await $fetch(`http://${host}/vault/items/${id}`, { method: 'DELETE' })
       items.value = items.value.filter(i => i.id !== id)
     } catch (error) {
       console.error('Error deleting item permanently:', error)

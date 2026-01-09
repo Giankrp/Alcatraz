@@ -12,7 +12,7 @@ definePageMeta({
 
 const route = useRoute()
 const router = useRouter()
-const { items, updateItem } = useVault()
+const { items, updateItem, fetchItems } = useVault()
 const toast = useToast()
 
 const itemId = computed(() => route.params.id as string)
@@ -21,9 +21,14 @@ const item = computed(() => items.value.find(i => i.id === itemId.value))
 const isEditing = ref(false)
 const isSaving = ref(false)
 const showPassword = ref(false)
+const isLoading = ref(true)
 
-// Redirect if not found
-watchEffect(() => {
+onMounted(async () => {
+  if (!item.value) {
+    await fetchItems()
+  }
+  isLoading.value = false
+  
   if (!item.value) {
     router.push('/boveda')
   }
@@ -72,7 +77,10 @@ const getComponentForType = (type: string) => {
 </script>
 
 <template>
-  <div v-if="item" class="min-h-screen bg-gray-950 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+  <div v-if="isLoading" class="min-h-screen bg-gray-950 flex items-center justify-center">
+    <UIcon name="i-heroicons-arrow-path" class="animate-spin text-white w-8 h-8" />
+  </div>
+  <div v-else-if="item" class="min-h-screen bg-gray-950 flex flex-col items-center justify-center p-4 relative overflow-hidden">
     
     <!-- Background Effects -->
     <div class="absolute inset-0 pointer-events-none">

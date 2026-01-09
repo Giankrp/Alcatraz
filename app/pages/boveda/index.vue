@@ -15,7 +15,11 @@ useHead({
   ]
 })
 
-const { items, searchQuery } = useVault()
+const { items, searchQuery, fetchItems } = useVault()
+
+onMounted(() => {
+  fetchItems()
+})
 
 const navigation = [
   {
