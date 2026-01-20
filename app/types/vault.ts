@@ -4,7 +4,7 @@ export type VaultItemType = 'password' | 'note' | 'card' | 'identity';
 export interface VaultItemDTO {
   id: string;
   folder_id?: string;
-  type: VaultItemType;
+  item_type: VaultItemType; // Backend usa snake_case
   title: string;
   icon: string;
   trashed: boolean;
@@ -25,23 +25,23 @@ export interface BaseVaultItemUI {
   folder: string;
   trashed?: boolean;
   icon: string;
-  type: VaultItemType;
+  item_type: VaultItemType; // Frontend usa 'type' consistentemente
 }
 
 export interface PasswordItem extends BaseVaultItemUI {
-  type: 'password';
+  item_type: 'password';
   username: string;
   password?: string;
   url?: string;
 }
 
 export interface NoteItem extends BaseVaultItemUI {
-  type: 'note';
+  item_type: 'note';
   note: string;
 }
 
 export interface CardItem extends BaseVaultItemUI {
-  type: 'card';
+  item_type: 'card';
   holder: string;
   number: string;
   expiry: string;
@@ -49,7 +49,7 @@ export interface CardItem extends BaseVaultItemUI {
 }
 
 export interface IdentityItem extends BaseVaultItemUI {
-  type: 'identity';
+  item_type: 'identity';
   firstName: string;
   lastName: string;
   email: string;

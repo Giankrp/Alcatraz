@@ -67,9 +67,9 @@ const filteredItems = computed(() => {
   } else {
     result = result.filter(i => !i.trashed) // Base filter for non-trash
     
-    if (s === 'cards') result = result.filter(i => i.type === 'card')
-    else if (s === 'notes') result = result.filter(i => i.type === 'note')
-    else if (s === 'identities') result = result.filter(i => i.type === 'identity')
+    if (s === 'cards') result = result.filter(i => i.item_type === 'card')
+    else if (s === 'notes') result = result.filter(i => i.item_type === 'note')
+    else if (s === 'identities') result = result.filter(i => i.item_type === 'identity')
     else if (s.startsWith('folders/')) {
       const folder = s.split('/')[1]
       result = result.filter(i => i.folder === folder)
@@ -81,9 +81,9 @@ const filteredItems = computed(() => {
     const q = searchQuery.value.toLowerCase()
     result = result.filter(i => 
       i.title.toLowerCase().includes(q) || 
-      (i.type === 'password' && i.username.toLowerCase().includes(q)) ||
-      (i.type === 'identity' && (i.firstName.toLowerCase().includes(q) || i.lastName.toLowerCase().includes(q))) ||
-      (i.type === 'card' && i.holder.toLowerCase().includes(q))
+      (i.item_type === 'password' && i.username.toLowerCase().includes(q)) ||
+      (i.item_type === 'identity' && (i.firstName.toLowerCase().includes(q) || i.lastName.toLowerCase().includes(q))) ||
+      (i.item_type === 'card' && i.holder.toLowerCase().includes(q))
     )
   }
 
@@ -91,10 +91,10 @@ const filteredItems = computed(() => {
 })
 
 function getSubtitle(item: VaultItem) {
-  if (item.type === 'password') return item.username
-  if (item.type === 'card') return item.number
-  if (item.type === 'identity') return item.email
-  if (item.type === 'note') return 'Nota segura'
+  if (item.item_type === 'password') return item.username
+  if (item.item_type === 'card') return item.number
+  if (item.item_type === 'identity') return item.email
+  if (item.item_type === 'note') return 'Nota segura'
   return '...'
 }
 
@@ -315,7 +315,7 @@ const menuItems = computed<NavigationMenuItem[][]>(() => [
                     </div>
                   </div>
                   <div class="px-3 py-1 rounded-full bg-white/5 border border-white/5 text-[10px] uppercase tracking-wider font-semibold text-gray-400">
-                    {{ i.type }}
+                    {{ i.item_type }}
                   </div>
                 </div>
 

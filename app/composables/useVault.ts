@@ -9,7 +9,7 @@ export const useVault = () => {
 
   // Helper para separar datos sensibles de metadatos
   const extractSensitiveData = (item: Partial<VaultItem>) => {
-    const { id, title, folder, trashed, icon, type, ...sensitive } = item
+    const { id, title, folder, trashed, icon, item_type, ...sensitive } = item
     return sensitive
   }
 
@@ -29,7 +29,7 @@ export const useVault = () => {
         // Normalizar claves (snake_case vs PascalCase)
         const dto: VaultItemDTO = {
             id: rawDto.id || rawDto.ID,
-            type: rawDto.type || rawDto.Type,
+            item_type: rawDto.item_type || rawDto.ItemType,
             title: rawDto.title || rawDto.Title,
             icon: rawDto.icon || rawDto.Icon,
             folder_id: rawDto.folder_id || rawDto.FolderId || rawDto.folderId,
@@ -57,7 +57,7 @@ export const useVault = () => {
           // Reconstruir el item completo para la UI
           decryptedItems.push({
             id: dto.id,
-            type: dto.type,
+            item_type: dto.item_type,
             title: dto.title,
             icon: dto.icon,
             folder: dto.folder_id || 'personal', // Asumiendo folder_id string
@@ -83,10 +83,10 @@ export const useVault = () => {
     try {
       // 1. Preparar metadatos
       let icon = 'i-heroicons-question-mark-circle'
-      if (item.type === 'password') icon = 'i-heroicons-key'
-      if (item.type === 'note') icon = 'i-heroicons-document-text'
-      if (item.type === 'card') icon = 'i-heroicons-credit-card'
-      if (item.type === 'identity') icon = 'i-heroicons-user-circle'
+      if (item.item_type === 'password') icon = 'i-heroicons-key'
+      if (item.item_type === 'note') icon = 'i-heroicons-document-text'
+      if (item.item_type === 'card') icon = 'i-heroicons-credit-card'
+      if (item.item_type === 'identity') icon = 'i-heroicons-user-circle'
 
       // 2. Cifrar datos sensibles
       const sensitiveData = extractSensitiveData(item as VaultItem)
@@ -95,7 +95,7 @@ export const useVault = () => {
       // 3. Crear DTO para backend
       const payload = {
         title: item.title,
-        type: item.type,
+        item_type: item.item_type,
         folder_id: item.folder,
         icon: icon,
         encrypted_data: cryptoResult.blob,
@@ -143,7 +143,7 @@ export const useVault = () => {
       if (updatedFields.title) payload.title = updatedFields.title
       if (updatedFields.folder) payload.folder_id = updatedFields.folder
       if (updatedFields.trashed !== undefined) payload.trashed = updatedFields.trashed
-      // Nota: type no suele cambiar
+      // Nota: item_type no suele cambiar
 
       // Si cambiaron datos sensibles, hay que re-cifrar TODO el bloque sensible
       // Detectar si hay cambios en campos sensibles es complejo, así que por seguridad
