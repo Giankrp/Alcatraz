@@ -9,15 +9,8 @@ const isMobileMenuOpen = ref(false)
     <header v-if="showHeader" class="sticky top-0 z-20 bg-black/80 backdrop-blur-md border-b border-white/20">
       <UContainer class="h-14 flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <UButton
-            icon="i-heroicons-bars-3"
-            
-            variant="ghost"
-            class="md:hidden"
-            @click="isMobileMenuOpen = true"
-            :ui="{base : 'bg-white'}"
-      
-          />
+          <UButton icon="i-heroicons-bars-3" variant="ghost" class="md:hidden" @click="isMobileMenuOpen = true"
+            :ui="{ base: 'bg-white' }" />
           <div class="size-8 rounded-full grid place-items-center bg-black text-white">
             <UIcon name="i-heroicons-lock-closed" class="size-5" />
           </div>
@@ -46,22 +39,24 @@ const isMobileMenuOpen = ref(false)
 
     <Footer v-if="showHeader" />
 
-    <USlideover v-model="isMobileMenuOpen" side="left">
+    <USlideover v-if="isMobileMenuOpen" v-model="isMobileMenuOpen" side="left">
       <div class="flex flex-col h-full bg-black text-white border-r border-white/10">
         <div class="p-4 flex items-center justify-between border-b border-white/10">
           <div class="flex items-center gap-2">
-             <UIcon name="i-heroicons-lock-closed" class="size-5" />
-             <span class="font-bold text-lg">Alcatraz</span>
+            <UIcon name="i-heroicons-lock-closed" class="size-5" />
+            <span class="font-bold text-lg">Alcatraz</span>
           </div>
           <UButton icon="i-heroicons-x-mark" variant="ghost" @click="isMobileMenuOpen = false"
-           :ui="{base : 'bg-white'}"
-          />
+            :ui="{ base: 'bg-white' }" />
         </div>
         <nav class="flex flex-col gap-2 p-4">
-          <ULink to="/#caracteristicas" class="p-2 hover:bg-white/10 rounded-md" @click="isMobileMenuOpen = false">Características</ULink>
-          <ULink to="/#seguridad" class="p-2 hover:bg-white/10 rounded-md" @click="isMobileMenuOpen = false">Seguridad</ULink>
+          <ULink to="/#caracteristicas" class="p-2 hover:bg-white/10 rounded-md" @click="isMobileMenuOpen = false">
+            Características</ULink>
+          <ULink to="/#seguridad" class="p-2 hover:bg-white/10 rounded-md" @click="isMobileMenuOpen = false">Seguridad
+          </ULink>
           <div class="h-px bg-white/10 my-2"></div>
-          <ULink to="/login" class="p-2 hover:bg-white/10 rounded-md" @click="isMobileMenuOpen = false">Iniciar Sesión</ULink>
+          <ULink to="/login" class="p-2 hover:bg-white/10 rounded-md" @click="isMobileMenuOpen = false">Iniciar Sesión
+          </ULink>
         </nav>
       </div>
     </USlideover>
