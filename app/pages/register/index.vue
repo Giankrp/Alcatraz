@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { useAuthForm } from "~/composables/useAuthForm"
+import { useRegisterForm } from "~/composables/useRegisterForm"
 
-const { schema, fields, providers, submitted, onSubmit, resetFeedback } = useAuthForm()
+const { schema, fields, providers, submitted, onSubmit, resetFeedback } = useRegisterForm()
 useHead({
-  title: 'Iniciar sesión',
+  title: 'Crear cuenta',
   meta: [
-    { name: 'description', content: 'Accede a tu bóveda segura de contraseñas y notas cifradas en Alcatraz.' },
-    { property: 'og:title', content: 'Iniciar sesión — Alcatraz' },
-    { property: 'og:description', content: 'Tu acceso seguro a la bóveda de contraseñas y notas cifradas.' }
+    { name: 'description', content: 'Crea tu cuenta en Alcatraz para gestionar tus contraseñas de forma segura.' },
+    { property: 'og:title', content: 'Crear cuenta — Alcatraz' },
+    { property: 'og:description', content: 'Protege tu información digital con Alcatraz.' }
   ]
 })
 </script>
@@ -28,22 +28,19 @@ useHead({
       <div class="mx-auto max-w-md relative z-10">
         <UCard class="glass-card-dark transition-all duration-300 hover:shadow-2xl"
           :ui="{ body: 'p-6 sm:p-8', header: 'p-0' }">
-          <UAlert v-if="submitted" color="success" variant="soft" title="Acceso concedido"
-            description="Has iniciado sesión correctamente." class="mb-4" @close="resetFeedback" />
+          <UAlert v-if="submitted" color="success" variant="soft" title="Cuenta creada"
+            description="Te has registrado correctamente." class="mb-4" @close="resetFeedback" />
 
-          <UAuthForm title="Inicia sesión"
-            description="Bienvenido de vuelta. Protegemos tus datos con máxima seguridad."
-            icon="i-heroicons-lock-closed" :schema="schema" :fields="fields" :providers="providers"
-            :separator="{ label: 'o continúa con' }"
-            :submit="{ label: 'Acceder', icon: 'i-heroicons-arrow-right-16-solid', color: 'neutral', variant: 'solid', class: 'btn btn-lg' }"
+          <UAuthForm title="Crear cuenta" description="Únete a Alcatraz y asegura tu vida digital hoy mismo."
+            icon="i-heroicons-user-plus" :schema="schema" :fields="fields" :providers="providers"
+            :separator="{ label: 'o regístrate con' }"
+            :submit="{ label: 'Crear cuenta', icon: 'i-heroicons-arrow-right-16-solid', color: 'neutral', variant: 'solid', class: 'btn btn-lg' }"
             class="w-full space-y-6 auth-dark" @submit="onSubmit" @error="resetFeedback">
-            <template #password-hint>
-              <ULink to="/recuperar" class="text-sm">¿Olvidaste tu contraseña?</ULink>
-            </template>
+
             <template #footer>
               <p class="text-center text-sm">
-                ¿No tienes cuenta?
-                <ULink to="/register" class="font-medium">Regístrate</ULink>
+                ¿Ya tienes cuenta?
+                <ULink to="/login" class="font-medium">Inicia sesión</ULink>
               </p>
             </template>
           </UAuthForm>
