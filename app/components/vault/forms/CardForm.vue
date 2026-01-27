@@ -11,9 +11,9 @@ const props = defineProps<{
 const schema = z.object({
   title: z.string().min(1, 'El nombre es requerido'),
   holder: z.string(),
-  number: z.string(),
-  expiry: z.string(),
-  cvv: z.string(),
+  number: z.string().max(16, 'El número de la tarjeta debe tener 16 dígitos').min(16, 'El número de la tarjeta debe tener 16 dígitos'),
+  expiry: z.string().max(5, 'La fecha de expiración debe tener 5 dígitos').min(5, 'La fecha de expiración debe tener 5 dígitos'),
+  cvv: z.number().max(3, 'El CVV debe tener 3 dígitos').min(3, 'El CVV debe tener 3 dígitos'),
   folder: z.string()
 })
 
