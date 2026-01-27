@@ -26,6 +26,11 @@ export interface BaseVaultItemUI {
   trashed?: boolean;
   icon: string;
   item_type: VaultItemType; // Frontend usa 'type' consistentemente
+  
+  // Datos cifrados (presentes si aún no se ha descifrado)
+  encrypted_data?: string;
+  iv?: string;
+  salt?: string;
 }
 
 export interface PasswordItem extends BaseVaultItemUI {

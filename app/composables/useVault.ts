@@ -9,71 +9,79 @@ export const useVault = () => {
 
   // Helper para separar datos sensibles de metadatos
   const extractSensitiveData = (item: Partial<VaultItem>) => {
-    const { id, title, folder, trashed, icon, item_type, ...sensitive } = item
+    const { id, title, folder, trashed, icon, item_type, encrypted_data, iv, salt, ...sensitive } = item
     return sensitive
   }
 
   const fetchItems = async () => {
     if (!masterPassword.value) {
-      console.warn('Master password not set. Cannot decrypt items.')
+      console.warn('Master password not set. Cannot fetch items.')
       return
     }
 
     try {
       const dtos = await $fetch<any[]>(`http://${host}/vault/items`)
-      console.log('Received DTOs:', dtos)
       
-      const decryptedItems: VaultItem[] = []
-      
-      for (const rawDto of dtos) {
+      const mappedItems: VaultItem[] = dtos.map(rawDto => {
         // Normalizar claves (snake_case vs PascalCase)
-        const dto: VaultItemDTO = {
-            id: rawDto.id || rawDto.ID,
-            item_type: rawDto.item_type || rawDto.ItemType,
-            title: rawDto.title || rawDto.Title,
-            icon: rawDto.icon || rawDto.Icon,
-            folder_id: rawDto.folder_id || rawDto.FolderId || rawDto.folderId,
-            trashed: rawDto.trashed ?? rawDto.Trashed ?? false,
-            encrypted_data: rawDto.encrypted_data || rawDto.EncryptedData,
-            iv: rawDto.iv || rawDto.IV || rawDto.Iv,
-            salt: rawDto.salt || rawDto.Salt
-        }
+        return {
+          id: rawDto.id || rawDto.ID,
+          item_type: rawDto.item_type || rawDto.ItemType,
+          title: rawDto.title || rawDto.Title,
+          icon: rawDto.icon || rawDto.Icon,
+          folder: rawDto.folder_id || rawDto.FolderId || rawDto.folderId || 'personal',
+          trashed: rawDto.trashed ?? rawDto.Trashed ?? false,
+          
+          // Guardar datos cifrados para descifrar bajo demanda
+          encrypted_data: rawDto.encrypted_data || rawDto.EncryptedData,
+          iv: rawDto.iv || rawDto.IV || rawDto.Iv,
+          salt: rawDto.salt || rawDto.Salt
+        } as VaultItem
+      })
 
-        try {
-          // Descifrar el blob
-          if (!dto.encrypted_data || !dto.iv || !dto.salt) {
-             throw new Error('Missing crypto fields in DTO')
-          }
-
-          const sensitiveData = await decryptData(
-            { 
-              blob: dto.encrypted_data, 
-              iv: dto.iv, 
-              salt: dto.salt 
-            }, 
-            masterPassword.value
-          )
-
-          // Reconstruir el item completo para la UI
-          decryptedItems.push({
-            id: dto.id,
-            item_type: dto.item_type,
-            title: dto.title,
-            icon: dto.icon,
-            folder: dto.folder_id || 'personal', // Asumiendo folder_id string
-            trashed: dto.trashed,
-            ...sensitiveData // username, password, note, etc.
-          } as VaultItem)
-
-        } catch (err) {
-          console.error(`Failed to decrypt item ${dto.id}:`, err)
-          // Podríamos mostrar items corruptos/bloqueados en la UI en lugar de ignorarlos
-        }
-      }
-
-      items.value = decryptedItems
+      items.value = mappedItems
     } catch (error) {
       console.error('Error fetching vault items:', error)
+    }
+  }
+
+  const getDecryptedItem = async (id: string): Promise<VaultItem | undefined> => {
+    const item = items.value.find(i => i.id === id)
+    if (!item) return undefined
+
+    // Si ya tiene algún campo sensible específico descifrado, asumimos que está listo
+    // O si NO tiene encrypted_data (item nuevo local no guardado aún?)
+    if ((!item.encrypted_data) || (item.item_type === 'password' && (item as any).username)) {
+      return item
+    }
+
+    if (!masterPassword.value) throw new Error('Vault locked')
+
+    try {
+      const sensitiveData = await decryptData(
+        { 
+          blob: item.encrypted_data!, 
+          iv: item.iv!, 
+          salt: item.salt! 
+        }, 
+        masterPassword.value
+      )
+
+      // Actualizar el item en el array reactivo con los datos descifrados
+      // para que la próxima vez sea instantáneo
+      Object.assign(item, sensitiveData)
+      
+      // Limpiar los datos cifrados de la memoria para este item si se desea limpiar
+      // o dejarlos por si se necesita re-guardar (aunque updateItem re-cifra).
+      // Limpiar los datos cifrados de la memoria para este item
+      delete item.encrypted_data 
+      delete item.iv
+      delete item.salt 
+      
+      return item
+    } catch (error) {
+      console.error(`Failed to decrypt item ${id}:`, error)
+      throw error
     }
   }
 
@@ -133,7 +141,22 @@ export const useVault = () => {
       if (index === -1) return
 
       // Fusionar cambios en memoria para obtener el estado final deseado
-      const currentItem = items.value[index]
+      let currentItem = items.value[index]
+      if (!currentItem) return
+
+      // Detectar si necesitamos re-cifrar (cambio de título o campos sensibles)
+      const sensitiveKeys = ['username', 'password', 'url', 'note', 'number', 'cvv', 'firstName', 'licenseNumber']
+      const hasSensitiveChanges = Object.keys(updatedFields).some(k => sensitiveKeys.includes(k))
+      const needReEncryption = hasSensitiveChanges || updatedFields.title
+
+      // Si hay que re-cifrar pero el item está cifrado (tiene encrypted_data), 
+      // DEDEMOS descifrarlo primero para no perder la data sensible oculta al guardar vacía.
+      if (needReEncryption && currentItem.encrypted_data) {
+          await getDecryptedItem(id)
+          // Refrescar referencia tras la mutación inplace de getDecryptedItem
+          currentItem = items.value[index]
+      }
+
       const mergedItem = { ...currentItem, ...updatedFields } as VaultItem
       
       // Preparar payload
@@ -148,10 +171,11 @@ export const useVault = () => {
       // Si cambiaron datos sensibles, hay que re-cifrar TODO el bloque sensible
       // Detectar si hay cambios en campos sensibles es complejo, así que por seguridad
       // re-ciframos siempre que sea una edición de contenido.
-      const sensitiveKeys = ['username', 'password', 'url', 'note', 'number', 'cvv', 'firstName', 'licenseNumber']
-      const hasSensitiveChanges = Object.keys(updatedFields).some(k => sensitiveKeys.includes(k))
-
-      if (hasSensitiveChanges || updatedFields.title) { // Si editamos, re-ciframos para rotar IV/Salt también (buena práctica)
+      // deleted previous declaration of sensitiveKeys to avoid duplication
+      // const sensitiveKeys ... (already declared above)
+      // const hasSensitiveChanges ... (already declared above)
+      
+      if (needReEncryption) { // Si editamos, re-ciframos para rotar IV/Salt también (buena práctica)
          const sensitiveData = extractSensitiveData(mergedItem)
          const cryptoResult = await encryptData(sensitiveData, masterPassword.value)
          
@@ -203,6 +227,7 @@ export const useVault = () => {
     updateItem,
     removeItem,
     restoreItem,
-    deleteItemPermanent
+    deleteItemPermanent,
+    getDecryptedItem
   }
 }

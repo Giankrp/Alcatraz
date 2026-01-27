@@ -1,11 +1,10 @@
-import { ref } from 'vue'
 import { navigateTo } from '#app'
 import { z } from 'zod'
 import type { AuthFormField, ButtonProps, FormSubmitEvent } from '@nuxt/ui'
 
 const schema = z.object({
   name: z.string().min(2, 'Mínimo 2 caracteres'),
-  email: z.string().email('Introduce un email válido'),
+  email: z.email('Introduce un email válido'),
   password: z.string().min(8, 'Mínimo 8 caracteres')
 })
 
@@ -27,7 +26,9 @@ export function useRegisterForm() {
   const submitted = ref(false)
 
   function onSubmit(event: FormSubmitEvent<Schema>) {
-    console.log('Registering with:', event.data)
+
+    const { name, email, password } = event.data
+    console.log('Registering with:', name, email, password)
     submitted.value = false
     setTimeout(() => {
       submitted.value = true
