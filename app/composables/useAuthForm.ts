@@ -4,7 +4,7 @@ import { z } from 'zod'
 import type { AuthFormField, ButtonProps, FormSubmitEvent } from '@nuxt/ui'
 
 const schema = z.object({
-  email: z.string().email('Introduce un email válido'),
+  email: z.email('Introduce un email válido'),
   password: z.string().min(8, 'Mínimo 8 caracteres'),
   remember: z.boolean().optional()
 })
@@ -24,14 +24,37 @@ export function useAuthForm() {
     { label: 'Apple', icon: 'i-material-icon-theme:applescript', color: 'neutral', variant: 'solid', class: 'provider-glass text-white' }
   ])
 
+  const { setMasterPassword } = useMasterPassword()
   const submitted = ref(false)
 
-  function onSubmit(event: FormSubmitEvent<Schema>) {
+  const onSubmit = async (event: FormSubmitEvent<Schema>) => {
     submitted.value = false
-    setTimeout(() => {
+    try {
+      const { email, password } = event.data
+      const config = useRuntimeConfig()
+
+      // Llamada real al backend
+      const response = await $fetch<any>(`${config.public.apiBase}/api/auth/login`, {
+        method: 'POST',
+        body: { email, password }
+      })
+
+      // Extraer y guardar token
+      if (response && response.token) {
+        // Reducido a 12 horas por seguridad (60s * 60m * 12h = 43200)
+        const tokenToken = useCookie('auth_token', { maxAge: 60 * 60 * 12, httpOnly: true })
+        tokenToken.value = response.token
+      }
+
+      // Guardamos la contraseña maestra en memoria temporal
+      setMasterPassword(password)
+
       submitted.value = true
       navigateTo('/boveda')
-    }, 800)
+    } catch (error) {
+      console.error('Login failed:', error)
+      submitted.value = false
+    }
   }
 
   function resetFeedback() {

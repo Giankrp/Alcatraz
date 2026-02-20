@@ -30,10 +30,13 @@ useHead({
       </p>
 
       <div class="mt-10 flex items-center justify-center gap-4">
-        <UButton to="/login" color="neutral" variant="solid" trailing-icon="i-heroicons-arrow-right-16-solid" class="hover:translate-x-1 transition-transform">
+        <UButton to="/login" color="neutral" variant="solid" trailing-icon="i-heroicons-arrow-right-16-solid"
+          class="hover:translate-x-1 transition-transform">
           Comenzar Ahora
         </UButton>
-        <UButton to="/demo" variant="outline" color="neutral" class="bg-black text-white font-semibold text-xs px-4 py-2 hover:bg-black/90  hover:translate-x-1 transition-transform">Ver Demo</UButton>
+        <UButton to="/demo" variant="outline" color="neutral"
+          class="bg-black text-white font-semibold text-xs px-4 py-2 hover:bg-black/90  hover:translate-x-1 transition-transform">
+          Ver Demo</UButton>
       </div>
 
       <!-- Resumen (tres tarjetas) -->
@@ -72,41 +75,30 @@ useHead({
 
     <!-- Características completas -->
     <UContainer id="caracteristicas" class="pt-8 pb-24">
-      <h2 class="text-center text-3xl sm:text-4xl md:text-5xl font-extrabold">Todo lo que necesitas para estar seguro</h2>
+      <h2 class="text-center text-3xl sm:text-4xl md:text-5xl font-extrabold">Todo lo que necesitas para estar seguro
+      </h2>
       <p class="mt-4 text-center opacity-70 px-4">Funciones diseñadas para proteger tu información más valiosa</p>
 
       <div class="mt-10 grid gap-6 sm:grid-cols-2 md:grid-cols-3">
         <!-- Usa SecurityCard con UCard internamente -->
-        <SecurityCard
-          title="Gestor de Contraseñas"
+        <SecurityCard title="Gestor de Contraseñas"
           description="Almacena y genera contraseñas seguras con un solo clic. Autocompletado inteligente en todos tus sitios web."
-          icon="i-heroicons-key"
-        />
-        <SecurityCard
-          title="Notas Cifradas"
+          icon="i-heroicons-key" />
+        <SecurityCard title="Notas Cifradas"
           description="Guarda información sensible como números de tarjetas, códigos y documentos con cifrado de extremo a extremo."
-          icon="i-heroicons-document-text"
-        />
-        <SecurityCard
-          title="Multiplataforma"
+          icon="i-heroicons-document-text" />
+        <SecurityCard title="Multiplataforma"
           description="Accede desde iOS, Android, Windows, Mac y Linux. Sincronización instantánea."
-          icon="i-heroicons-device-phone-mobile"
-        />
-        <SecurityCard
-          title="Backup Automático"
+          icon="i-heroicons-device-phone-mobile" />
+        <SecurityCard title="Backup Automático"
           description="Respaldo automático en la nube con cifrado. Nunca pierdas tu información."
-          icon="i-heroicons-cloud"
-        />
-        <SecurityCard
-          title="Autenticación Biométrica"
+          icon="i-heroicons-cloud" />
+        <SecurityCard title="Autenticación Biométrica"
           description="Desbloqueo con huella dactilar o reconocimiento facial. Seguridad sin complicaciones."
-          icon="i-heroicons-finger-print"
-        />
-        <SecurityCard
-          title="Auditoría de Seguridad"
+          icon="i-heroicons-finger-print" />
+        <SecurityCard title="Auditoría de Seguridad"
           description="Analiza la fortaleza de tus contraseñas y recibe alertas de brechas conocidas."
-          icon="i-heroicons-shield-check"
-        />
+          icon="i-heroicons-shield-check" />
       </div>
     </UContainer>
 
@@ -198,13 +190,15 @@ useHead({
         </p>
 
         <div class="mt-8 flex justify-center gap-4">
-          <UButton to="/login" color="neutral" variant="solid" icon="i-heroicons-arrow-right-16-solid" class="btn btn-lg">
+          <UButton to="/login" color="neutral" variant="solid" icon="i-heroicons-arrow-right-16-solid"
+            class="btn btn-lg">
             Comenzar Gratis
           </UButton>
-          <UButton to="/contacto" color="neutral" variant="outline" class="btn btn-lg btn-ghost">Hablar con Ventas</UButton>
+          <UButton to="/contacto" color="neutral" variant="outline" class="btn btn-lg btn-ghost">Hablar con Ventas
+          </UButton>
         </div>
 
-      <div class="mt-6 flex flex-wrap justify-center gap-6 text-base text-neutral-300">
+        <div class="mt-6 flex flex-wrap justify-center gap-6 text-base text-neutral-300">
           <span class="inline-flex items-center gap-2">
             <UIcon name="i-heroicons-check-circle" class="size-4" />
             Sin tarjeta de crédito

@@ -8,12 +8,12 @@ export interface VaultItemDTO {
   title: string;
   icon: string;
   trashed: boolean;
-  
-  // Datos de seguridad
-  encrypted_data: string;
-  iv: string;
-  salt: string;
-  
+
+  // Datos de seguridad (opcionales en listado)
+  encrypted_data?: string;
+  iv?: string;
+  salt?: string;
+
   created_at?: string;
   updated_at?: string;
 }
@@ -26,7 +26,7 @@ export interface BaseVaultItemUI {
   trashed?: boolean;
   icon: string;
   item_type: VaultItemType; // Frontend usa 'type' consistentemente
-  
+
   // Datos cifrados (presentes si aún no se ha descifrado)
   encrypted_data?: string;
   iv?: string;

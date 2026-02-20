@@ -10,6 +10,11 @@ export default defineNuxtConfig({
     fallback: 'dark',
     classSuffix: ''
   },
+  runtimeConfig: {
+    public: {
+      apiBase: 'http://localhost:8080' // Se puede sobrescribir con NUXT_PUBLIC_API_BASE en .env
+    }
+  },
   app: {
     head: {
       titleTemplate: '%s · Alcatraz',

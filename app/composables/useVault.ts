@@ -1,9 +1,10 @@
-import type { VaultItem, VaultItemDTO } from '~/types/vault'
-const host = "localhost:8080"
+import type { VaultItem } from '~/types/vault'
 export const useVault = () => {
+  const config = useRuntimeConfig()
+  const authToken = useCookie('auth_token', { httpOnly: true })
   const { encryptData, decryptData } = useCrypto()
   const { masterPassword } = useMasterPassword()
-  
+
   const searchQuery = useState<string>('vault-search', () => '')
   const items = useState<VaultItem[]>('vault-items', () => [])
 
@@ -20,8 +21,12 @@ export const useVault = () => {
     }
 
     try {
-      const dtos = await $fetch<any[]>(`http://${host}/vault/items`)
-      
+      const dtos = await $fetch<any[]>(`${config.public.apiBase}/api/vault/items`, {
+        headers: {
+          Authorization: `Bearer ${authToken.value}`
+        }
+      })
+
       const mappedItems: VaultItem[] = dtos.map(rawDto => {
         // Normalizar claves (snake_case vs PascalCase)
         return {
@@ -31,7 +36,7 @@ export const useVault = () => {
           icon: rawDto.icon || rawDto.Icon,
           folder: rawDto.folder_id || rawDto.FolderId || rawDto.folderId || 'personal',
           trashed: rawDto.trashed ?? rawDto.Trashed ?? false,
-          
+
           // Guardar datos cifrados para descifrar bajo demanda
           encrypted_data: rawDto.encrypted_data || rawDto.EncryptedData,
           iv: rawDto.iv || rawDto.IV || rawDto.Iv,
@@ -49,35 +54,52 @@ export const useVault = () => {
     const item = items.value.find(i => i.id === id)
     if (!item) return undefined
 
-    // Si ya tiene algún campo sensible específico descifrado, asumimos que está listo
-    // O si NO tiene encrypted_data (item nuevo local no guardado aún?)
-    if ((!item.encrypted_data) || (item.item_type === 'password' && (item as any).username)) {
-      return item
+    // Si ya tiene algún campo sensible específico descifrado, asumo que está listo
+    if (item.item_type === 'password' && (item as any).username) return item
+    if (item.item_type === 'note' && (item as any).note) return item;
+    if (item.item_type === 'card' && (item as any).number) return item;
+    if (item.item_type === 'identity' && (item as any).firstName) return item;
+
+    // Si NO tiene los datos cifrados (lazy loading), los pido al backend
+    if (!item.encrypted_data) {
+      try {
+        const detail = await $fetch<any>(`${config.public.apiBase}/api/vault/items/${id}`, {
+          headers: {
+            Authorization: `Bearer ${authToken.value}`
+          }
+        })
+        const { EncryptedData, IV, Salt } = detail.Secret
+        //  console.log('Item details:', detail.ID)
+        // Actualizo con los datos cifrados que acaban de llegar
+        item.encrypted_data = EncryptedData
+        item.iv = IV
+        item.salt = Salt
+      } catch (e) {
+        console.error("Error fetching item details", e)
+        throw e
+      }
     }
 
     if (!masterPassword.value) throw new Error('Vault locked')
 
     try {
       const sensitiveData = await decryptData(
-        { 
-          blob: item.encrypted_data!, 
-          iv: item.iv!, 
-          salt: item.salt! 
-        }, 
+        {
+          blob: item.encrypted_data!,
+          iv: item.iv!,
+          salt: item.salt!
+        },
         masterPassword.value
       )
 
       // Actualizar el item en el array reactivo con los datos descifrados
-      // para que la próxima vez sea instantáneo
       Object.assign(item, sensitiveData)
-      
-      // Limpiar los datos cifrados de la memoria para este item si se desea limpiar
-      // o dejarlos por si se necesita re-guardar (aunque updateItem re-cifra).
-      // Limpiar los datos cifrados de la memoria para este item
-      delete item.encrypted_data 
+
+      // Limpiar datos cifrados de memoria (opcional, pero buena práctica)
+      delete item.encrypted_data
       delete item.iv
-      delete item.salt 
-      
+      delete item.salt
+
       return item
     } catch (error) {
       console.error(`Failed to decrypt item ${id}:`, error)
@@ -103,24 +125,32 @@ export const useVault = () => {
       // 3. Crear DTO para backend
       const payload = {
         title: item.title,
-        item_type: item.item_type,
-        folder_id: item.folder,
+        type: item.item_type,
+        folder_id: item.folder === 'personal' || item.folder === 'work' ? null : item.folder, // Handle magic strings for now
         icon: icon,
-        encrypted_data: cryptoResult.blob,
-        iv: cryptoResult.iv,
-        salt: cryptoResult.salt
+        secret: {
+          Data: cryptoResult.encrypted_data,
+          Iv: cryptoResult.iv,
+          Salt: cryptoResult.salt
+        }
       }
 
+
+
       // 4. Enviar
-      const rawResponse = await $fetch<VaultItem>(`http://${host}/vault/items`, {
+      const rawResponse = await $fetch<VaultItem>(`${config.public.apiBase}/api/vault/items`, {
         method: 'POST',
+        headers: {
+          Authorization: `Bearer ${authToken.value}`
+        },
         body: payload
       })
 
       // 5. Actualizar UI (usamos los datos que ya tenemos en memoria + ID del server)
+      console.log('AddItem Response:', rawResponse)
       const newItem: VaultItem = {
         ...item,
-        id: rawResponse.id || '',
+        id: rawResponse.id || (rawResponse as any).ID || '',
         icon,
         trashed: false
       } as VaultItem
@@ -149,44 +179,42 @@ export const useVault = () => {
       const hasSensitiveChanges = Object.keys(updatedFields).some(k => sensitiveKeys.includes(k))
       const needReEncryption = hasSensitiveChanges || updatedFields.title
 
-      // Si hay que re-cifrar pero el item está cifrado (tiene encrypted_data), 
-      // DEDEMOS descifrarlo primero para no perder la data sensible oculta al guardar vacía.
-      if (needReEncryption && currentItem.encrypted_data) {
-          await getDecryptedItem(id)
-          // Refrescar referencia tras la mutación inplace de getDecryptedItem
-          currentItem = items.value[index]
+      // Si hay que re-cifrar, aseguramos que tenemos todos los datos (descifrados)
+      // para no sobrescribir el secreto con datos incompletos.
+      if (needReEncryption) {
+        await getDecryptedItem(id)
+        // Refrescar referencia tras la mutación asíncrona
+        currentItem = items.value[index]
       }
 
       const mergedItem = { ...currentItem, ...updatedFields } as VaultItem
-      
+
       // Preparar payload
       const payload: any = {}
-      
+
       // Si cambiaron metadatos planos
       if (updatedFields.title) payload.title = updatedFields.title
-      if (updatedFields.folder) payload.folder_id = updatedFields.folder
+      if (updatedFields.folder) payload.folder_id = updatedFields.folder === 'personal' || updatedFields.folder === 'work' ? null : updatedFields.folder
       if (updatedFields.trashed !== undefined) payload.trashed = updatedFields.trashed
       // Nota: item_type no suele cambiar
 
-      // Si cambiaron datos sensibles, hay que re-cifrar TODO el bloque sensible
-      // Detectar si hay cambios en campos sensibles es complejo, así que por seguridad
-      // re-ciframos siempre que sea una edición de contenido.
-      // deleted previous declaration of sensitiveKeys to avoid duplication
-      // const sensitiveKeys ... (already declared above)
-      // const hasSensitiveChanges ... (already declared above)
-      
       if (needReEncryption) { // Si editamos, re-ciframos para rotar IV/Salt también (buena práctica)
-         const sensitiveData = extractSensitiveData(mergedItem)
-         const cryptoResult = await encryptData(sensitiveData, masterPassword.value)
-         
-         payload.encrypted_data = cryptoResult.blob
-         payload.iv = cryptoResult.iv
-         payload.salt = cryptoResult.salt
+        const sensitiveData = extractSensitiveData(mergedItem)
+        const cryptoResult = await encryptData(sensitiveData, masterPassword.value)
+
+        payload.secret = {
+          Data: cryptoResult.encrypted_data,
+          Iv: cryptoResult.iv,
+          Salt: cryptoResult.salt
+        }
       }
 
       // Enviar al backend
-      await $fetch<VaultItem>(`http://${host}/vault/items/${id}`, {
+      await $fetch<VaultItem>(`${config.public.apiBase}/api/vault/items/${id}`, {
         method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${authToken.value}`
+        },
         body: payload
       })
 
@@ -211,7 +239,12 @@ export const useVault = () => {
 
   const deleteItemPermanent = async (id: string) => {
     try {
-      await $fetch(`http://${host}/vault/items/${id}`, { method: 'DELETE' })
+      await $fetch(`${config.public.apiBase}/api/vault/items/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${authToken.value}`
+        }
+      })
       items.value = items.value.filter(i => i.id !== id)
     } catch (error) {
       console.error('Error deleting item permanently:', error)

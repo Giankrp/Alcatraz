@@ -3,18 +3,20 @@ import { z } from 'zod'
 import type { AuthFormField, ButtonProps, FormSubmitEvent } from '@nuxt/ui'
 
 const schema = z.object({
-  name: z.string().min(2, 'Mínimo 2 caracteres'),
   email: z.email('Introduce un email válido'),
-  password: z.string().min(8, 'Mínimo 8 caracteres')
+  password: z.string().min(8, 'Mínimo 8 caracteres'),
+  password_confirmation: z.string().min(8, 'Mínimo 8 caracteres')
+}).refine((data) => data.password === data.password_confirmation, {
+  message: "Las contraseñas no coinciden",
+  path: ["password_confirmation"]
 })
-
 type Schema = z.infer<typeof schema>
 
 export function useRegisterForm() {
   const fields = ref<AuthFormField[]>([
-    { name: 'name', type: 'text', label: 'Nombre completo', placeholder: 'John Doe', required: true, icon: 'i-heroicons-user' },
     { name: 'email', type: 'email', label: 'Email', placeholder: 'tu@correo.com', required: true, icon: 'i-heroicons-envelope' },
-    { name: 'password', type: 'password', label: 'Contraseña', placeholder: '••••••••', required: true, icon: 'i-heroicons-lock-closed' }
+    { name: 'password', type: 'password', label: 'Contraseña', placeholder: '••••••••', required: true, icon: 'i-heroicons-lock-closed' },
+    { name: 'password_confirmation', type: 'password', label: 'Confirmar contraseña', placeholder: '••••••••', required: true, icon: 'i-heroicons-lock-closed' }
   ])
 
   const providers = ref<ButtonProps[]>([
@@ -25,16 +27,27 @@ export function useRegisterForm() {
 
   const submitted = ref(false)
 
-  function onSubmit(event: FormSubmitEvent<Schema>) {
+  const onSubmit = async (event: FormSubmitEvent<Schema>) => {
 
-    const { name, email, password } = event.data
-    console.log('Registering with:', name, email, password)
+    const { email, password } = event.data
+    const config = useRuntimeConfig()
+
+    console.log('Registering with:', email, password)
     submitted.value = false
-    setTimeout(() => {
+    try {
+      await $fetch(`${config.public.apiBase}/api/auth/register`, {
+        method: 'POST',
+        body: { email, password }
+      })
+      console.log('Registering with:', email, password)
+
       submitted.value = true
-      // Simulate login after register
-      navigateTo('/boveda')
-    }, 800)
+      // Navigate instantly or maybe wait a bit to show the success alert
+      navigateTo('/login')
+    } catch (error) {
+      console.error('Error registering:', error)
+      submitted.value = false
+    }
   }
 
   function resetFeedback() {

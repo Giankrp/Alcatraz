@@ -15,7 +15,7 @@ export const useCrypto = () => {
       // Limpiar y normalizar la cadena Base64
       let cleanBase64 = base64.replace(/[\n\r\s]/g, '') // Eliminar espacios
       cleanBase64 = cleanBase64.replace(/-/g, '+').replace(/_/g, '/') // Convertir URL-safe a estándar
-      
+
       // Añadir padding si es necesario
       while (cleanBase64.length % 4) {
         cleanBase64 += '='
@@ -80,7 +80,7 @@ export const useCrypto = () => {
       return {
         salt: bufferToBase64(salt.buffer),
         iv: bufferToBase64(iv.buffer),
-        blob: bufferToBase64(encryptedContent)
+        encrypted_data: bufferToBase64(encryptedContent)
       }
     } catch (error) {
       console.error('Crypto error:', error)
