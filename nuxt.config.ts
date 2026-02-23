@@ -3,16 +3,34 @@ import tailwindcss from "@tailwindcss/vite"
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  modules: ['@nuxt/ui'],
+  modules: ['@nuxt/ui', '@sidebase/nuxt-auth'],
   css: ["~/assets/css/main.css"],
   colorMode: {
     preference: 'dark',
     fallback: 'dark',
     classSuffix: ''
   },
+  auth: {
+    baseURL: "http://localhost:3000/api/auth",
+    provider: {
+      type: "authjs"
+    },
+    globalAppMiddleware: false
+  },
   runtimeConfig: {
     public: {
-      apiBase: 'http://localhost:8080' // Se puede sobrescribir con NUXT_PUBLIC_API_BASE en .env
+      apiBase: 'http://localhost:8080' // Se puede sobrescribir con NUXT_PUBLIC_API_BASE en .env,
+    },
+    secret: '',
+    auth: {
+      github: {
+        clientId: '',
+        clientSecret: ''
+      },
+      google: {
+        clientId: '',
+        clientSecret: ''
+      }
     }
   },
   app: {

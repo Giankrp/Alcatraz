@@ -15,13 +15,45 @@ export function useAuthForm() {
   const fields = ref<AuthFormField[]>([
     { name: 'email', type: 'email', label: 'Email', placeholder: 'tu@correo.com', required: true, icon: 'i-heroicons-envelope' },
     { name: 'password', type: 'password', label: 'Contraseña', placeholder: '••••••••', required: true, icon: 'i-heroicons-lock-closed' },
-    { name: 'remember', type: 'checkbox', label: 'Recordar credenciales' }
+    { name: 'remember', type: 'checkbox', label: 'Recordar credenciales' },
   ])
 
+  const { signIn } = useAuth()
+
   const providers = ref<ButtonProps[]>([
-    { label: 'Google', icon: 'i-logos-google-icon', color: 'neutral', variant: 'solid', class: 'provider-glass text-white' },
-    { label: 'GitHub', icon: 'i-logos-github-icon', color: 'neutral', variant: 'solid', class: 'provider-glass text-white' },
-    { label: 'Apple', icon: 'i-material-icon-theme:applescript', color: 'neutral', variant: 'solid', class: 'provider-glass text-white' }
+    {
+      label: 'Google',
+      icon: 'i-logos-google-icon',
+      color: 'neutral',
+      variant: 'solid',
+      class: 'provider-glass text-white',
+      onClick: () => { signIn('google', { callbackUrl: '/boveda' }) },
+      ui: {
+        base: 'hover:cursor-pointer'
+      }
+    },
+    {
+      label: "Apple",
+      icon: "i-material-icon-theme:applescript",
+      color: "neutral",
+      variant: "solid",
+      class: "provider-glass text-white",
+      /*  onClick: () => { signIn('apple', { callbackUrl: '/boveda' }) },
+        ui: {
+          base: 'hover:cursor-pointer'
+        }*/
+    },
+    {
+      label: 'GitHub',
+      icon: 'i-logos-github-icon',
+      color: 'neutral',
+      variant: 'solid',
+      class: 'provider-glass text-white',
+      onClick: () => { signIn('github', { callbackUrl: '/boveda' }) },
+      ui: {
+        base: 'hover:cursor-pointer'
+      }
+    },
   ])
 
   const { setMasterPassword } = useMasterPassword()
