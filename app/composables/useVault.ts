@@ -1,7 +1,6 @@
 import type { VaultItem } from '~/types/vault'
 export const useVault = () => {
   const config = useRuntimeConfig()
-  const authToken = useCookie('auth_token', { httpOnly: true })
   const { encryptData, decryptData } = useCrypto()
   const { masterPassword } = useMasterPassword()
 
@@ -22,9 +21,7 @@ export const useVault = () => {
 
     try {
       const dtos = await $fetch<any[]>(`${config.public.apiBase}/api/vault/items`, {
-        headers: {
-          Authorization: `Bearer ${authToken.value}`
-        }
+        credentials: 'include'
       })
 
       const mappedItems: VaultItem[] = dtos.map(rawDto => {
@@ -64,9 +61,7 @@ export const useVault = () => {
     if (!item.encrypted_data) {
       try {
         const detail = await $fetch<any>(`${config.public.apiBase}/api/vault/items/${id}`, {
-          headers: {
-            Authorization: `Bearer ${authToken.value}`
-          }
+          credentials: 'include'
         })
         const { EncryptedData, IV, Salt } = detail.Secret
         //  console.log('Item details:', detail.ID)
@@ -140,9 +135,7 @@ export const useVault = () => {
       // 4. Enviar
       const rawResponse = await $fetch<VaultItem>(`${config.public.apiBase}/api/vault/items`, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${authToken.value}`
-        },
+        credentials: 'include',
         body: payload
       })
 
@@ -212,9 +205,7 @@ export const useVault = () => {
       // Enviar al backend
       await $fetch<VaultItem>(`${config.public.apiBase}/api/vault/items/${id}`, {
         method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${authToken.value}`
-        },
+        credentials: 'include',
         body: payload
       })
 
@@ -241,9 +232,7 @@ export const useVault = () => {
     try {
       await $fetch(`${config.public.apiBase}/api/vault/items/${id}`, {
         method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${authToken.value}`
-        }
+        credentials: 'include'
       })
       items.value = items.value.filter(i => i.id !== id)
     } catch (error) {

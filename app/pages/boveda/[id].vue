@@ -7,7 +7,8 @@ import CardForm from '~/components/vault/forms/CardForm.vue'
 import IdentityForm from '~/components/vault/forms/IdentityForm.vue'
 
 definePageMeta({
-  layout: 'vault'
+  layout: 'vault',
+  middleware: "auth"
 })
 
 const route = useRoute()
@@ -208,7 +209,7 @@ const getComponentForType = (type: string) => {
                     class="text-[10px] font-bold text-neutral-600 uppercase tracking-[0.2em] transition-colors group-hover:text-neutral-500">Usuario</label>
                   <div class="flex items-center justify-between">
                     <span class="text-neutral-200 font-light text-lg select-all tracking-wide">{{ asPassword.username
-                    }}</span>
+                      }}</span>
                     <UButton icon="i-heroicons-document-duplicate" color="neutral" variant="ghost" size="xs"
                       class="opacity-0 group-hover:opacity-60 hover:opacity-100! transition-all duration-300"
                       @click="copyToClipboard(asPassword.username!, 'Usuario')" />
@@ -312,7 +313,7 @@ const getComponentForType = (type: string) => {
                   <div class="flex items-center gap-3">
                     <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/3 ring-1 ring-white/5">
                       <span class="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">{{ asNote.folder
-                      }}</span>
+                        }}</span>
                     </div>
                   </div>
                 </div>
@@ -395,7 +396,7 @@ const getComponentForType = (type: string) => {
                   <div class="flex items-center gap-3">
                     <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/3 ring-1 ring-white/5">
                       <span class="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">{{ asCard.folder
-                      }}</span>
+                        }}</span>
                     </div>
                   </div>
                 </div>
@@ -474,7 +475,7 @@ const getComponentForType = (type: string) => {
                     / CVV</label>
                   <div class="flex items-center justify-between mt-2">
                     <span class="text-white font-mono text-xl tracking-wider">{{ showPassword ? asCard.cvv : '•••'
-                    }}</span>
+                      }}</span>
                     <div class="flex gap-2">
                       <UButton :icon="showPassword ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'" color="neutral"
                         variant="ghost" size="xs"
@@ -583,7 +584,7 @@ const getComponentForType = (type: string) => {
                       class="text-[10px] font-bold text-neutral-600 uppercase tracking-[0.2em] transition-colors group-hover:text-neutral-500">Dirección</label>
                     <div class="flex items-start justify-between">
                       <span class="text-neutral-200 font-light text-base leading-relaxed">{{ asIdentity.address
-                      }}</span>
+                        }}</span>
                       <UButton icon="i-heroicons-document-duplicate" color="neutral" variant="ghost" size="xs"
                         class="opacity-0 group-hover:opacity-100 transition-opacity"
                         @click="copyToClipboard(asIdentity.address!, 'Dirección')" />

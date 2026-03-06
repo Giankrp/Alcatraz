@@ -27,7 +27,7 @@ export function useAuthForm() {
       color: 'neutral',
       variant: 'solid',
       class: 'provider-glass text-white',
-      onClick: () => { signIn('google', { callbackUrl: '/boveda' }) },
+      onClick: () => { signIn('google', { callbackUrl: '/login/unlock' }) },
       ui: {
         base: 'hover:cursor-pointer'
       }
@@ -49,7 +49,7 @@ export function useAuthForm() {
       color: 'neutral',
       variant: 'solid',
       class: 'provider-glass text-white',
-      onClick: () => { signIn('github', { callbackUrl: '/boveda' }) },
+      onClick: () => { signIn('github', { callbackUrl: '/login/unlock' }) },
       ui: {
         base: 'hover:cursor-pointer'
       }
@@ -58,6 +58,7 @@ export function useAuthForm() {
 
   const { setMasterPassword } = useMasterPassword()
   const submitted = ref(false)
+  const error = ref(false)
 
   const onSubmit = async (event: FormSubmitEvent<Schema>) => {
     submitted.value = false
@@ -68,30 +69,28 @@ export function useAuthForm() {
       // Llamada real al backend
       const response = await $fetch<any>(`${config.public.apiBase}/api/auth/login`, {
         method: 'POST',
-        body: { email, password }
+        body: { email, password },
+        credentials: 'include'
       })
 
-      // Extraer y guardar token
-      if (response && response.token) {
-        // Reducido a 12 horas por seguridad (60s * 60m * 12h = 43200)
-        const tokenToken = useCookie('auth_token', { maxAge: 60 * 60 * 12, httpOnly: true })
-        tokenToken.value = response.token
-      }
+
 
       // Guardamos la contraseña maestra en memoria temporal
       setMasterPassword(password)
 
       submitted.value = true
       navigateTo('/boveda')
-    } catch (error) {
-      console.error('Login failed:', error)
+    } catch (e) {
+      console.error('Login failed:', e)
+      error.value = true
       submitted.value = false
     }
   }
 
   function resetFeedback() {
     submitted.value = false
+    error.value = false
   }
 
-  return { schema, fields, providers, submitted, onSubmit, resetFeedback }
+  return { schema, fields, providers, submitted, error, onSubmit, resetFeedback }
 }

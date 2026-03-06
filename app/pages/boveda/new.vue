@@ -6,6 +6,9 @@ const PasswordForm = defineAsyncComponent(() => import('~/components/vault/forms
 const NoteForm = defineAsyncComponent(() => import('~/components/vault/forms/NoteForm.vue'))
 const CardForm = defineAsyncComponent(() => import('~/components/vault/forms/CardForm.vue'))
 const IdentityForm = defineAsyncComponent(() => import('~/components/vault/forms/IdentityForm.vue'))
+definePageMeta({
+  middleware: "auth"
+})
 
 const { addItem } = useVault()
 const router = useRouter()

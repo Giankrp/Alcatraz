@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useAuthForm } from "~/composables/useAuthForm"
 
-const { schema, fields, providers, submitted, onSubmit, resetFeedback } = useAuthForm()
+const { schema, fields, providers, submitted, error, onSubmit, resetFeedback } = useAuthForm()
 
 useHead({
   title: 'Iniciar sesión',
@@ -31,6 +31,8 @@ useHead({
           :ui="{ body: 'p-6 sm:p-8', header: 'p-0' }">
           <UAlert v-if="submitted" color="success" variant="soft" title="Acceso concedido"
             description="Has iniciado sesión correctamente." class="mb-4" @close="resetFeedback" />
+          <UAlert v-if="error" color="error" variant="soft" title="Error al iniciar sesión"
+            description="Usuario o contraseña incorrectos." class="mb-4" @close="resetFeedback" />
 
           <UAuthForm title="Inicia sesión"
             description="Bienvenido de vuelta. Protegemos tus datos con máxima seguridad."

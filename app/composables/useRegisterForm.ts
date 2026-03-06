@@ -19,40 +19,67 @@ export function useRegisterForm() {
     { name: 'password_confirmation', type: 'password', label: 'Confirmar contraseña', placeholder: '••••••••', required: true, icon: 'i-heroicons-lock-closed' }
   ])
 
+  const { signIn } = useAuth()
+
   const providers = ref<ButtonProps[]>([
-    { label: 'Google', icon: 'i-logos-google-icon', color: 'neutral', variant: 'solid', class: 'provider-glass text-white' },
-    { label: 'GitHub', icon: 'i-logos-github-icon', color: 'neutral', variant: 'solid', class: 'provider-glass text-white' },
-    { label: 'Apple', icon: 'i-material-icon-theme:applescript', color: 'neutral', variant: 'solid', class: 'provider-glass text-white' }
+    {
+      label: 'Google',
+      icon: 'i-logos-google-icon',
+      color: 'neutral',
+      variant: 'solid',
+      class: 'provider-glass text-white',
+      onClick: () => { signIn('google', { callbackUrl: '/login/unlock?mode=register' }) },
+      ui: { base: 'hover:cursor-pointer' }
+    },
+    {
+      label: 'GitHub',
+      icon: 'i-logos-github-icon',
+      color: 'neutral',
+      variant: 'solid',
+      class: 'provider-glass text-white',
+      onClick: () => { signIn('github', { callbackUrl: '/login/unlock?mode=register' }) },
+      ui: { base: 'hover:cursor-pointer' }
+    },
+    {
+      label: 'Apple',
+      icon: 'i-material-icon-theme:applescript',
+      color: 'neutral',
+      variant: 'solid',
+      class: 'provider-glass text-white'
+    }
   ])
 
   const submitted = ref(false)
+  const error = ref(false)
 
   const onSubmit = async (event: FormSubmitEvent<Schema>) => {
 
     const { email, password } = event.data
     const config = useRuntimeConfig()
 
-    console.log('Registering with:', email, password)
     submitted.value = false
     try {
       await $fetch(`${config.public.apiBase}/api/auth/register`, {
         method: 'POST',
-        body: { email, password }
+        body: { email, password },
+        credentials: 'include'
       })
       console.log('Registering with:', email, password)
 
       submitted.value = true
       // Navigate instantly or maybe wait a bit to show the success alert
       navigateTo('/login')
-    } catch (error) {
-      console.error('Error registering:', error)
+    } catch (e) {
+      console.error('Error registering:', e)
+      error.value = true
       submitted.value = false
     }
   }
 
   function resetFeedback() {
     submitted.value = false
+    error.value = false
   }
 
-  return { schema, fields, providers, submitted, onSubmit, resetFeedback }
+  return { schema, fields, providers, submitted, error, onSubmit, resetFeedback }
 }

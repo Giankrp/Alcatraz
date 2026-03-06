@@ -3,7 +3,8 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 import type { VaultItem } from '~/types/vault'
 
 definePageMeta({
-  layout: 'vault'
+  layout: 'vault',
+  middleware: "auth"
 })
 
 const router = useRouter()
@@ -197,6 +198,19 @@ const menuItems = computed<NavigationMenuItem[][]>(() => [
     { label: 'Personal', icon: 'i-heroicons-folder', active: selected.value === 'folders/personal', onSelect: () => { selected.value = 'folders/personal' } }
   ]
 ])
+
+const logout = async () => {
+  const config = useRuntimeConfig()
+  try {
+    await $fetch(`${config.public.apiBase}/api/auth/logout`, {
+      method: 'POST',
+      credentials: 'include'
+    })
+  } catch (e) {
+    // Ignore errors, redirect anyway
+  }
+  navigateTo('/login')
+}
 </script>
 
 <template>
@@ -235,6 +249,16 @@ const menuItems = computed<NavigationMenuItem[][]>(() => [
           class="px-2" :ui="{
             viewportWrapper: 'space-y-2'
           }" />
+
+        <template #footer="{ collapsed: isCollapsed }">
+          <div class="px-3 py-4 border-t border-white/5">
+            <UButton icon="i-heroicons-arrow-right-start-on-rectangle"
+              :label="isCollapsed ? undefined : 'Cerrar sesión'" color="neutral" variant="ghost" block :class="[
+                'text-gray-400 cursor-pointer hover:text-red-400 hover:bg-red-500/10 transition-all duration-200',
+                isCollapsed ? 'justify-center' : ''
+              ]" @click="logout" />
+          </div>
+        </template>
       </UDashboardSidebar>
 
       <UDashboardPanel>
