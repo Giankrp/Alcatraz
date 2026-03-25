@@ -2,7 +2,9 @@
 import { useAuthForm } from "~/composables/useAuthForm"
 
 const { schema, fields, providers, submitted, error, onSubmit, resetFeedback } = useAuthForm()
-
+definePageMeta({
+  middleware: "guest"
+})
 useHead({
   title: 'Iniciar sesión',
   meta: [

@@ -1,100 +1,112 @@
-# app
+# app/
 
-Contiene la capa de interfaz (páginas y componentes) de la aplicación Nuxt. Aquí se definen vistas, layouts y componentes reutilizables que se integran con `@nuxt/ui` y estilos globales.
+Capa de interfaz de Alcatraz. Contiene páginas, componentes, composables, middleware, layouts y tipos que conforman la aplicación Nuxt 4.
 
-## Propósito
-
-- Organizar la UI en `pages` y `components` siguiendo las convenciones de Nuxt 4.
-- Centralizar el uso de componentes de `@nuxt/ui` y patrones de accesibilidad.
-
-## Arquitectura
+## Estructura
 
 ```text
 app/
-├─ pages/
-│  ├─ index.vue
-│  ├─ login.vue
-│  └─ boveda/index.vue
-└─ components/
-   ├─ AuthHeader.vue
-   ├─ SecurityCard.vue
-   └─ Footer.vue
+├── app.vue                   # Entry point — fuerza dark mode
+├── assets/css/main.css       # Design system global
+├── components/               # Componentes reutilizables
+│   ├── AuthHeader.vue
+│   ├── SecurityCard.vue
+│   ├── Footer.vue
+│   └── vault/forms/          # Formularios del vault (6)
+├── composables/              # Lógica de negocio (6)
+├── layouts/                  # default + vault
+├── middleware/               # auth + guest
+├── pages/                    # Todas las vistas
+└── types/                    # Tipos TypeScript
 ```
 
-```mermaid
-flowchart TD
-  P[pages] --> I[index.vue]
-  P --> L[login.vue]
-  P --> V[boveda/index.vue]
-  C[components] --> AH[AuthHeader.vue]
-  C --> SC[SecurityCard.vue]
-  C --> FT[Footer.vue]
-  L --> AH
-  I --> SC
-  I --> FT
-  V --> FT
-```
+## Dependencias clave
 
-## Dependencias específicas
+| Paquete | Uso |
+|---------|-----|
+| `@nuxt/ui` | Componentes UI: `UAuthForm`, `UDashboardGroup`, `UCard`, `UPricingPlans`... |
+| `zod` | Validación de formularios (login, registro) |
+| `@sidebase/nuxt-auth` | Integración con NextAuth para OAuth |
+| `@nuxt/fonts` | Carga automática de Instrument Sans / DM Sans |
+| `@nuxt/image` | Optimización de imágenes |
 
-- `@nuxt/ui`: set de componentes UI (Form, AuthForm, Card, Button, etc.).
-- `zod`: validación de formularios.
-- `tailwindcss`: utilidades de estilo; modo oscuro y tokens.
+## app.vue
 
-## Ejemplo avanzado: composición de `UAuthForm`
+Entry point de la aplicación. Fuerza el modo oscuro y renderiza `<NuxtLayout>` + `<NuxtPage>`.
 
 ```vue
-<script setup lang="ts">
-import { ref } from 'vue'
-import { z } from 'zod'
-import type { AuthFormField, ButtonProps, FormSubmitEvent } from '@nuxt/ui'
-
-const schema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-  remember: z.boolean().optional()
-})
-
-const fields = ref<AuthFormField[]>([
-  { name: 'email', type: 'email', label: 'Email' },
-  { name: 'password', type: 'password', label: 'Contraseña' },
-  { name: 'remember', type: 'checkbox', label: 'Recordar' }
-])
-
-const providers = ref<ButtonProps[]>([
-  { label: 'Google', icon: 'i-logos-google-icon', color: 'neutral', variant: 'soft' },
-  { label: 'GitHub', icon: 'i-logos-github-icon', color: 'neutral', variant: 'soft' }
-])
-
-function onSubmit(e: FormSubmitEvent<any>) {
-  // Integración con tu API de auth
-}
+<script setup>
+const colorMode = useColorMode()
+colorMode.preference = 'dark'
 </script>
-
 <template>
-  <UAuthForm
-    title="Acceder"
-    :schema="schema"
-    :fields="fields"
-    :providers="providers"
-    @submit="onSubmit"
-  />
-  
-  <!-- Slots útiles -->
-  <!-- #password-hint, #validation, #footer -->
+  <NuxtLayout><NuxtPage /></NuxtLayout>
 </template>
 ```
 
-## Consideraciones de implementación
+## Design system (main.css)
 
-- Mantén la validación alineada con los `name` de campos del formulario.
-- Evita estilos en línea complejos; usa utilidades de Tailwind y la API de `ui` de Nuxt UI.
-- Revisa accesibilidad: `aria-label`, contraste, foco visible.
-- La ruta `/boveda` oculta la cabecera del layout por diseño.
-- El sidebar del dashboard persiste colapso y apertura en `localStorage`.
+El archivo `assets/css/main.css` define un sistema de diseño completo:
 
-## Troubleshooting
+- **Colores**: paleta basada en `--accent: 160 84% 55%` (emerald), superficies `--surface-0..3`
+- **Tipografía**: Instrument Sans (headings) + DM Sans (body)
+- **Componentes**: `.btn`, `.btn-accent`, `.btn-ghost`, `.landing-card`, `.stat-card`
+- **Efectos**: `.hero-glow`, `.hero-mockup-frame`, `.cta-section`
+- **Animaciones**: `@keyframes fadeUp`, clases `.animate-fade-up`, `.animate-delay-*`
+- **Accesibilidad**: `:focus-visible` con ring blanco en todos los interactivos
 
-- Errores de tipos o auto-imports: ejecuta `nuxt prepare` o `pnpm run postinstall`.
-- Estilos no aplican: revisa `nuxt.config.ts` para `css` y plugins de Tailwind.
-- Eventos del formulario no disparan: confirma `@submit` en `UAuthForm` y que no haya colisiones con `state/validate` personalizados.
+## Diagrama de dependencias
+
+```mermaid
+flowchart TD
+    subgraph Pages
+        LND["/"]
+        LOG["/login"]
+        UNL["/login/unlock"]
+        REG["/register"]
+        PRC["/pricing"]
+        BOV["/boveda"]
+        NEW["/boveda/new"]
+        DET["/boveda/:id"]
+        PRF["/boveda/perfil"]
+    end
+
+    subgraph Composables
+        AF[useAuthForm]
+        RF[useRegisterForm]
+        CR[useCrypto]
+        VT[useVault]
+        MP[useMasterPassword]
+        US[useUser]
+    end
+
+    subgraph Middleware
+        AU[auth.ts]
+        GU[guest.ts]
+    end
+
+    LOG --> AF
+    LOG --> GU
+    UNL --> MP
+    REG --> RF
+    BOV --> VT
+    BOV --> AU
+    NEW --> VT
+    NEW --> AU
+    DET --> VT
+    DET --> CR
+    DET --> AU
+    PRF --> US
+    PRF --> AU
+    AF --> MP
+    VT --> CR
+    VT --> MP
+```
+
+## Convenciones
+
+- Los **composables** encapsulan toda la lógica de negocio; las **páginas** solo consumen.
+- La `masterPassword` vive en `useState` (memoria) — nunca se persiste.
+- Los datos sensibles se cifran **antes** de enviarse al backend.
+- El layout `vault` se usa para rutas `/boveda`; el layout `default` muestra header + footer.
+- Cada subdirectorio tiene su propio `README.md` con documentación detallada.

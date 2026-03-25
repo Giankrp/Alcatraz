@@ -1,61 +1,147 @@
-# app/pages
+# app/pages/
 
-Contiene las páginas de la aplicación (`.vue`) que Nuxt enruta automáticamente según el nombre del archivo.
+Páginas de la aplicación. Nuxt genera las rutas automáticamente a partir de la estructura de archivos.
 
-## Propósito
-
-- Definir vistas de alto nivel (landing, login, etc.).
-- Integrar componentes globales y estilos consistentes.
-
-## Páginas incluidas
-
-- `index.vue`: landing con cards y secciones informativas.
-- `login.vue`: formulario de autenticación basado en `UAuthForm` + `zod`.
-- `boveda/index.vue`: dashboard con `UDashboardGroup` y sidebar responsive.
-
-## Diagrama de navegación
+## Mapa de rutas
 
 ```mermaid
 flowchart TD
-  R[/\/] --> L[/login/]
-  L --> B[/boveda/]
+    subgraph Públicas
+        LP["/ Landing"]
+        LG["/login"]
+        UL["/login/unlock"]
+        RG["/register"]
+        PR["/pricing"]
+    end
+
+    subgraph Bóveda ["Bóveda (protegida)"]
+        BV["/boveda"]
+        NW["/boveda/new"]
+        DT["/boveda/:id"]
+        PF["/boveda/perfil"]
+    end
+
+    LP -->|CTA| LG
+    LG -->|OAuth| UL
+    LG -->|Registro| RG
+    UL -->|Master pass| BV
+    LG -->|Login directo| BV
+    RG -->|Tras registro| LG
+    BV -->|Crear| NW
+    BV -->|Click ítem| DT
+    BV -->|Perfil| PF
+    LP -->|Footer| PR
 ```
 
-## Dependencias específicas
+## Páginas detalladas
 
-- `@nuxt/ui`: `UContainer`, `UCard`, `UButton`, `UAuthForm`, `UAlert`, etc.
-- `zod`: validación de formulario en `login.vue`.
+### `index.vue` — Landing (`/`)
 
-## Ejemplo avanzado: personalización oscura del login
+- **Layout:** default
+- **Middleware:** —
+- Landing page con secciones de características, seguridad, estadísticas y CTA
+- Usa `SecurityCard`, `AuthHeader` y clases del design system
 
-```vue
-<template>
-  <div class="min-h-screen bg-neutral-950 text-white grid place-items-center py-12">
-    <UContainer>
-      <UCard class="bg-black text-white border border-white/10">
-        <UAuthForm
-          title="Inicia sesión"
-          :schema="schema"
-          :fields="fields"
-          :providers="providers"
-          :submit="{ label: 'Acceder', class: 'bg-white text-black border border-white' }"
-        />
-      </UCard>
-    </UContainer>
-  </div>
-</template>
-```
+---
 
-## Consideraciones de implementación
+### `login/index.vue` — Login (`/login`)
 
-- Evitar duplicación de lógica entre páginas; extrae componentes cuando sea necesario.
-- Mantener contrastes altos para modo oscuro (`bg-neutral-950`, `text-white`).
-- Usar slots de `UAuthForm` para enlaces y mensajes (e.g., `#password-hint`, `#footer`).
-- La ruta `/boveda` oculta el header del layout `default.vue`.
-- El sidebar en `/boveda` persiste colapso/apertura en `localStorage`.
+- **Layout:** default
+- **Middleware:** `guest` (redirige a `/boveda` si ya autenticado)
+- Formulario `UAuthForm` con OAuth (Google, Apple, GitHub)
+- Composable: `useAuthForm()`
+- Glassmorphism: `.glass-card-dark`, burbujas animadas, backdrop blur
+- SEO: `<title>Iniciar sesión</title>`, Open Graph tags
 
-## Troubleshooting
+---
 
-- La navegación no funciona: confirma rutas y nombres de archivo en `pages`.
-- Validaciones no aparecen: revisa que `schema` y `name` de los campos coincidan.
-- Estilos no cargan: revisa `nuxt.config.ts` y `assets/css/main.css`.
+### `login/unlock/index.vue` — Master Password (`/login/unlock`)
+
+- **Layout:** default
+- **Middleware:** —
+- Pantalla post-OAuth para introducir la contraseña maestra
+- Dos modos: `login` (desbloquear) y `register` (crear bóveda) vía `?mode=register`
+- Muestra el email de la sesión OAuth activa
+- Si no hay sesión, redirige a `/login`
+- Envía `POST /api/auth/login` o `/api/auth/register` al backend Go con el email OAuth + master password
+
+---
+
+### `register/index.vue` — Registro (`/register`)
+
+- **Layout:** default
+- **Middleware:** —
+- Formulario `UAuthForm` con confirmación de contraseña
+- Composable: `useRegisterForm()`
+- Mismo estilo visual que login (glassmorphism, burbujas)
+
+---
+
+### `pricing/index.vue` — Precios (`/pricing`)
+
+- **Layout:** default
+- **Middleware:** —
+- Tres planes: Solo (€10/mes), Pro (€20/mes), Empresarial (€59/usuario/mes)
+- Usa `UPricingPlans` de `@nuxt/ui`
+- Background con efectos blur radiales
+
+---
+
+### `boveda/index.vue` — Dashboard (`/boveda`)
+
+- **Layout:** vault
+- **Middleware:** `auth`
+- Dashboard principal con:
+  - **Sidebar** responsive (`UDashboardSidebar`, `UDashboardGroup`)
+  - **Navegación** por categoría (Todos, Contraseñas, Notas, Tarjetas, Identidad, Papelera, Carpetas)
+  - **Búsqueda** de ítems
+  - **Lista de ítems** filtrada y clickable → navega a `/boveda/[id]`
+- Sidebar persiste colapso en `localStorage` (`alcatraz:vault-sidebar-collapsed`)
+- Responsive: sidebar overlay en móvil, fijo en desktop (≥1024px)
+
+---
+
+### `boveda/new.vue` — Crear ítem (`/boveda/new`)
+
+- **Layout:** — (sin layout explícito)
+- **Middleware:** `auth`
+- Wizard de creación:
+  1. `TypeSelector` → seleccionar tipo
+  2. Formulario específico (`PasswordForm`, `NoteForm`, `CardForm`, `IdentityForm`)
+- Lazy-load de componentes de formulario (`defineAsyncComponent`)
+- Transiciones animadas entre pasos
+- Opción "crear otro" para encadenar creaciones
+
+---
+
+### `boveda/[id].vue` — Detalle del ítem (`/boveda/:id`)
+
+- **Layout:** — (sin layout explícito)
+- **Middleware:** `auth`
+- Vista detallada de un ítem con:
+  - **Modo lectura:** card premium con glassmorphism, botones de copiar
+  - **Modo edición:** formulario inline del tipo correspondiente
+- Descifra el ítem completo al montarse (`getDecryptedItem`)
+- Funciones de copiar al portapapeles con feedback visual
+- Vista diferente según tipo (password con show/hide, card con formato bancario, etc.)
+
+---
+
+### `boveda/perfil.vue` — Perfil (`/boveda/perfil`)
+
+- **Layout:** vault
+- **Middleware:** `auth`
+- Secciones:
+  - **Avatar** generado (initials + color por hash de email)
+  - **Cuenta:** email (no modificable), cambiar contraseña
+  - **Seguridad:** 2FA toggle, sesiones activas
+  - **Zona de peligro:** cerrar sesión, eliminar cuenta
+- Composable: `useUser()` para datos del perfil
+
+---
+
+## Patrones comunes
+
+- Todas las páginas de auth (login, register, unlock) comparten el mismo estilo visual: `.glass-card-dark`, `.login-bg`, bubbles animadas
+- Las páginas de la bóveda usan fondo `.vault-bg` con gradientes sutiles
+- SEO configurado con `useHead()` en cada página (title, description, og:tags)

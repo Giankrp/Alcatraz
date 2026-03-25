@@ -3,13 +3,13 @@
 </script>
 
 <template>
-  <footer class="border-t border-white/20 bg-black text-white">
+  <footer class="border-t border-white/10 bg-(--surface-1) text-white">
     <UContainer class="py-8 md:py-14 grid gap-8 md:gap-12 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
       <!-- Brand -->
       <div class="sm:col-span-2 md:col-span-1">
         <div class="flex items-center gap-3">
-          <div class="size-8 rounded-full bg-black grid place-items-center text-white">
-            <UIcon name="i-heroicons-lock-closed" class="size-5" />
+          <div class="size-8 rounded-full bg-emerald-500/10 grid place-items-center text-emerald-400">
+            <UIcon name="i-heroicons-lock-closed" class="size-4" />
           </div>
           <span class="font-semibold">Alcatraz</span>
         </div>
@@ -22,10 +22,18 @@
       <div>
         <div class="font-semibold">Producto</div>
         <ul class="mt-3 space-y-2 text-sm opacity-90">
-          <li><ULink to="#caracteristicas">Características</ULink></li>
-          <li><ULink to="#seguridad">Seguridad</ULink></li>
-          <li><ULink to="/pricing">Precios</ULink></li>
-          <li><ULink to="/descargas">Descargas</ULink></li>
+          <li>
+            <ULink to="#caracteristicas">Características</ULink>
+          </li>
+          <li>
+            <ULink to="#seguridad">Seguridad</ULink>
+          </li>
+          <li>
+            <ULink to="/pricing">Precios</ULink>
+          </li>
+          <li>
+            <ULink to="/descargas">Descargas</ULink>
+          </li>
         </ul>
       </div>
 
@@ -33,10 +41,18 @@
       <div>
         <div class="font-semibold">Empresa</div>
         <ul class="mt-3 space-y-2 text-sm opacity-90">
-          <li><ULink to="/sobre-nosotros">Sobre Nosotros</ULink></li>
-          <li><ULink to="/blog">Blog</ULink></li>
-          <li><ULink to="/careras">Carreras</ULink></li>
-          <li><ULink to="/contacto">Contacto</ULink></li>
+          <li>
+            <ULink to="/sobre-nosotros">Sobre Nosotros</ULink>
+          </li>
+          <li>
+            <ULink to="/blog">Blog</ULink>
+          </li>
+          <li>
+            <ULink to="/careras">Carreras</ULink>
+          </li>
+          <li>
+            <ULink to="/contacto">Contacto</ULink>
+          </li>
         </ul>
       </div>
 
@@ -44,17 +60,25 @@
       <div>
         <div class="font-semibold">Legal</div>
         <ul class="mt-3 space-y-2 text-sm opacity-90">
-          <li><ULink to="/privacidad">Privacidad</ULink></li>
-          <li><ULink to="/terminos">Términos</ULink></li>
-          <li><ULink to="/cookies">Cookies</ULink></li>
-          <li><ULink to="/licencias">Licencias</ULink></li>
+          <li>
+            <ULink to="/privacidad">Privacidad</ULink>
+          </li>
+          <li>
+            <ULink to="/terminos">Términos</ULink>
+          </li>
+          <li>
+            <ULink to="/cookies">Cookies</ULink>
+          </li>
+          <li>
+            <ULink to="/licencias">Licencias</ULink>
+          </li>
         </ul>
       </div>
     </UContainer>
 
-    <div class="border-t border-white/20">
+    <div class="border-t border-white/10">
       <UContainer class="py-6 text-center text-sm opacity-70">
-        &copy; {{new Date().getFullYear()}} Alcatraz. Todos los derechos reservados.
+        &copy; {{ new Date().getFullYear() }} Alcatraz. Todos los derechos reservados.
       </UContainer>
     </div>
   </footer>

@@ -11,8 +11,8 @@ const isMobileMenuOpen = ref(false)
         <div class="flex items-center gap-3">
           <UButton icon="i-heroicons-bars-3" variant="ghost" class="md:hidden" @click="isMobileMenuOpen = true"
             :ui="{ base: 'bg-white' }" />
-          <div class="size-8 rounded-full grid place-items-center bg-black text-white">
-            <UIcon name="i-heroicons-lock-closed" class="size-5" />
+          <div class="size-8 rounded-full grid place-items-center bg-emerald-500/10 text-emerald-400">
+            <UIcon name="i-heroicons-lock-closed" class="size-4" />
           </div>
           <span class="font-semibold">
             <ULink to="/">Alcatraz</ULink>
@@ -26,7 +26,7 @@ const isMobileMenuOpen = ref(false)
 
         <div class="flex items-center gap-3">
           <ULink to="/login" class="hidden sm:block">Iniciar Sesión</ULink>
-          <UButton to="/login" color="neutral" variant="solid" size="sm">
+          <UButton to="/login" size="sm" class="btn-accent text-sm py-1.5! min-h-0!">
             Comenzar Gratis
           </UButton>
         </div>

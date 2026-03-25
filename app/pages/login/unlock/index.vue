@@ -3,12 +3,24 @@ const { data: session, status } = useAuth()
 const { setMasterPassword } = useMasterPassword()
 
 const route = useRoute()
-const isRegisterMode = computed(() => route.query.mode === 'register')
+const config = useRuntimeConfig()
+
+const isRegisterMode = ref(route.query.mode === 'register')
+const checkingUser = ref(false)
 
 const masterPassword = ref('')
 const confirmPassword = ref('')
 const loading = ref(false)
 const error = ref('')
+
+
+useHead({
+  title: computed(() => isRegisterMode.value ? 'Crear contraseña maestra' : 'Desbloquear bóveda'),
+  meta: [
+    { name: 'description', content: 'Introduce tu contraseña maestra para acceder a tu bóveda segura.' },
+    { property: 'og:title', content: 'Desbloquear bóveda — Alcatraz' }
+  ]
+})
 
 // Si no hay sesión OAuth activa, redirigir a login
 watch(status, (val) => {
@@ -18,6 +30,25 @@ watch(status, (val) => {
 }, { immediate: true })
 
 const email = computed(() => session.value?.user?.email ?? '')
+
+// Auto-detectar si el usuario necesita registrarse
+watch(email, async (newEmail) => {
+  if (!newEmail) return
+
+  checkingUser.value = true
+  try {
+    const res = await $fetch<{ exists: boolean }>(`${config.public.apiBase}/api/auth/exists`, {
+      params: { email: newEmail },
+      credentials: 'include'
+    })
+    isRegisterMode.value = !res.exists
+  } catch (err) {
+    console.error('Error checking user existence:', err)
+    // Mantener el valor del query param como fallback
+  } finally {
+    checkingUser.value = false
+  }
+}, { immediate: true })
 
 const onSubmit = async () => {
   if (!masterPassword.value || masterPassword.value.length < 8) {
@@ -34,8 +65,6 @@ const onSubmit = async () => {
   error.value = ''
 
   try {
-    const config = useRuntimeConfig()
-
     if (isRegisterMode.value) {
       // 1. Registrar la cuenta en el backend
       await $fetch(`${config.public.apiBase}/api/auth/register`, {
@@ -49,7 +78,7 @@ const onSubmit = async () => {
     }
 
     // 2. Login (tanto para registro como para login normal)
-    const response = await $fetch<any>(`${config.public.apiBase}/api/auth/login`, {
+    await $fetch<any>(`${config.public.apiBase}/api/auth/login`, {
       method: 'POST',
       body: {
         email: email.value,
@@ -72,13 +101,7 @@ const onSubmit = async () => {
   }
 }
 
-useHead({
-  title: computed(() => isRegisterMode.value ? 'Crear contraseña maestra' : 'Desbloquear bóveda'),
-  meta: [
-    { name: 'description', content: 'Introduce tu contraseña maestra para acceder a tu bóveda segura.' },
-    { property: 'og:title', content: 'Desbloquear bóveda — Alcatraz' }
-  ]
-})
+
 </script>
 
 <template>
@@ -97,78 +120,87 @@ useHead({
         <UCard class="glass-card-dark transition-all duration-300 hover:shadow-2xl"
           :ui="{ body: 'p-6 sm:p-8', header: 'p-0' }">
 
-          <!-- Header -->
-          <div class="text-center mb-6">
-            <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-white/10 backdrop-blur mb-4">
-              <UIcon :name="isRegisterMode ? 'i-heroicons-shield-check' : 'i-heroicons-lock-closed'"
-                class="w-7 h-7 text-white" />
-            </div>
-            <h1 class="text-xl font-semibold">
-              {{ isRegisterMode ? 'Crear contraseña maestra' : 'Desbloquear bóveda' }}
-            </h1>
-            <p class="text-sm text-white/60 mt-1">
-              {{ isRegisterMode
-                ? 'Elige una contraseña maestra para cifrar tu bóveda'
-                : 'Introduce tu contraseña maestra para continuar' }}
-            </p>
+          <!-- Loading while checking user -->
+          <div v-if="checkingUser" class="flex flex-col items-center justify-center py-12 gap-4">
+            <UIcon name="i-heroicons-arrow-path" class="w-8 h-8 text-white/60 animate-spin" />
+            <p class="text-sm text-white/50">Verificando cuenta...</p>
           </div>
 
-          <!-- Email display -->
-          <div class="mb-5">
-            <label class="block text-sm font-medium text-white/70 mb-1.5">Cuenta</label>
-            <div class="flex items-center gap-2 px-3 py-2.5 rounded-md bg-white/5 border border-white/10">
-              <UIcon name="i-heroicons-envelope" class="w-4 h-4 text-white/50 shrink-0" />
-              <span class="text-sm text-white/80 truncate">{{ email || 'Cargando...' }}</span>
-              <UIcon name="i-heroicons-check-badge" class="w-4 h-4 text-green-400 shrink-0 ml-auto" />
-            </div>
-          </div>
-
-          <!-- Error alert -->
-          <UAlert v-if="error" color="error" variant="soft" :title="error" class="mb-4" @close="error = ''" />
-
-          <!-- Master password form -->
-          <form @submit.prevent="onSubmit" class="space-y-4">
-            <div>
-              <label for="master-password" class="block text-sm font-medium text-white/70 mb-1.5">
-                Contraseña maestra
-              </label>
-              <input id="master-password" v-model="masterPassword" type="password" placeholder="••••••••"
-                autocomplete="new-password" required
-                class="w-full px-3 py-2.5 rounded-md bg-black border border-white/25 text-white placeholder-white/55 focus:outline-none focus:ring-2 focus:ring-white/20 transition-shadow" />
+          <template v-else>
+            <!-- Header -->
+            <div class="text-center mb-6">
+              <div
+                class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-white/10 backdrop-blur mb-4">
+                <UIcon :name="isRegisterMode ? 'i-heroicons-shield-check' : 'i-heroicons-lock-closed'"
+                  class="w-7 h-7 text-white" />
+              </div>
+              <h1 class="text-xl font-semibold">
+                {{ isRegisterMode ? 'Crear contraseña maestra' : 'Desbloquear bóveda' }}
+              </h1>
+              <p class="text-sm text-white/60 mt-1">
+                {{ isRegisterMode
+                  ? 'Elige una contraseña maestra para cifrar tu bóveda'
+                  : 'Introduce tu contraseña maestra para continuar' }}
+              </p>
             </div>
 
-            <!-- Confirm password (solo en modo registro) -->
-            <div v-if="isRegisterMode">
-              <label for="confirm-password" class="block text-sm font-medium text-white/70 mb-1.5">
-                Confirmar contraseña maestra
-              </label>
-              <input id="confirm-password" v-model="confirmPassword" type="password" placeholder="••••••••"
-                autocomplete="new-password" required
-                class="w-full px-3 py-2.5 rounded-md bg-black border border-white/25 text-white placeholder-white/55 focus:outline-none focus:ring-2 focus:ring-white/20 transition-shadow" />
+            <!-- Email display -->
+            <div class="mb-5">
+              <label class="block text-sm font-medium text-white/70 mb-1.5">Cuenta</label>
+              <div class="flex items-center gap-2 px-3 py-2.5 rounded-md bg-white/5 border border-white/10">
+                <UIcon name="i-heroicons-envelope" class="w-4 h-4 text-white/50 shrink-0" />
+                <span class="text-sm text-white/80 truncate">{{ email || 'Cargando...' }}</span>
+                <UIcon name="i-heroicons-check-badge" class="w-4 h-4 text-green-400 shrink-0 ml-auto" />
+              </div>
             </div>
 
-            <p class="text-xs text-white/40">
-              {{ isRegisterMode
-                ? 'Esta contraseña NO se puede recuperar. Es la única clave para descifrar tu bóveda.'
-                : 'Tu contraseña maestra nunca se envía a terceros. Solo se usa para descifrar tu bóveda.' }}
-            </p>
+            <!-- Error alert -->
+            <UAlert v-if="error" color="error" variant="soft" :title="error" class="mb-4" @close="error = ''" />
 
-            <UButton type="submit" :loading="loading" :disabled="!email || loading"
-              :label="isRegisterMode ? 'Crear cuenta y acceder' : 'Desbloquear'"
-              :icon="isRegisterMode ? 'i-heroicons-shield-check' : 'i-heroicons-lock-open'" color="neutral"
-              variant="solid" block size="lg" class="btn btn-lg" />
-          </form>
+            <!-- Master password form -->
+            <form @submit.prevent="onSubmit" class="space-y-4">
+              <div>
+                <label for="master-password" class="block text-sm font-medium text-white/70 mb-1.5">
+                  Contraseña maestra
+                </label>
+                <input id="master-password" v-model="masterPassword" type="password" placeholder="••••••••"
+                  autocomplete="new-password" required
+                  class="w-full px-3 py-2.5 rounded-md bg-black border border-white/25 text-white placeholder-white/55 focus:outline-none focus:ring-2 focus:ring-white/20 transition-shadow" />
+              </div>
 
-          <!-- Footer -->
-          <div class="mt-5 pt-4 border-t border-white/10 text-center">
-            <p class="text-sm text-white/50">
-              {{ isRegisterMode ? '¿Ya tienes cuenta?' : '¿Otra cuenta?' }}
-              <ULink :to="isRegisterMode ? '/login' : '/login'" class="font-medium text-white/80 hover:text-white">
-                Volver al login
-              </ULink>
-            </p>
-          </div>
+              <!-- Confirm password (solo en modo registro) -->
+              <div v-if="isRegisterMode">
+                <label for="confirm-password" class="block text-sm font-medium text-white/70 mb-1.5">
+                  Confirmar contraseña maestra
+                </label>
+                <input id="confirm-password" v-model="confirmPassword" type="password" placeholder="••••••••"
+                  autocomplete="new-password" required
+                  class="w-full px-3 py-2.5 rounded-md bg-black border border-white/25 text-white placeholder-white/55 focus:outline-none focus:ring-2 focus:ring-white/20 transition-shadow" />
+              </div>
 
+              <p class="text-xs text-white/40">
+                {{ isRegisterMode
+                  ? 'Esta contraseña NO se puede recuperar. Es la única clave para descifrar tu bóveda.'
+                  : 'Tu contraseña maestra nunca se envía a terceros. Solo se usa para descifrar tu bóveda.' }}
+              </p>
+
+              <UButton type="submit" :loading="loading" :disabled="!email || loading"
+                :label="isRegisterMode ? 'Crear cuenta y acceder' : 'Desbloquear'"
+                :icon="isRegisterMode ? 'i-heroicons-shield-check' : 'i-heroicons-lock-open'" color="neutral"
+                variant="solid" block size="lg" class="btn btn-lg" />
+            </form>
+
+            <!-- Footer -->
+            <div class="mt-5 pt-4 border-t border-white/10 text-center">
+              <p class="text-sm text-white/50">
+                {{ isRegisterMode ? '¿Ya tienes cuenta?' : '¿Otra cuenta?' }}
+                <ULink :to="isRegisterMode ? '/login' : '/login'" class="font-medium text-white/80 hover:text-white">
+                  Volver al login
+                </ULink>
+              </p>
+            </div>
+
+          </template>
         </UCard>
       </div>
     </UContainer>

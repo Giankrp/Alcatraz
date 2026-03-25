@@ -1,272 +1,242 @@
-# Alcatraz
+# 🔒 Alcatraz
 
-Aplicación construida con Nuxt 4 (Vue 3) que presenta una landing y un flujo de autenticación moderno usando `@nuxt/ui` y validación con `zod`. Orientada a un gestor de contraseñas y notas cifradas, con foco en accesibilidad, rendimiento y un modo oscuro consistente.
+**Gestor de contraseñas y notas cifradas** con arquitectura **zero-knowledge**. Construido con **Nuxt 4**, backend **Go** y cifrado **AES-256-GCM** del lado del cliente.
 
-Para guía oficial de Nuxt revisa la [documentación](https://nuxt.com/docs/getting-started/introduction).
+> El servidor **nunca** ve tus datos en texto plano. Todo se cifra/descifra en el navegador con tu contraseña maestra.
 
-## Setup
+---
 
-Instala las dependencias:
+## Stack tecnológico
 
-```bash
-# pnpm
-pnpm install
+| Capa | Tecnología |
+|------|-----------|
+| **Frontend** | Nuxt 4.2 · Vue 3.5 · TypeScript |
+| **UI** | @nuxt/ui 4.3 · Tailwind CSS 4.1 |
+| **Auth** | @sidebase/nuxt-auth (NextAuth) · OAuth (GitHub, Google) |
+| **Criptografía** | Web Crypto API · AES-256-GCM · PBKDF2 (100 000 iteraciones) |
+| **Backend** | Go (API REST separada) |
+| **Validación** | Zod 4 |
+| **Tipografía** | @nuxt/fonts (Instrument Sans, DM Sans) |
+| **Linting** | oxlint |
 
-# npm / yarn / bun
-npm install
-yarn install
-bun install
-```
+---
 
-## Development Server
-
-Arranca el servidor de desarrollo en `http://localhost:3000`:
-
-```bash
-# pnpm
-pnpm dev
-
-# npm / yarn / bun
-npm run dev
-yarn dev
-bun run dev
-```
-
-## Production
-
-Construye la aplicación para producción:
-
-```bash
-# pnpm
-pnpm build
-
-# npm / yarn / bun
-npm run build
-yarn build
-bun run build
-```
-
-Previsualiza el build de producción localmente:
-
-```bash
-# pnpm
-pnpm preview
-
-# npm / yarn / bun
-npm run preview
-yarn preview
-bun run preview
-```
-
-Consulta la [documentación de despliegue](https://nuxt.com/docs/getting-started/deployment) para más información.
-
-## Estado del proyecto
-
-- Framework: Nuxt 4 + Vue 3
-- UI: `@nuxt/ui` con Tailwind v4 (`@tailwindcss/vite`)
-- Validación: `zod`
-- Tipado: TypeScript
-
-## Propósito del proyecto
-
-- Proveer una base sólida en Nuxt 4 con `@nuxt/ui` para construir interfaces de alta calidad.
-- Implementar un formulario de acceso con `UAuthForm`, validación (`zod`) y estilos oscuros.
-- Mostrar una landing de producto con componentes reutilizables (`SecurityCard`, `AuthHeader`).
-
-## Requisitos del sistema
-
-- Node.js 18 o superior (recomendado 18.18+)
-- pnpm 10 (o npm/yarn/bun)
-- Navegador moderno (Chrome, Firefox, Edge, Safari)
-
-Dependencias principales:
-
-- `nuxt` ^4.2.1
-- `@nuxt/ui` ^4.1.0
-- `tailwindcss` ^4.1.17 + `@tailwindcss/vite`
-- `zod` ^3.24.0
-
-## Instalación paso a paso
-
-```bash
-# Clonar el repositorio
-git clone <url-del-repo>
-cd Alcatraz
-
-# Instalar dependencias (recomendado)
-pnpm install
-
-# Alternativas
-npm install    # o
-yarn install   # o
-bun install
-```
-
-> Nota: El script `postinstall` ejecuta `nuxt prepare` y genera tipos en `.nuxt` automáticamente.
-
-## Configuración inicial requerida
-
-- No se requieren variables de entorno para arrancar el proyecto.
-- La configuración de módulos se encuentra en `nuxt.config.ts` y carga `@nuxt/ui` y `tailwindcss/vite`.
-- Los estilos globales están en `app/assets/css/main.css` y deben importarse en `nuxt.config.ts` con `css: ["~/app/assets/css/main.css"]`.
-
-Si vas a integrar autenticación real (OAuth/sesiones), añade la configuración correspondiente en tiempo de ejecución y variables de entorno.
-
-## Ejemplos de uso básico
-
-Arrancar el servidor de desarrollo en `http://localhost:3000`:
-
-```bash
-pnpm dev
-# npm run dev / yarn dev / bun run dev
-```
-
-Construir para producción y previsualizar:
-
-```bash
-pnpm build && pnpm preview
-# npm run build && npm run preview
-```
-
-Rutas de ejemplo:
-
-- Landing: `/` (`app/pages/index.vue`).
-- Inicio de sesión: `/login` (`app/pages/login.vue`).
-- Bóveda: `/boveda` (`app/pages/boveda/index.vue`).
-
-Formulario de autenticación (extracto):
-
-```vue
-<script setup lang="ts">
-import { ref } from 'vue'
-import { z } from 'zod'
-import type { AuthFormField, ButtonProps, FormSubmitEvent } from '@nuxt/ui'
-
-const schema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-  // Usa default(false) si quieres evitar undefined en el checkbox
-  remember: z.boolean().default(false)
-})
-
-const fields = ref<AuthFormField[]>([
-  { name: 'email', type: 'email', label: 'Email', placeholder: 'tu@correo.com' },
-  { name: 'password', type: 'password', label: 'Contraseña', placeholder: '••••••••' },
-  { name: 'remember', type: 'checkbox', label: 'Recordar credenciales' }
-])
-
-const providers = ref<ButtonProps[]>([
-  { label: 'Google', icon: 'i-logos-google-icon', color: 'neutral', variant: 'soft' },
-  { label: 'GitHub', icon: 'i-logos-github-icon', color: 'neutral', variant: 'soft' }
-])
-
-function onSubmit(e: FormSubmitEvent<any>) {
-  // Integrar aquí tu lógica de autenticación real
-}
-</script>
-
-<template>
-  <UAuthForm
-    title="Inicia sesión"
-    :schema="schema"
-    :fields="fields"
-    :providers="providers"
-    @submit="onSubmit"
-  />
-</template>
-```
-
-## Arquitectura y estructura
+## Arquitectura del proyecto
 
 ```text
 Alcatraz/
-├─ app/
-│  ├─ pages/
-│  │  ├─ index.vue
-│  │  ├─ login.vue
-│  │  └─ boveda/index.vue
-│  ├─ components/
-│  │  ├─ AuthHeader.vue
-│  │  ├─ SecurityCard.vue
-│  │  └─ Footer.vue
-│  └─ assets/
-│     └─ css/main.css
-├─ public/
-│  └─ robots.txt
-├─ nuxt.config.ts
-├─ app/layouts/default.vue
-├─ package.json
-├─ tsconfig.json
-└─ README.md
+├── app/
+│   ├── app.vue                   # Entry point (fuerza dark mode)
+│   ├── assets/css/main.css       # Design system global
+│   ├── components/
+│   │   ├── AuthHeader.vue        # Header para vistas de auth
+│   │   ├── SecurityCard.vue      # Card de la landing
+│   │   ├── Footer.vue            # Footer global (4 columnas)
+│   │   └── vault/forms/          # Formularios de la bóveda
+│   │       ├── TypeSelector.vue  # Selector de tipo de ítem
+│   │       ├── FormLayout.vue    # Layout compartido para forms
+│   │       ├── PasswordForm.vue  # Formulario de contraseñas
+│   │       ├── NoteForm.vue      # Formulario de notas
+│   │       ├── CardForm.vue      # Formulario de tarjetas
+│   │       └── IdentityForm.vue  # Formulario de identidades
+│   ├── composables/
+│   │   ├── useAuthForm.ts        # Lógica del formulario de login
+│   │   ├── useRegisterForm.ts    # Lógica del formulario de registro
+│   │   ├── useCrypto.ts          # Cifrado/descifrado AES-256-GCM
+│   │   ├── useVault.ts           # CRUD de ítems de la bóveda
+│   │   ├── useMasterPassword.ts  # Estado en memoria de la master password
+│   │   └── useUser.ts            # Datos del usuario autenticado
+│   ├── layouts/
+│   │   ├── default.vue           # Layout público (header + footer)
+│   │   └── vault.vue             # Layout de la bóveda (sin header)
+│   ├── middleware/
+│   │   ├── auth.ts               # Protege rutas → redirige a /login
+│   │   └── guest.ts              # Protege rutas de invitado → redirige a /boveda
+│   ├── pages/
+│   │   ├── index.vue             # Landing page
+│   │   ├── login/
+│   │   │   ├── index.vue         # Login (email/pass + OAuth)
+│   │   │   └── unlock/index.vue  # Desbloqueo con master password (post-OAuth)
+│   │   ├── register/index.vue    # Registro de usuario
+│   │   ├── pricing/index.vue     # Planes y precios
+│   │   └── boveda/
+│   │       ├── index.vue         # Dashboard principal de la bóveda
+│   │       ├── new.vue           # Crear nuevo ítem
+│   │       ├── [id].vue          # Ver/editar un ítem
+│   │       └── perfil.vue        # Perfil del usuario
+│   └── types/
+│       └── vault.ts              # Tipos TypeScript de la bóveda
+├── server/
+│   └── api/auth/
+│       ├── [...].ts              # NuxtAuthHandler (GitHub + Google OAuth)
+│       ├── check.get.ts          # Comprueba si hay cookie auth_token
+│       └── me.get.ts             # Decodifica JWT → devuelve email
+├── public/
+│   ├── favicon.ico
+│   ├── images/                   # Assets estáticos
+│   └── robots.txt
+├── nuxt.config.ts                # Configuración de módulos y runtime
+├── package.json
+├── tsconfig.json
+├── .env                          # Variables de entorno (NO commitear)
+└── .oxlintrc.json                # Configuración de oxlint
 ```
 
-Diagrama (simplificado):
+---
+
+## Flujo de autenticación
 
 ```mermaid
 flowchart TD
-  A["nuxt.config.ts<br>modules: @nuxt/ui, tailwindcss/vite<br>css: ~/app/assets/css/main.css"] --> B[app/pages]
-  A --> C[app/assets/css]
-  B --> D[index.vue]
-  B --> E[login.vue]
-  B --> V[boveda/index.vue]
-  L[app/layouts/default.vue] --> D
-  L --> E
-  L --> V
-  E --> F[UAuthForm + zod]
-  D --> G[Landing + componentes]
-  G --> H[AuthHeader]
-  G --> I[SecurityCard]
-  L --> J[Footer]
+    A["/ Landing"] --> B["/login"]
+    B -->|Email + Password| C["Backend Go: POST /api/auth/login"]
+    B -->|OAuth GitHub/Google| D["NextAuth → /login/unlock"]
+    C -->|Cookie httpOnly auth_token| E["/boveda"]
+    D -->|Sesión OAuth| F["Introducir Master Password"]
+    F -->|POST registro o login al backend| E
+    E -->|Middleware auth| G["Dashboard con ítems cifrados"]
 
+    subgraph Zero-Knowledge
+        H["useCrypto.encryptData()"] -->|AES-256-GCM + PBKDF2| I["Blob cifrado"]
+        I -->|Se envía al backend| J["Backend almacena blob opaco"]
+        J -->|Se descarga blob| K["useCrypto.decryptData()"]
+        K -->|Master password en memoria| L["Datos en claro"]
+    end
 ```
+
+### Flujo resumido
+
+1. **Login**: El usuario puede entrar con email/password (backend Go) o con OAuth (GitHub/Google).
+2. **Master Password**: Tras OAuth, el usuario introduce su contraseña maestra en `/login/unlock`.
+3. **Cookie**: El backend Go establece una cookie `httpOnly` con un JWT (`auth_token`).
+4. **Protección de rutas**: El middleware `auth.ts` verifica la cookie en cada navegación a `/boveda`.
+5. **Zero-knowledge**: Los datos sensibles se cifran en el navegador con `useCrypto` antes de enviarse al backend. El servidor solo ve blobs cifrados.
+
+---
+
+## Tipos de ítems de la bóveda
+
+| Tipo | Campos sensibles |
+|------|-----------------|
+| `password` | `username`, `password`, `url` |
+| `note` | `note` |
+| `card` | `holder`, `number`, `expiry`, `cvv` |
+| `identity` | `firstName`, `lastName`, `email`, `phone`, `address`, etc. |
+
+Cada ítem se serializa como JSON, se cifra con AES-256-GCM (salt + iv aleatorios) y se almacena como `{ encrypted_data, iv, salt }`.
+
+---
+
+## Requisitos del sistema
+
+- **Node.js** 18+ (recomendado 18.18+)
+- **pnpm** 10 (principal) — también compatible con npm/yarn/bun
+- **Backend Go** corriendo en `http://localhost:8080` (configurable vía `NUXT_PUBLIC_API_BASE`)
+- Navegador moderno (Chrome, Firefox, Edge, Safari)
+
+---
+
+## Instalación
+
+```bash
+# Clonar
+git clone <url-del-repo>
+cd Alcatraz
+
+# Instalar dependencias
+pnpm install
+
+# Configurar variables de entorno
+cp .env.example .env
+# Editar .env con tus credenciales de OAuth y secret
+```
+
+### Variables de entorno requeridas
+
+| Variable | Descripción |
+|----------|------------|
+| `NUXT_SECRET` | Secret para NextAuth (sesiones) |
+| `NUXT_AUTH_BASE_URL` | URL base de la API de auth |
+| `NUXT_AUTH_GITHUB_CLIENT_ID` | Client ID de GitHub OAuth |
+| `NUXT_AUTH_GITHUB_CLIENT_SECRET` | Client Secret de GitHub OAuth |
+| `NUXT_AUTH_GOOGLE_CLIENT_ID` | Client ID de Google OAuth |
+| `NUXT_AUTH_GOOGLE_CLIENT_SECRET` | Client Secret de Google OAuth |
+| `NUXT_PUBLIC_API_BASE` | URL del backend Go (default: `http://localhost:8080`) |
+
+> ⚠️ **Nunca subas `.env` al repositorio.** Está en `.gitignore`.
+
+---
+
+## Desarrollo
+
+```bash
+# Arrancar el servidor de desarrollo (http://localhost:3000)
+pnpm dev
+
+# Linting
+pnpm lint
+pnpm lint:fix
+
+# Build de producción
+pnpm build
+pnpm preview
+```
+
+> **`postinstall`** ejecuta `nuxt prepare` automáticamente para generar tipos en `.nuxt`.
+
+---
+
+## Design system
+
+Los estilos globales están en `app/assets/css/main.css` e incluyen:
+
+- **Color tokens**: `--accent` (emerald), `--surface-0..3`, `--border-*`
+- **Tipografía**: `Instrument Sans` (headings) + `DM Sans` (body) vía `@nuxt/fonts`
+- **Componentes CSS**: `.btn`, `.btn-accent`, `.btn-ghost`, `.landing-card`, `.hero-glow`, `.cta-section`
+- **Animaciones**: `fadeUp`, delays escalonados (`animate-delay-100..600`)
+- **Accesibilidad**: focus-visible con ring en todos los interactivos
+
+---
+
+## Rutas de la aplicación
+
+| Ruta | Middleware | Layout | Descripción |
+|------|-----------|--------|------------|
+| `/` | — | default | Landing page |
+| `/login` | guest | default | Login (email/pass + OAuth) |
+| `/login/unlock` | — | default | Master password post-OAuth |
+| `/register` | — | default | Registro de usuario |
+| `/pricing` | — | default | Planes y precios |
+| `/boveda` | auth | vault | Dashboard de la bóveda |
+| `/boveda/new` | auth | — | Crear nuevo ítem |
+| `/boveda/[id]` | auth | — | Ver/editar un ítem |
+| `/boveda/perfil` | auth | vault | Perfil y seguridad |
+
+---
 
 ## Convenciones del proyecto
 
-- Usa `NuxtLink` para navegación interna; reserva `<a>` para enlaces externos.
-- Prefiere tokens de `@nuxt/ui` (`bg-background`, `text-foreground`) en vez de overrides globales del `body`.
-- Mantén componentes en `app/components` y páginas en `app/pages`.
-- No necesitas añadir manualmente `vue-router`: Nuxt provee routing automáticamente.
-- La cabecera global se oculta en rutas que empiezan por `/boveda` desde `app/layouts/default.vue`.
+- Usa `NuxtLink` / `ULink` para navegación interna.
+- Prefiere tokens de `@nuxt/ui` y variables CSS del design system.
+- Componentes en `app/components/`, composables en `app/composables/`.
+- Los composables encapsulan toda la lógica de negocio; las páginas solo consumen.
+- La master password **nunca** se persiste en disco ni `localStorage` — solo `useState` en memoria.
+- Los datos sensibles se cifran **antes** de salir del navegador.
 
-## Bóveda (Dashboard)
+---
 
-- Ruta: `/boveda`.
-- Usa `UDashboardGroup`, `UDashboardSidebar`, `UDashboardPanel` de `@nuxt/ui`.
-- Comportamiento responsive:
-  - En escritorio (≥ 1024px) el sidebar se renderiza siempre y puede colapsarse.
-  - En móvil (< 1024px) el sidebar se abre/cierra como overlay desde el botón del navbar.
-- Persistencia:
-  - El estado de colapso se guarda en `localStorage`.
-  - El estado de apertura en móvil también se guarda para mantener la preferencia en recargas.
-- Accesibilidad:
-  - Botones con `aria-label` dinámico y elementos ocultos con `sr-only` para lectores de pantalla.
+## Troubleshooting
 
-## Checklist rápida
+| Problema | Solución |
+|----------|---------|
+| Errores de tipos / auto-imports | `pnpm run postinstall` o `nuxt prepare` |
+| Estilos no aplican | Verificar `css` en `nuxt.config.ts` |
+| OAuth no funciona | Verificar variables `NUXT_AUTH_*` en `.env` |
+| 401 en la bóveda | Verificar que el backend Go esté corriendo y que la cookie `auth_token` se esté estableciendo como `httpOnly` |
+| Iconos no aparecen | Confirmar `@nuxt/ui` activo en `nuxt.config.ts` |
 
-- Node 18+ instalado y gestor `pnpm` configurado.
-- Dependencias instaladas con `pnpm install`.
-- `nuxt.config.ts` incluye `css: ["~/app/assets/css/main.css"]`.
-- Rutas funcionales: `/` y `/login`.
-- Verifica `/boveda` para probar el dashboard y su barra lateral responsive.
-- Validación `zod` coherente con los nombres de campos del formulario.
-
-## Problemas conocidos y recomendaciones
-
-- Estilos globales: si los colores no corresponden al tema, elimina overrides de `body` y usa tokens de `@nuxt/ui`.
-- Dependencias: retira `vue-router` si no hay importaciones; no es necesario en Nuxt.
-- Enlaces del Footer: evita enlaces a rutas no existentes para prevenir 404.
+---
 
 ## Licencia
 
-Este proyecto se distribuye bajo la licencia MIT. Si necesitas una copia formal, añade un archivo `LICENSE` con el texto de la licencia MIT.
-
-## Troubleshooting (problemas comunes)
-
-- Node incompatible: asegúrate de usar Node 18+ (`node -v`).
-- Dependencias no instaladas: ejecuta `pnpm install` y verifica que no haya errores.
-- Tipos/auto-imports de Nuxt: si ves errores, ejecuta `pnpm run postinstall` o `nuxt prepare` para regenerar `.nuxt`.
-- Estilos/Íconos de `@nuxt/ui`: confirma que el módulo está habilitado en `nuxt.config.ts` y que tu navegador soporta los iconos.
-- Validación con `zod`: verifica que el esquema corresponda con los `name` de los campos.
-- Botón de submit no responde: valida que estés usando `@submit="onSubmit"` en `UAuthForm` y sin interferencias de `state/validate` personalizados.
-
-Para despliegue, consulta la guía oficial de Nuxt: https://nuxt.com/docs/getting-started/deployment
+MIT — consulta el archivo `LICENSE` para detalles.

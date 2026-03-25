@@ -8,6 +8,7 @@ definePageMeta({
 })
 
 const router = useRouter()
+const { email, initials, avatarColor, fetchUser } = useUser()
 
 useHead({
   title: 'Tu Bóveda',
@@ -20,6 +21,7 @@ const { items, searchQuery, fetchItems } = useVault()
 
 onMounted(() => {
   fetchItems()
+  fetchUser()
 })
 
 const navigation = [
@@ -196,6 +198,9 @@ const menuItems = computed<NavigationMenuItem[][]>(() => [
   [
     { label: 'Trabajo', icon: 'i-heroicons-folder', active: selected.value === 'folders/work', onSelect: () => { selected.value = 'folders/work' } },
     { label: 'Personal', icon: 'i-heroicons-folder', active: selected.value === 'folders/personal', onSelect: () => { selected.value = 'folders/personal' } }
+  ],
+  [
+    { label: 'Perfil', icon: 'i-heroicons-user', onSelect: () => { router.push('/boveda/perfil') } }
   ]
 ])
 
@@ -251,12 +256,41 @@ const logout = async () => {
           }" />
 
         <template #footer="{ collapsed: isCollapsed }">
-          <div class="px-3 py-4 border-t border-white/5">
-            <UButton icon="i-heroicons-arrow-right-start-on-rectangle"
-              :label="isCollapsed ? undefined : 'Cerrar sesión'" color="neutral" variant="ghost" block :class="[
-                'text-gray-400 cursor-pointer hover:text-red-400 hover:bg-red-500/10 transition-all duration-200',
-                isCollapsed ? 'justify-center' : ''
-              ]" @click="logout" />
+          <div class="border-t border-white/5">
+            <!-- User info -->
+            <div v-if="!isCollapsed" class="px-3 pt-4 pb-2">
+              <NuxtLink to="/boveda/perfil"
+                class="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors group">
+                <div
+                  class="size-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 border border-white/10 group-hover:border-white/20 transition-colors"
+                  :style="{ background: avatarColor }">
+                  {{ initials }}
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div class="text-sm truncate">{{ email.split('@')[0] || '...' }}</div>
+                </div>
+                <UIcon name="i-heroicons-cog-6-tooth"
+                  class="size-4 text-gray-500 group-hover:text-gray-300 transition-colors shrink-0" />
+              </NuxtLink>
+            </div>
+            <div v-else class="flex justify-center pt-4 pb-2">
+              <NuxtLink to="/boveda/perfil">
+                <div
+                  class="size-8 rounded-full flex items-center justify-center text-xs font-bold border border-white/10 hover:border-white/20 transition-colors"
+                  :style="{ background: avatarColor }">
+                  {{ initials }}
+                </div>
+              </NuxtLink>
+            </div>
+
+            <!-- Logout -->
+            <div class="px-3 pb-4 pt-1">
+              <UButton icon="i-heroicons-arrow-right-start-on-rectangle"
+                :label="isCollapsed ? undefined : 'Cerrar sesión'" color="neutral" variant="ghost" block :class="[
+                  'text-gray-400 cursor-pointer hover:text-red-400 hover:bg-red-500/10 transition-all duration-200',
+                  isCollapsed ? 'justify-center' : ''
+                ]" @click="logout" />
+            </div>
           </div>
         </template>
       </UDashboardSidebar>

@@ -1,19 +1,30 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
-:root {
-  color-scheme: dark;
-}
-
-body {
-  @apply bg-black text-white subpixel-antialiased font-sans;
-}
-
-html {
-  color-scheme: dark;
-}
+/* ── Typography via @nuxt/fonts (auto-resolved from Google Fonts) ── */
+/* Just reference font names in CSS variables — @nuxt/fonts downloads them automatically */
 
 :root {
+  color-scheme: dark;
+
+  /* ── Accent color system ── */
+  --accent: 160 84% 55%;
+  /* emerald-ish */
+  --accent-soft: 160 60% 20%;
+  --accent-glow: hsla(160, 84%, 55%, 0.15);
+
+  /* ── Surfaces ── */
+  --surface-0: #000000;
+  --surface-1: #0a0a0a;
+  --surface-2: #111111;
+  --surface-3: #171717;
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-default: rgba(255, 255, 255, 0.12);
+  --border-hover: rgba(255, 255, 255, 0.22);
+
+  /* ── Typography tokens ── */
+  --font-display: 'Instrument Sans', system-ui, sans-serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
   --font-size-sm: 0.875rem;
   --font-size-md: 1rem;
   --font-size-lg: 1.125rem;
@@ -21,14 +32,38 @@ html {
   --radius-md: 12px;
 }
 
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: #000;
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: var(--font-body);
+}
+
+/* ── Headings with display font ── */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+}
+
 h1 {
   font-size: 2rem;
-  line-height: 1.2;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
 h2 {
   font-size: 1.5rem;
-  line-height: 1.3;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
 }
 
 h3 {
@@ -42,6 +77,7 @@ li {
   line-height: var(--line-height);
 }
 
+/* ── Spacing utilities ── */
 .space-sm {
   gap: .5rem;
 }
@@ -54,6 +90,7 @@ li {
   gap: 1.5rem;
 }
 
+/* ── Interactive elements ── */
 .interactive {
   transition: transform .2s ease, color .2s ease, background .2s ease, box-shadow .2s ease;
 }
@@ -101,7 +138,7 @@ button:focus-visible,
   box-shadow: 0 0 0 2px rgba(255, 255, 255, .22);
 }
 
-/* Botones globales coherentes */
+/* ── Buttons ── */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -111,14 +148,14 @@ button:focus-visible,
   min-width: 48px;
   min-height: 48px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: #000;
+  border: 1px solid var(--border-default);
+  background: var(--surface-0);
   color: #fff;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
 }
 
 .btn:hover {
-  background: rgba(0, 0, 0, 0.9);
+  background: var(--surface-2);
 }
 
 .btn:active {
@@ -133,7 +170,7 @@ button:focus-visible,
 .btn-ghost {
   background: transparent;
   color: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid var(--border-default);
 }
 
 .btn-ghost:hover {
@@ -173,4 +210,230 @@ button:focus-visible,
   width: 48px;
   height: 48px;
   padding: 0;
+}
+
+/* ── Accent button ── */
+.btn-accent {
+  background: hsl(var(--accent));
+  color: #000;
+  border-color: hsl(var(--accent));
+  font-weight: 600;
+}
+
+.btn-accent:hover {
+  background: hsl(160, 84%, 48%);
+  box-shadow: 0 0 24px var(--accent-glow);
+}
+
+/* ── Landing card styles ── */
+.landing-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.landing-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.03);
+  transform: translateY(-2px);
+}
+
+.landing-card-accent {
+  background: linear-gradient(135deg, var(--surface-2), var(--surface-3));
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.landing-card-accent:hover {
+  border-color: hsla(160, 84%, 55%, 0.3);
+  box-shadow: 0 0 40px var(--accent-glow);
+  transform: translateY(-2px);
+}
+
+/* ── Hero glow ── */
+.hero-glow {
+  position: relative;
+}
+
+.hero-glow::before {
+  content: '';
+  position: absolute;
+  top: -120px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 400px;
+  background: radial-gradient(ellipse, var(--accent-glow) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Section separator ── */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-default), transparent);
+}
+
+/* ── Entrance animations ── */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.6s ease-out both;
+}
+
+.animate-delay-100 {
+  animation-delay: 0.1s;
+}
+
+.animate-delay-200 {
+  animation-delay: 0.2s;
+}
+
+.animate-delay-300 {
+  animation-delay: 0.3s;
+}
+
+.animate-delay-400 {
+  animation-delay: 0.4s;
+}
+
+.animate-delay-500 {
+  animation-delay: 0.5s;
+}
+
+.animate-delay-600 {
+  animation-delay: 0.6s;
+}
+
+/* ── Accent icon container ── */
+.icon-accent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: hsla(160, 84%, 55%, 0.1);
+  color: hsl(var(--accent));
+  flex-shrink: 0;
+}
+
+/* ── Stat card shimmer ── */
+.stat-card {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--surface-2) 0%, var(--surface-3) 100%);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 40%, hsla(160, 84%, 55%, 0.04) 100%);
+  pointer-events: none;
+}
+
+.stat-card:hover {
+  border-color: hsla(160, 84%, 55%, 0.25);
+  box-shadow: 0 0 30px var(--accent-glow);
+}
+
+/* ── CTA gradient background ── */
+.cta-section {
+  background: linear-gradient(180deg, var(--surface-1) 0%, var(--surface-0) 100%);
+  position: relative;
+}
+
+.cta-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 500px;
+  height: 300px;
+  background: radial-gradient(ellipse, hsla(160, 84%, 55%, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ── Hero mockup ── */
+.hero-mockup-wrapper {
+  position: relative;
+  max-width: 900px;
+  margin: 0 auto;
+  perspective: 1200px;
+}
+
+.hero-mockup-glow {
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 200px;
+  background: radial-gradient(ellipse, hsla(160, 84%, 55%, 0.12) 0%, transparent 70%);
+  filter: blur(40px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero-mockup-frame {
+  position: relative;
+  z-index: 1;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.6);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 25px 60px rgba(0, 0, 0, 0.5),
+    0 0 80px hsla(160, 84%, 55%, 0.06);
+  transform: rotateX(2deg);
+  transition: transform 0.5s ease, box-shadow 0.5s ease;
+}
+
+.hero-mockup-frame:hover {
+  transform: rotateX(0deg);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 30px 70px rgba(0, 0, 0, 0.6),
+    0 0 100px hsla(160, 84%, 55%, 0.1);
+}
+
+.browser-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.browser-url {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.4);
+  font-family: var(--font-body);
 }
