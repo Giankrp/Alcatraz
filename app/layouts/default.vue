@@ -11,7 +11,7 @@ const isMobileMenuOpen = ref(false)
         <div class="flex items-center gap-3">
           <UButton icon="i-heroicons-bars-3" variant="ghost" class="md:hidden" @click="isMobileMenuOpen = true"
             :ui="{ base: 'bg-white' }" />
-          <div class="size-8 rounded-full grid place-items-center bg-emerald-500/10 text-emerald-400">
+          <div class="size-8 rounded-full grid place-items-center bg-green-500/10 text-green-400">
             <UIcon name="i-heroicons-lock-closed" class="size-4" />
           </div>
           <span class="font-semibold">
@@ -43,19 +43,19 @@ const isMobileMenuOpen = ref(false)
       <div class="flex flex-col h-full bg-black text-white border-r border-white/10">
         <div class="p-4 flex items-center justify-between border-b border-white/10">
           <div class="flex items-center gap-2">
-            <UIcon name="i-heroicons-lock-closed" class="size-5" />
+            <UIcon name="i-heroicons-lock-closed" class="size-5 text-green-400" />
             <span class="font-bold text-lg">Alcatraz</span>
           </div>
           <UButton icon="i-heroicons-x-mark" variant="ghost" @click="isMobileMenuOpen = false"
             :ui="{ base: 'bg-white' }" />
         </div>
         <nav class="flex flex-col gap-2 p-4">
-          <ULink to="/#caracteristicas" class="p-2 hover:bg-white/10 rounded-md" @click="isMobileMenuOpen = false">
+          <ULink to="/#caracteristicas" class="p-2 hover:bg-green-500/10 hover:text-green-400 transition-colors rounded-md" @click="isMobileMenuOpen = false">
             Características</ULink>
-          <ULink to="/#seguridad" class="p-2 hover:bg-white/10 rounded-md" @click="isMobileMenuOpen = false">Seguridad
+          <ULink to="/#seguridad" class="p-2 hover:bg-green-500/10 hover:text-green-400 transition-colors rounded-md" @click="isMobileMenuOpen = false">Seguridad
           </ULink>
           <div class="h-px bg-white/10 my-2"></div>
-          <ULink to="/login" class="p-2 hover:bg-white/10 rounded-md" @click="isMobileMenuOpen = false">Iniciar Sesión
+          <ULink to="/login" class="p-2 hover:bg-green-500/10 hover:text-green-400 transition-colors rounded-md" @click="isMobileMenuOpen = false">Iniciar Sesión
           </ULink>
         </nav>
       </div>

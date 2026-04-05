@@ -3,6 +3,10 @@ export const useMasterPassword = () => {
   // NUNCA persistir esto en disco/localStorage.
   const masterPassword = useState<string | null>('master-password', () => null)
 
+  // Email del usuario en memoria — permite que /login/unlock funcione
+  // tanto para usuarios OAuth como para usuarios con email/password directo.
+  const userEmail = useState<string | null>('user-email', () => null)
+
   const setMasterPassword = (password: string) => {
     masterPassword.value = password
   }
@@ -11,9 +15,20 @@ export const useMasterPassword = () => {
     masterPassword.value = null
   }
 
+  const setUserEmail = (email: string) => {
+    userEmail.value = email
+  }
+
+  const clearUserEmail = () => {
+    userEmail.value = null
+  }
+
   return {
     masterPassword,
+    userEmail,
     setMasterPassword,
-    clearMasterPassword
+    clearMasterPassword,
+    setUserEmail,
+    clearUserEmail
   }
 }

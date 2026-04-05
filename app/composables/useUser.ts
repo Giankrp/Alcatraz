@@ -1,37 +1,78 @@
+import type { UserProfile, UpdateUserProfileDTO } from '~/types/user'
+
 export const useUser = () => {
     const user = useState<{ email: string; createdAt: string | null } | null>('user-data', () => null)
+    const profile = useState<UserProfile | null>('user-profile', () => null)
     const loading = useState('user-loading', () => false)
 
     const fetchUser = async () => {
-        if (user.value) return // Already fetched
         loading.value = true
         try {
-            const data = await $fetch<{ email: string; createdAt: string | null }>('/api/auth/me')
-            user.value = data
-        } catch {
-            user.value = null
+            const [userData, profileData] = await Promise.all([
+                $fetch<{ email: string; createdAt: string | null }>('/api/auth/me'),
+                $fetch<UserProfile>('/api/user/profile').catch(() => null)
+            ])
+            user.value = userData
+            if (profileData) profile.value = profileData
+        } catch (e) {
+            console.error('Error fetching user data:', e)
         } finally {
             loading.value = false
         }
     }
 
+    const updateProfile = async (data: UpdateUserProfileDTO) => {
+        try {
+            const updated = await $fetch<UserProfile>('/api/user/profile', {
+                method: 'PUT',
+                body: data
+            })
+            profile.value = updated
+            return updated
+        } catch (e) {
+            console.error('Error updating profile:', e)
+            throw e
+        }
+    }
+
     const email = computed(() => user.value?.email || '')
+    const displayName = computed(() => {
+        const name = profile.value?.name?.trim()
+        if (name) return name
+        const e = email.value
+        if (e && e.includes('@')) {
+            const parts = e.split('@')
+            if (parts[0]) return parts[0]
+        }
+        return e || 'Usuario'
+    })
+    const avatarUrl = computed(() => profile.value?.avatar_url || '')
+    const language = computed(() => profile.value?.language || 'es')
 
     const initials = computed(() => {
+        const name = profile.value?.name?.trim()
+        if (name) {
+            const parts = name.split(/\s+/)
+            const first = parts[0]
+            const second = parts[1]
+            if (parts.length >= 2 && first && second && first[0] && second[0]) {
+                return (first[0] + second[0]).toUpperCase()
+            }
+            if (first && first[0]) return first.slice(0, 2).toUpperCase()
+        }
         const e = email.value
         if (!e) return '?'
-        // Use first two chars of the email local part
-        const local = e.split('@')[0] || ''
+        const parts = e.split('@')
+        const local = parts[0] || ''
         return local.slice(0, 2).toUpperCase()
     })
 
-    // Generate a consistent color from email hash
     const avatarColor = computed(() => {
-        const e = email.value
-        if (!e) return 'hsl(160, 60%, 40%)'
+        const seed = profile.value?.name || email.value
+        if (!seed) return 'hsl(160, 60%, 40%)'
         let hash = 0
-        for (let i = 0; i < e.length; i++) {
-            hash = e.charCodeAt(i) + ((hash << 5) - hash)
+        for (let i = 0; i < seed.length; i++) {
+            hash = seed.charCodeAt(i) + ((hash << 5) - hash)
         }
         const hue = Math.abs(hash) % 360
         return `hsl(${hue}, 55%, 45%)`
@@ -39,5 +80,35 @@ export const useUser = () => {
 
     const createdAt = computed(() => user.value?.createdAt || null)
 
-    return { user, email, initials, avatarColor, createdAt, loading, fetchUser }
+    const logout = async () => {
+        const config = useRuntimeConfig()
+        try {
+            await $fetch(`${config.public.apiBase}/api/auth/logout`, {
+                method: 'POST',
+                credentials: 'include'
+            })
+        } catch (e) {
+            console.error('Logout error:', e)
+        } finally {
+            user.value = null
+            profile.value = null
+            navigateTo('/login')
+        }
+    }
+
+    return { 
+        user, 
+        profile,
+        email, 
+        displayName,
+        avatarUrl,
+        language,
+        initials, 
+        avatarColor, 
+        createdAt, 
+        loading, 
+        fetchUser,
+        updateProfile,
+        logout
+    }
 }

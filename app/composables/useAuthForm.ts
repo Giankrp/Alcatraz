@@ -56,7 +56,7 @@ export function useAuthForm() {
     },
   ])
 
-  const { setMasterPassword } = useMasterPassword()
+  const { setMasterPassword, setUserEmail } = useMasterPassword()
   const submitted = ref(false)
   const error = ref(false)
 
@@ -67,7 +67,7 @@ export function useAuthForm() {
       const config = useRuntimeConfig()
 
       // Llamada real al backend
-      const response = await $fetch<any>(`${config.public.apiBase}/api/auth/login`, {
+      await $fetch<any>(`${config.public.apiBase}/api/auth/login`, {
         method: 'POST',
         body: { email, password },
         credentials: 'include'
@@ -75,8 +75,9 @@ export function useAuthForm() {
 
 
 
-      // Guardamos la contraseña maestra en memoria temporal
+      // Guardamos la contraseña maestra y el email en memoria temporal
       setMasterPassword(password)
+      setUserEmail(email)
 
       submitted.value = true
       navigateTo('/boveda')

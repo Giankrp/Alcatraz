@@ -1,40 +1,33 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": null,
-  "categories": {},
-  "rules": {},
-  "settings": {
-    "jsx-a11y": {
-      "polymorphicPropName": null,
-      "components": {},
-      "attributes": {}
-    },
-    "next": {
-      "rootDir": []
-    },
-    "react": {
-      "formComponents": [],
-      "linkComponents": [],
-      "version": null,
-      "componentWrapperFunctions": []
-    },
-    "jsdoc": {
-      "ignorePrivate": false,
-      "ignoreInternal": false,
-      "ignoreReplacesDocs": true,
-      "overrideReplacesDocs": true,
-      "augmentsExtendsReplacesDocs": false,
-      "implementsReplacesDocs": false,
-      "exemptDestructuredRootsFromChecks": false,
-      "tagNamePreference": {}
-    },
-    "vitest": {
-      "typecheck": false
-    }
+  "plugins": ["vue"],
+  "categories": {
+    "correctness": "warn",
+    "suspicious": "warn"
   },
+  "rules": {
+    "no-console": "warn",
+    "no-debugger": "warn",
+    "vue/no-unused-vars": "warn"
+  },
+  "settings": {},
   "env": {
-    "builtin": true
+    "browser": true,
+    "node": true,
+    "es2024": true
   },
-  "globals": {},
-  "ignorePatterns": []
+  "globals": {
+    "defineProps": "readonly",
+    "defineEmits": "readonly",
+    "defineExpose": "readonly",
+    "withDefaults": "readonly"
+  },
+  "ignorePatterns": [
+    "**/.nuxt/**",
+    "**/.output/**",
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/public/**",
+    "**/.agents/**"
+  ]
 }

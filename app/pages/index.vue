@@ -16,7 +16,7 @@ useHead({
       <div class="relative z-10">
         <div class="flex justify-center animate-fade-up">
           <UBadge color="neutral" variant="soft" size="md"
-            class="px-4 py-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 text-emerald-400">
+            class="px-4 py-2 rounded-full border border-green-500/20 bg-green-500/10 text-green-400">
             <UIcon name="i-heroicons-shield-check" class="size-3.5 mr-1" />
             Seguridad de máxima protección
           </UBadge>
@@ -25,7 +25,7 @@ useHead({
         <h1
           class="mt-10 text-center text-5xl md:text-7xl font-extrabold tracking-tight animate-fade-up animate-delay-100">
           Tus secretos bajo
-          <span class="block bg-linear-to-r from-emerald-400 via-emerald-300 to-teal-400 bg-clip-text text-transparent">
+          <span class="block bg-linear-to-r from-green-400 via-green-300 to-green-500 bg-clip-text text-transparent">
             máxima seguridad
           </span>
         </h1>
@@ -41,7 +41,7 @@ useHead({
             <UIcon name="i-heroicons-arrow-right-16-solid" class="size-4" />
           </UButton>
           <UButton to="/demo" variant="outline" color="neutral"
-            class="btn btn-lg btn-ghost hover:scale-[1.02] transition-transform">
+            class="btn btn-lg btn-ghost hover:scale-[1.02] transition-transform hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-400">
             Ver Demo
           </UButton>
         </div>
@@ -92,7 +92,7 @@ useHead({
                   <span class="size-2.5 rounded-full bg-white/10" />
                 </div>
                 <div class="browser-url">
-                  <UIcon name="i-heroicons-lock-closed" class="size-2.5 text-emerald-400" />
+                  <UIcon name="i-heroicons-lock-closed" class="size-2.5 text-green-400" />
                   <span>alcatraz.app/boveda</span>
                 </div>
                 <div />
@@ -168,15 +168,15 @@ useHead({
 
           <ul class="mt-6 space-y-3">
             <li class="flex items-center gap-3 text-neutral-300">
-              <UIcon name="i-heroicons-check-circle" class="size-5 text-emerald-400 shrink-0" />
+              <UIcon name="i-heroicons-check-circle" class="size-5 text-green-400 shrink-0" />
               Cifrado AES-256 en reposo y en tránsito
             </li>
             <li class="flex items-center gap-3 text-neutral-300">
-              <UIcon name="i-heroicons-check-circle" class="size-5 text-emerald-400 shrink-0" />
+              <UIcon name="i-heroicons-check-circle" class="size-5 text-green-400 shrink-0" />
               Derivación de claves con Argon2id
             </li>
             <li class="flex items-center gap-3 text-neutral-300">
-              <UIcon name="i-heroicons-check-circle" class="size-5 text-emerald-400 shrink-0" />
+              <UIcon name="i-heroicons-check-circle" class="size-5 text-green-400 shrink-0" />
               Autenticación de dos factores (2FA) disponible
             </li>
           </ul>
@@ -241,7 +241,7 @@ useHead({
             Comenzar Gratis
           </UButton>
           <UButton to="/contacto" color="neutral" variant="outline"
-            class="btn btn-lg btn-ghost hover:scale-[1.02] transition-transform">
+            class="btn btn-lg btn-ghost hover:scale-[1.02] transition-transform hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-400">
             Hablar con Ventas
           </UButton>
         </div>
@@ -249,15 +249,15 @@ useHead({
         <div
           class="mt-8 flex flex-wrap justify-center gap-6 text-base text-neutral-400 animate-fade-up animate-delay-300">
           <span class="inline-flex items-center gap-2">
-            <UIcon name="i-heroicons-check-circle" class="size-4 text-emerald-400" />
+            <UIcon name="i-heroicons-check-circle" class="size-4 text-green-400" />
             Sin tarjeta de crédito
           </span>
           <span class="inline-flex items-center gap-2">
-            <UIcon name="i-heroicons-check-circle" class="size-4 text-emerald-400" />
+            <UIcon name="i-heroicons-check-circle" class="size-4 text-green-400" />
             Cancela cuando quieras
           </span>
           <span class="inline-flex items-center gap-2">
-            <UIcon name="i-heroicons-check-circle" class="size-4 text-emerald-400" />
+            <UIcon name="i-heroicons-check-circle" class="size-4 text-green-400" />
             Soporte 24/7
           </span>
         </div>

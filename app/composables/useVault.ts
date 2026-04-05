@@ -1,4 +1,14 @@
-import type { VaultItem } from '~/types/vault'
+import type { 
+  VaultItem, 
+  VaultFolder, 
+  VaultItemResponse, 
+  VaultFolderDTO, 
+  CreateVaultItemDTO, 
+  UpdateVaultItemDTO,
+  CreateVaultFolderDTO,
+  UpdateVaultFolderDTO
+} from '~/types/vault'
+
 export const useVault = () => {
   const config = useRuntimeConfig()
   const { encryptData, decryptData } = useCrypto()
@@ -6,44 +16,138 @@ export const useVault = () => {
 
   const searchQuery = useState<string>('vault-search', () => '')
   const items = useState<VaultItem[]>('vault-items', () => [])
+  const folders = useState<VaultFolder[]>('vault-folders', () => [])
 
-  // Helper para separar datos sensibles de metadatos
-  const extractSensitiveData = (item: Partial<VaultItem>) => {
-    const { id, title, folder, trashed, icon, item_type, encrypted_data, iv, salt, ...sensitive } = item
-    return sensitive
+  /**
+   * Helper to extract only the sensitive fields for encryption.
+   * Excludes metadata that is sent flat in the DTO.
+   */
+  const extractSensitiveData = (item: Partial<VaultItem>): Record<string, unknown> => {
+    const { 
+      id: _id, 
+      title: _title, 
+      folder: _folder, 
+      trashed: _trashed, 
+      icon: _icon, 
+      item_type: _item_type, 
+      encrypted_data: _encrypted_data, 
+      iv: _iv, 
+      salt: _salt, 
+      ...sensitive 
+    } = item
+    return sensitive as Record<string, unknown>
   }
 
-  const fetchItems = async () => {
+  const fetchFolders = async (): Promise<void> => {
+    try {
+      const data = await $fetch<VaultFolderDTO[]>(`${config.public.apiBase}/api/vault/folders`, {
+        credentials: 'include'
+      })
+      folders.value = data.map(dto => ({
+        id: dto.id,
+        name: dto.name,
+        is_default: dto.is_default,
+        created_at: dto.created_at
+      }))
+    } catch (error) {
+      console.error('Error fetching folders:', error)
+    }
+  }
+
+  const fetchItems = async (): Promise<void> => {
     if (!masterPassword.value) {
       console.warn('Master password not set. Cannot fetch items.')
       return
     }
 
     try {
-      const dtos = await $fetch<any[]>(`${config.public.apiBase}/api/vault/items`, {
+      const dtos = await $fetch<VaultItemResponse[]>(`${config.public.apiBase}/api/vault/items`, {
         credentials: 'include'
       })
+      
+      if (!folders.value.length) {
+        await fetchFolders()
+      }
 
-      const mappedItems: VaultItem[] = dtos.map(rawDto => {
-        // Normalizar claves (snake_case vs PascalCase)
-        return {
-          id: rawDto.id || rawDto.ID,
-          item_type: rawDto.item_type || rawDto.ItemType,
-          title: rawDto.title || rawDto.Title,
-          icon: rawDto.icon || rawDto.Icon,
-          folder: rawDto.folder_id || rawDto.FolderId || rawDto.folderId || 'personal',
-          trashed: rawDto.trashed ?? rawDto.Trashed ?? false,
+      const defaultFolderId = folders.value.find(f => f.is_default)?.id || 'personal'
 
-          // Guardar datos cifrados para descifrar bajo demanda
-          encrypted_data: rawDto.encrypted_data || rawDto.EncryptedData,
-          iv: rawDto.iv || rawDto.IV || rawDto.Iv,
-          salt: rawDto.salt || rawDto.Salt
-        } as VaultItem
-      })
-
-      items.value = mappedItems
+      items.value = dtos.map(dto => ({
+        id: dto.id,
+        item_type: dto.item_type,
+        title: dto.title,
+        icon: dto.icon,
+        folder: dto.folder_id || defaultFolderId,
+        trashed: dto.trashed,
+        created_at: dto.created_at,
+        updated_at: dto.updated_at,
+        // Encripted data if present (depends on backend query)
+        encrypted_data: dto.secret?.encrypted_data,
+        iv: dto.secret?.iv,
+        salt: dto.secret?.salt
+      } as VaultItem))
     } catch (error) {
       console.error('Error fetching vault items:', error)
+    }
+  }
+
+  const addFolder = async (name: string): Promise<VaultFolder> => {
+    try {
+      const body: CreateVaultFolderDTO = { name }
+      const dto = await $fetch<VaultFolderDTO>(`${config.public.apiBase}/api/vault/folders`, {
+        method: 'POST',
+        body,
+        credentials: 'include'
+      })
+      const newFolder: VaultFolder = {
+        id: dto.id,
+        name: dto.name,
+        is_default: dto.is_default,
+        created_at: dto.created_at
+      }
+      folders.value.push(newFolder)
+      return newFolder
+    } catch (error) {
+      console.error('Error adding folder:', error)
+      throw error
+    }
+  }
+
+  const updateFolder = async (id: string, name: string): Promise<VaultFolder> => {
+    try {
+      const body: UpdateVaultFolderDTO = { name }
+      const dto = await $fetch<VaultFolderDTO>(`${config.public.apiBase}/api/vault/folders/${id}`, {
+        method: 'PUT',
+        body,
+        credentials: 'include'
+      })
+      const updatedFolder: VaultFolder = {
+        id: dto.id,
+        name: dto.name,
+        is_default: dto.is_default,
+        created_at: dto.created_at
+      }
+      const index = folders.value.findIndex(f => f.id === id)
+      if (index !== -1) {
+        folders.value[index] = updatedFolder
+      }
+      return updatedFolder
+    } catch (error) {
+      console.error('Error updating folder:', error)
+      throw error
+    }
+  }
+
+  const deleteFolder = async (id: string): Promise<void> => {
+    try {
+      await $fetch(`${config.public.apiBase}/api/vault/folders/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      })
+      folders.value = folders.value.filter(f => f.id !== id)
+      await fetchItems()
+    } catch (error) {
+      console.error('Error deleting folder:', error)
+      throw error
     }
   }
 
@@ -51,24 +155,29 @@ export const useVault = () => {
     const item = items.value.find(i => i.id === id)
     if (!item) return undefined
 
-    // Si ya tiene algún campo sensible específico descifrado, asumo que está listo
-    if (item.item_type === 'password' && (item as any).username) return item
-    if (item.item_type === 'note' && (item as any).note) return item;
-    if (item.item_type === 'card' && (item as any).number) return item;
-    if (item.item_type === 'identity' && (item as any).firstName) return item;
+    // Determine if already decrypted based on typical per-type fields
+    const isDecrypted = (
+      (item.item_type === 'password' && (item as any).username !== undefined) ||
+      (item.item_type === 'note' && (item as any).note !== undefined) ||
+      (item.item_type === 'card' && (item as any).number !== undefined) ||
+      (item.item_type === 'identity' && (item as any).firstName !== undefined)
+    )
 
-    // Si NO tiene los datos cifrados (lazy loading), los pido al backend
+    if (isDecrypted) return item
+
+    // Lazy load encrypted data if missing
     if (!item.encrypted_data) {
       try {
-        const detail = await $fetch<any>(`${config.public.apiBase}/api/vault/items/${id}`, {
+        const detail = await $fetch<VaultItemResponse>(`${config.public.apiBase}/api/vault/items/${id}`, {
           credentials: 'include'
         })
-        const { EncryptedData, IV, Salt } = detail.Secret
-        //  console.log('Item details:', detail.ID)
-        // Actualizo con los datos cifrados que acaban de llegar
-        item.encrypted_data = EncryptedData
-        item.iv = IV
-        item.salt = Salt
+        
+        const secret = detail.secret
+        if (!secret) throw new Error('Item has no secret data')
+
+        item.encrypted_data = secret.encrypted_data
+        item.iv = secret.iv
+        item.salt = secret.salt
       } catch (e) {
         console.error("Error fetching item details", e)
         throw e
@@ -87,10 +196,9 @@ export const useVault = () => {
         masterPassword.value
       )
 
-      // Actualizar el item en el array reactivo con los datos descifrados
       Object.assign(item, sensitiveData)
 
-      // Limpiar datos cifrados de memoria (opcional, pero buena práctica)
+      // Clean up sensitive encrypted assets from memory
       delete item.encrypted_data
       delete item.iv
       delete item.salt
@@ -102,48 +210,46 @@ export const useVault = () => {
     }
   }
 
-  const addItem = async (item: Omit<VaultItem, 'id' | 'icon' | 'trashed'>) => {
+  const addItem = async (item: Omit<VaultItem, 'id' | 'icon' | 'trashed'>): Promise<VaultItem> => {
     if (!masterPassword.value) throw new Error('Vault locked')
 
     try {
-      // 1. Preparar metadatos
       let icon = 'i-heroicons-question-mark-circle'
       if (item.item_type === 'password') icon = 'i-heroicons-key'
-      if (item.item_type === 'note') icon = 'i-heroicons-document-text'
-      if (item.item_type === 'card') icon = 'i-heroicons-credit-card'
-      if (item.item_type === 'identity') icon = 'i-heroicons-user-circle'
+      else if (item.item_type === 'note') icon = 'i-heroicons-document-text'
+      else if (item.item_type === 'card') icon = 'i-heroicons-credit-card'
+      else if (item.item_type === 'identity') icon = 'i-heroicons-user-circle'
 
-      // 2. Cifrar datos sensibles
       const sensitiveData = extractSensitiveData(item as VaultItem)
       const cryptoResult = await encryptData(sensitiveData, masterPassword.value)
 
-      // 3. Crear DTO para backend
-      const payload = {
+      if (!folders.value.length) {
+        await fetchFolders()
+      }
+      
+      const isUUID = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str)
+      
+      const payload: CreateVaultItemDTO = {
         title: item.title,
         type: item.item_type,
-        folder_id: item.folder === 'personal' || item.folder === 'work' ? null : item.folder, // Handle magic strings for now
-        icon: icon,
+        folder_id: (item.folder && isUUID(item.folder)) ? item.folder : null,
+        icon,
         secret: {
-          Data: cryptoResult.encrypted_data,
-          Iv: cryptoResult.iv,
-          Salt: cryptoResult.salt
+          data: cryptoResult.encrypted_data,
+          iv: cryptoResult.iv,
+          salt: cryptoResult.salt
         }
       }
 
-
-
-      // 4. Enviar
-      const rawResponse = await $fetch<VaultItem>(`${config.public.apiBase}/api/vault/items`, {
+      const response = await $fetch<VaultItemResponse>(`${config.public.apiBase}/api/vault/items`, {
         method: 'POST',
         credentials: 'include',
         body: payload
       })
 
-      // 5. Actualizar UI (usamos los datos que ya tenemos en memoria + ID del server)
-      console.log('AddItem Response:', rawResponse)
       const newItem: VaultItem = {
         ...item,
-        id: rawResponse.id || (rawResponse as any).ID || '',
+        id: response.id,
         icon,
         trashed: false
       } as VaultItem
@@ -156,87 +262,52 @@ export const useVault = () => {
     }
   }
 
-  const updateItem = async (id: string, updatedFields: Partial<VaultItem>) => {
+  const updateItem = async (id: string, updatedFields: Partial<VaultItem>): Promise<void> => {
     if (!masterPassword.value) throw new Error('Vault locked')
 
     try {
       const index = items.value.findIndex(i => i.id === id)
       if (index === -1) return
 
-      // Fusionar cambios en memoria para obtener el estado final deseado
       let currentItem = items.value[index]
       if (!currentItem) return
 
-      // Detectar si necesitamos re-cifrar (cambio de título o campos sensibles)
-      const sensitiveKeys = ['username', 'password', 'url', 'note', 'number', 'cvv', 'firstName', 'licenseNumber']
+      const sensitiveKeys = ['username', 'password', 'url', 'note', 'number', 'cvv', 'firstName', 'lastName', 'email', 'phone', 'address', 'licenseNumber', 'passportNumber']
       const hasSensitiveChanges = Object.keys(updatedFields).some(k => sensitiveKeys.includes(k))
       const needReEncryption = hasSensitiveChanges || updatedFields.title
 
-      // Si hay que re-cifrar, aseguramos que tenemos todos los datos (descifrados)
-      // para no sobrescribir el secreto con datos incompletos.
       if (needReEncryption) {
         await getDecryptedItem(id)
-        // Refrescar referencia tras la mutación asíncrona
-        currentItem = items.value[index]
+        currentItem = items.value[index]!
       }
 
       const mergedItem = { ...currentItem, ...updatedFields } as VaultItem
 
-      // Preparar payload
-      const payload: any = {}
+      const cryptoResult = await encryptData(extractSensitiveData(mergedItem), masterPassword.value)
+      const isUUID = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str)
 
-      // Si cambiaron metadatos planos
-      if (updatedFields.title) payload.title = updatedFields.title
-      if (updatedFields.folder) payload.folder_id = updatedFields.folder === 'personal' || updatedFields.folder === 'work' ? null : updatedFields.folder
-      if (updatedFields.trashed !== undefined) payload.trashed = updatedFields.trashed
-      // Nota: item_type no suele cambiar
-
-      if (needReEncryption) { // Si editamos, re-ciframos para rotar IV/Salt también (buena práctica)
-        const sensitiveData = extractSensitiveData(mergedItem)
-        const cryptoResult = await encryptData(sensitiveData, masterPassword.value)
-
-        payload.secret = {
-          Data: cryptoResult.encrypted_data,
-          Iv: cryptoResult.iv,
-          Salt: cryptoResult.salt
+      const payload: UpdateVaultItemDTO = {
+        title: mergedItem.title,
+        type: mergedItem.item_type,
+        folder_id: (mergedItem.folder && isUUID(mergedItem.folder)) ? mergedItem.folder : null,
+        icon: mergedItem.icon,
+        trashed: mergedItem.trashed,
+        secret: {
+          data: cryptoResult.encrypted_data,
+          iv: cryptoResult.iv,
+          salt: cryptoResult.salt
         }
       }
 
-      // Enviar al backend
-      await $fetch<VaultItem>(`${config.public.apiBase}/api/vault/items/${id}`, {
+      await $fetch(`${config.public.apiBase}/api/vault/items/${id}`, {
         method: 'PUT',
         credentials: 'include',
         body: payload
       })
 
-      // Actualizar UI
-      if (items.value[index]) {
-        Object.assign(items.value[index], updatedFields)
-      }
-
+      Object.assign(items.value[index]!, updatedFields)
     } catch (error) {
       console.error('Error updating item:', error)
-      throw error
-    }
-  }
-
-  const removeItem = async (id: string) => {
-    await updateItem(id, { trashed: true })
-  }
-
-  const restoreItem = async (id: string) => {
-    await updateItem(id, { trashed: false })
-  }
-
-  const deleteItemPermanent = async (id: string) => {
-    try {
-      await $fetch(`${config.public.apiBase}/api/vault/items/${id}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      })
-      items.value = items.value.filter(i => i.id !== id)
-    } catch (error) {
-      console.error('Error deleting item permanently:', error)
       throw error
     }
   }
@@ -247,9 +318,20 @@ export const useVault = () => {
     fetchItems,
     addItem,
     updateItem,
-    removeItem,
-    restoreItem,
-    deleteItemPermanent,
-    getDecryptedItem
+    removeItem: (id: string) => updateItem(id, { trashed: true }),
+    restoreItem: (id: string) => updateItem(id, { trashed: false }),
+    deleteItemPermanent: async (id: string) => {
+      await $fetch(`${config.public.apiBase}/api/vault/items/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      })
+      items.value = items.value.filter(i => i.id !== id)
+    },
+    getDecryptedItem,
+    folders,
+    fetchFolders,
+    addFolder,
+    updateFolder,
+    deleteFolder
   }
 }

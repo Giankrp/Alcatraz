@@ -8,10 +8,10 @@
   color-scheme: dark;
 
   /* ── Accent color system ── */
-  --accent: 160 84% 55%;
-  /* emerald-ish */
-  --accent-soft: 160 60% 20%;
-  --accent-glow: hsla(160, 84%, 55%, 0.15);
+  --accent: 142 71% 45%;
+  /* green-ish */
+  --accent-soft: 142 60% 20%;
+  --accent-glow: hsla(142, 71%, 45%, 0.15);
 
   /* ── Surfaces ── */
   --surface-0: #000000;
@@ -221,7 +221,7 @@ button:focus-visible,
 }
 
 .btn-accent:hover {
-  background: hsl(160, 84%, 48%);
+  background: hsl(142, 71%, 38%);
   box-shadow: 0 0 24px var(--accent-glow);
 }
 
@@ -247,7 +247,7 @@ button:focus-visible,
 }
 
 .landing-card-accent:hover {
-  border-color: hsla(160, 84%, 55%, 0.3);
+  border-color: hsla(142, 71%, 45%, 0.3);
   box-shadow: 0 0 40px var(--accent-glow);
   transform: translateY(-2px);
 }
@@ -325,7 +325,7 @@ button:focus-visible,
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: hsla(160, 84%, 55%, 0.1);
+  background: hsla(142, 71%, 45%, 0.1);
   color: hsl(var(--accent));
   flex-shrink: 0;
 }
@@ -345,12 +345,12 @@ button:focus-visible,
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, transparent 40%, hsla(160, 84%, 55%, 0.04) 100%);
+  background: linear-gradient(135deg, transparent 40%, hsla(142, 71%, 45%, 0.04) 100%);
   pointer-events: none;
 }
 
 .stat-card:hover {
-  border-color: hsla(160, 84%, 55%, 0.25);
+  border-color: hsla(142, 71%, 45%, 0.25);
   box-shadow: 0 0 30px var(--accent-glow);
 }
 
@@ -368,7 +368,7 @@ button:focus-visible,
   transform: translateX(-50%);
   width: 500px;
   height: 300px;
-  background: radial-gradient(ellipse, hsla(160, 84%, 55%, 0.08) 0%, transparent 70%);
+  background: radial-gradient(ellipse, hsla(142, 71%, 45%, 0.08) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -387,7 +387,7 @@ button:focus-visible,
   transform: translateX(-50%);
   width: 80%;
   height: 200px;
-  background: radial-gradient(ellipse, hsla(160, 84%, 55%, 0.12) 0%, transparent 70%);
+  background: radial-gradient(ellipse, hsla(142, 71%, 45%, 0.12) 0%, transparent 70%);
   filter: blur(40px);
   pointer-events: none;
   z-index: 0;
@@ -403,7 +403,7 @@ button:focus-visible,
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.04),
     0 25px 60px rgba(0, 0, 0, 0.5),
-    0 0 80px hsla(160, 84%, 55%, 0.06);
+    0 0 80px hsla(142, 71%, 45%, 0.06);
   transform: rotateX(2deg);
   transition: transform 0.5s ease, box-shadow 0.5s ease;
 }
@@ -413,7 +413,7 @@ button:focus-visible,
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.08),
     0 30px 70px rgba(0, 0, 0, 0.6),
-    0 0 100px hsla(160, 84%, 55%, 0.1);
+    0 0 100px hsla(142, 71%, 45%, 0.1);
 }
 
 .browser-bar {

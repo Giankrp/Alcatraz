@@ -1,6 +1,6 @@
 <script setup lang="ts">
-const { data: session, status } = useAuth()
-const { setMasterPassword } = useMasterPassword()
+const { data: session, status, signOut } = useAuth()
+const { setMasterPassword, userEmail, clearMasterPassword, clearUserEmail } = useMasterPassword()
 
 const route = useRoute()
 const config = useRuntimeConfig()
@@ -13,6 +13,14 @@ const confirmPassword = ref('')
 const loading = ref(false)
 const error = ref('')
 
+// Verificar si hay sesión del backend (auth_token cookie) — cubre usuarios sin provider
+const { data: backendAuth } = await useFetch('/api/auth/check')
+const hasBackendSession = computed(() => !!backendAuth.value?.authenticated)
+
+// El usuario está autenticado si tiene sesión OAuth O sesión del backend
+const isAuthenticated = computed(() => {
+  return status.value === 'authenticated' || hasBackendSession.value
+})
 
 useHead({
   title: computed(() => isRegisterMode.value ? 'Crear contraseña maestra' : 'Desbloquear bóveda'),
@@ -22,14 +30,18 @@ useHead({
   ]
 })
 
-// Si no hay sesión OAuth activa, redirigir a login
-watch(status, (val) => {
-  if (val === 'unauthenticated') {
+// Si no hay ninguna sesión activa (ni OAuth ni backend), redirigir a login
+watch([() => status.value, hasBackendSession], () => {
+  // Esperar a que OAuth termine de cargar antes de decidir
+  if (status.value === 'loading') return
+
+  if (!isAuthenticated.value) {
     navigateTo('/login')
   }
 }, { immediate: true })
 
-const email = computed(() => session.value?.user?.email ?? '')
+// Email: preferir sesión OAuth, fallback al email almacenado en memoria
+const email = computed(() => session.value?.user?.email ?? userEmail.value ?? '')
 
 // Auto-detectar si el usuario necesita registrarse
 watch(email, async (newEmail) => {
@@ -99,6 +111,23 @@ const onSubmit = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const handleSignOut = async () => {
+  clearMasterPassword()
+  clearUserEmail()
+  
+  try {
+    await $fetch(`${config.public.apiBase}/api/auth/logout`, {
+      method: 'POST',
+      credentials: 'include'
+    })
+  } catch (err) {
+    console.error('Backend logout failed:', err)
+  }
+
+  // Clear NuxtAuth session and redirect
+  await signOut({ callbackUrl: '/login', redirect: true })
 }
 
 
@@ -194,9 +223,9 @@ const onSubmit = async () => {
             <div class="mt-5 pt-4 border-t border-white/10 text-center">
               <p class="text-sm text-white/50">
                 {{ isRegisterMode ? '¿Ya tienes cuenta?' : '¿Otra cuenta?' }}
-                <ULink :to="isRegisterMode ? '/login' : '/login'" class="font-medium text-white/80 hover:text-white">
+                <button type="button" @click="handleSignOut" class="font-medium text-white/80 hover:text-white cursor-pointer ml-1 transition-colors">
                   Volver al login
-                </ULink>
+                </button>
               </p>
             </div>
 

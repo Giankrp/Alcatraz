@@ -13,7 +13,7 @@ definePageMeta({
 
 const route = useRoute()
 const router = useRouter()
-const { items, updateItem, fetchItems, getDecryptedItem } = useVault()
+const { items, updateItem, fetchItems, getDecryptedItem, folders } = useVault()
 const toast = useToast()
 
 const itemId = computed(() => route.params.id as string)
@@ -25,12 +25,24 @@ const asNote = computed(() => item.value?.item_type === 'note' ? item.value as N
 const asCard = computed(() => item.value?.item_type === 'card' ? item.value as CardItem : null)
 const asIdentity = computed(() => item.value?.item_type === 'identity' ? item.value as IdentityItem : null)
 
+const folderName = computed(() => {
+  const fId = item.value?.folder
+  if (!fId) return 'Personal'
+  const found = folders.value.find(f => f.id === fId)
+  return found ? found.name : 'Personal'
+})
+
 const isEditing = ref(false)
 const isSaving = ref(false)
 const showPassword = ref(false)
 const isLoading = ref(true)
 
 onMounted(async () => {
+  const { masterPassword } = useMasterPassword()
+  if (!masterPassword.value) {
+    navigateTo('/login/unlock')
+    return
+  }
   await loadItem()
 })
 
@@ -92,6 +104,45 @@ const handleSave = (data: any) => {
   }
 }
 
+// Metadata Helpers
+const timeSince = (date?: string) => {
+  if (!date) return 'Desconocido'
+  const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000)
+  let interval = seconds / 31536000
+  if (interval > 1) return `hace ${Math.floor(interval)} años`
+  interval = seconds / 2592000
+  if (interval > 1) return `hace ${Math.floor(interval)} meses`
+  interval = seconds / 86400
+  if (interval > 1) return `hace ${Math.floor(interval)} días`
+  interval = seconds / 3600
+  if (interval > 1) return `hace ${Math.floor(interval)} horas`
+  interval = seconds / 60
+  if (interval > 1) return `hace ${Math.floor(interval)} minutos`
+  return 'justo ahora'
+}
+
+const passwordStrength = computed(() => {
+  if (item.value?.item_type !== 'password' || !asPassword.value?.password) return null
+  const p = asPassword.value.password
+  let score = 0
+  
+  // 1. Length (Max 40 points - needs 16+ for full points)
+  score += Math.min(40, p.length * 2.5)
+  
+  // 2. Diversity (Max 40 points)
+  if (/[a-z]/.test(p)) score += 10
+  if (/[A-Z]/.test(p)) score += 10
+  if (/[0-9]/.test(p)) score += 10
+  if (/[^a-zA-Z0-9]/.test(p)) score += 10
+  
+  // 3. Complexity & Entropy (Max 20 points)
+  const uniqueChars = new Set(p).size
+  if (uniqueChars > p.length / 2) score += 10 // Good variety of chars
+  if (!/(.)\1{2,}/.test(p)) score += 10    // No 3+ characters repeated (e.g., "aaa")
+  
+  return Math.floor(Math.min(100, score))
+})
+
 const getComponentForType = (type: string) => {
   switch (type) {
     case 'password': return PasswordForm
@@ -108,513 +159,202 @@ const getComponentForType = (type: string) => {
     <UIcon name="i-heroicons-arrow-path" class="animate-spin text-white w-8 h-8" />
   </div>
   <div v-else-if="item"
-    class="min-h-screen bg-gray-950 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    class="min-h-screen bg-black flex flex-col p-6 md:p-12 lg:p-20 relative overflow-hidden">
 
-    <!-- Background Effects -->
+    <!-- Cinematic Background -->
     <div class="absolute inset-0 pointer-events-none">
-      <div class="absolute top-0 left-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
-      <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(24,24,27,0.5)_0%,rgba(0,0,0,1)_80%)]"></div>
+      <div class="absolute inset-0 opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+      <div class="absolute top-0 right-0 w-[60%] h-[60%] bg-white/2 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
+      
+      <!-- Tech Grid Decoration -->
+      <div class="absolute inset-0 opacity-[0.05]" 
+           style="background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 40px 40px;"></div>
     </div>
 
-    <!-- Back Navigation -->
-    <div v-if="!isEditing" class="absolute top-6 left-6 z-10">
+    <!-- Top Navigation -->
+    <div class="relative z-50 flex items-center justify-between mb-12">
       <UButton icon="i-heroicons-arrow-left" color="neutral" variant="ghost" @click="router.push('/boveda')"
-        class="hover:bg-white/10">
-        Volver a la Bóveda
+        class="text-zinc-500 hover:text-white transition-all duration-500 group pl-0">
+        <span class="group-hover:-translate-x-1 transition-transform">Volver a la Bóveda</span>
       </UButton>
+      
+      <div class="flex items-center gap-4 text-[10px] font-mono text-zinc-500 uppercase tracking-[0.4em]">
+        <span>Encrypted Node: {{ itemId.slice(0, 8) }}</span>
+        <div class="size-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+      </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="w-full max-w-2xl relative z-10">
-
-      <!-- Edit Mode -->
-      <div v-if="isEditing" class="w-full max-w-lg mx-auto relative perspective-1000">
-        <div class="relative overflow-hidden rounded-4xl bg-[#050505] shadow-2xl ring-1 ring-white/8 p-8">
-          <!-- Cinematic Glows -->
-          <div class="absolute -top-50 -right-50 w-125 h-125 bg-white/3 blur-[120px] rounded-full pointer-events-none">
-          </div>
-          <div
-            class="absolute -bottom-50 -left-50 w-125 h-125 bg-white/2 blur-[120px] rounded-full pointer-events-none">
-          </div>
-
-          <component :is="getComponentForType(item.item_type)" :initial-data="item" :loading="isSaving"
-            @save="handleSave" @back="isEditing = false" class="relative z-10" />
-        </div>
-      </div>
-
-      <!-- View Mode -->
-      <div v-else>
-        <!-- Header Actions (Hidden for Password type as it has internal edit button) -->
-        <div v-if="item.item_type !== 'password'" class="flex justify-end mb-4">
-          <UButton icon="i-heroicons-pencil-square" color="neutral" variant="soft"
-            class="bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10" @click="isEditing = true">
-            Editar
-          </UButton>
-        </div>
-
-        <!-- Password View -->
-        <div v-if="asPassword" class="w-full max-w-2xl mx-auto perspective-1000">
-          <div class="relative overflow-hidden rounded-4xl bg-[#050505] shadow-2xl ring-1 ring-white/8">
-
-            <!-- Cinematic Glows -->
-            <div
-              class="absolute -top-50 -right-50 w-125 h-125 bg-white/3 blur-[120px] rounded-full pointer-events-none">
-            </div>
-            <div
-              class="absolute -bottom-50 -left-50 w-125 h-125 bg-white/2 blur-[120px] rounded-full pointer-events-none">
-            </div>
-
-            <!-- Header Section -->
-            <div class="relative p-10 pb-8 flex items-start justify-between z-10">
-              <div class="flex items-center gap-8">
-                <!-- Icon with Prism Effect -->
-                <div class="relative group cursor-default">
-                  <div
-                    class="absolute inset-0 bg-linear-to-tr from-white/20 to-transparent blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-                  </div>
-                  <div
-                    class="relative size-20 rounded-[20px] bg-linear-to-br from-white/8 to-white/1 flex items-center justify-center ring-1 ring-white/10 shadow-lg backdrop-blur-md">
-                    <UIcon :name="asPassword.icon"
-                      class="size-10 text-white/90 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" />
-                  </div>
-                </div>
-
-                <!-- Title & Meta -->
-                <div class="space-y-2">
-                  <h1
-                    class="text-4xl font-light text-transparent bg-clip-text bg-linear-to-b from-white via-white to-white/60 tracking-tight">
-                    {{ asPassword.title }}</h1>
-                  <div class="flex items-center gap-3">
-                    <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/3 ring-1 ring-white/5">
-                      <span class="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">{{
-                        asPassword.folder }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <UButton icon="i-heroicons-pencil-square" color="neutral" variant="ghost" :ui="{ base: 'rounded-full' }"
-                class="opacity-40 hover:opacity-100 hover:bg-white/8 transition-all duration-300 w-10 h-10 flex items-center justify-center"
-                @click="isEditing = true" />
-            </div>
-
-            <!-- Content Container -->
-            <div class="p-10 pt-2 space-y-6 relative z-10">
-
-              <!-- Username Field -->
-              <div v-if="asPassword.username"
-                class="group relative bg-white/2 hover:bg-white/4 rounded-2xl p-5 transition-all duration-500 ring-1 ring-transparent hover:ring-white/10">
-                <div class="flex flex-col gap-1.5">
-                  <label
-                    class="text-[10px] font-bold text-neutral-600 uppercase tracking-[0.2em] transition-colors group-hover:text-neutral-500">Usuario</label>
-                  <div class="flex items-center justify-between">
-                    <span class="text-neutral-200 font-light text-lg select-all tracking-wide">{{ asPassword.username
-                      }}</span>
-                    <UButton icon="i-heroicons-document-duplicate" color="neutral" variant="ghost" size="xs"
-                      class="opacity-0 group-hover:opacity-60 hover:opacity-100! transition-all duration-300"
-                      @click="copyToClipboard(asPassword.username!, 'Usuario')" />
-                  </div>
-                </div>
-              </div>
-
-              <!-- Password Field -->
-              <div v-if="asPassword.password"
-                class="group relative bg-white/2 hover:bg-white/4 rounded-2xl p-5 transition-all duration-500 ring-1 ring-transparent hover:ring-white/10">
-                <div class="flex flex-col gap-1.5">
-                  <label
-                    class="text-[10px] font-bold text-neutral-600 uppercase tracking-[0.2em] transition-colors group-hover:text-neutral-500">Contraseña</label>
-                  <div class="flex items-center justify-between">
-                    <span class="text-white font-mono text-xl tracking-wider">
-                      {{ showPassword ? asPassword.password : '••••••••••••••••' }}
-                    </span>
-                    <div class="flex items-center gap-2">
-                      <UButton :icon="showPassword ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'" color="neutral"
-                        variant="ghost" size="xs"
-                        class="opacity-0 group-hover:opacity-60 hover:opacity-100! transition-all duration-300"
-                        @click="showPassword = !showPassword" />
-                      <div class="w-px h-4 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                      <UButton icon="i-heroicons-document-duplicate" color="neutral" variant="ghost" size="xs"
-                        class="opacity-0 group-hover:opacity-60 hover:opacity-100! transition-all duration-300"
-                        @click="copyToClipboard(asPassword.password!, 'Contraseña')" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- URL Field -->
-              <div v-if="asPassword.url"
-                class="group relative bg-white/2 hover:bg-white/4 rounded-2xl p-5 transition-all duration-500 ring-1 ring-transparent hover:ring-white/10">
-                <div class="flex flex-col gap-1.5">
-                  <label
-                    class="text-[10px] font-bold text-neutral-600 uppercase tracking-[0.2em] transition-colors group-hover:text-neutral-500">Website</label>
-                  <div class="flex items-center justify-between">
-                    <a :href="asPassword.url" target="_blank"
-                      class="text-neutral-300 hover:text-white font-light text-lg transition-colors truncate pr-4 decoration-white/30 hover:underline underline-offset-4">
-                      {{ asPassword.url?.replace(/^https?:\/\//, '') }}
-                    </a>
-                    <div class="flex items-center gap-2">
-                      <UButton icon="i-heroicons-arrow-top-right-on-square" color="neutral" variant="ghost" size="xs"
-                        class="opacity-0 group-hover:opacity-60 hover:opacity-100! transition-all duration-300"
-                        :to="asPassword.url" target="_blank" />
-                      <UButton icon="i-heroicons-document-duplicate" color="neutral" variant="ghost" size="xs"
-                        class="opacity-0 group-hover:opacity-60 hover:opacity-100! transition-all duration-300"
-                        @click="copyToClipboard(asPassword.url!, 'URL')" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Security Footer (Minimal) -->
-              <div
-                class="mt-8 pt-8 flex items-center justify-between opacity-40 hover:opacity-100 transition-opacity duration-500">
-                <div class="flex items-center gap-2 text-[10px] font-medium tracking-widest text-neutral-400 uppercase">
-                  <UIcon name="i-heroicons-shield-check" class="w-3 h-3" />
-                  <span>AES-256 Encrypted</span>
-                </div>
-                <div class="text-[10px] font-mono text-neutral-600">
-                  ID-{{ asPassword.id?.toString().padStart(4, '0') }}
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-
-        <!-- Note View -->
-        <div v-else-if="asNote" class="w-full max-w-2xl mx-auto perspective-1000">
-          <div class="relative overflow-hidden rounded-4xl bg-[#050505] shadow-2xl ring-1 ring-white/8">
-
-            <!-- Cinematic Glows -->
-            <div
-              class="absolute -top-50 -right-50 w-125 h-125 bg-white/3 blur-[120px] rounded-full pointer-events-none">
-            </div>
-            <div
-              class="absolute -bottom-50 -left-50 w-125 h-125 bg-white/2 blur-[120px] rounded-full pointer-events-none">
-            </div>
-
-            <!-- Header Section -->
-            <div class="relative p-10 pb-8 flex items-start justify-between z-10">
-              <div class="flex items-center gap-8">
-                <div class="relative group cursor-default">
-                  <div
-                    class="absolute inset-0 bg-linear-to-tr from-white/20 to-transparent blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-                  </div>
-                  <div
-                    class="relative size-20 rounded-[20px] bg-linear-to-br from-white/8 to-white/1 flex items-center justify-center ring-1 ring-white/10 shadow-lg backdrop-blur-md">
-                    <UIcon :name="asNote.icon"
-                      class="size-10 text-white/90 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" />
-                  </div>
-                </div>
-
-                <div class="space-y-2">
-                  <h1
-                    class="text-4xl font-light text-transparent bg-clip-text bg-linear-to-b from-white via-white to-white/60 tracking-tight">
-                    {{ asNote.title }}</h1>
-                  <div class="flex items-center gap-3">
-                    <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/3 ring-1 ring-white/5">
-                      <span class="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">{{ asNote.folder
-                        }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <UButton icon="i-heroicons-pencil-square" color="neutral" variant="ghost" :ui="{ base: 'rounded-full' }"
-                class="opacity-40 hover:opacity-100 hover:bg-white/8 transition-all duration-300 w-10 h-10 flex items-center justify-center"
-                @click="isEditing = true" />
-            </div>
-
-            <!-- Note Content -->
-            <div class="p-10 pt-2 relative z-10">
-              <div
-                class="group relative bg-white/2 hover:bg-white/4 rounded-3xl p-8 transition-all duration-500 ring-1 ring-transparent hover:ring-white/10 min-h-100">
-                <!-- Ambient Light inside note -->
-                <div
-                  class="absolute top-0 right-0 w-64 h-64 bg-white/2 blur-[80px] rounded-full pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-1000">
-                </div>
-
-                <div class="prose prose-invert max-w-none relative z-10">
-                  <div
-                    class="whitespace-pre-wrap text-neutral-300 font-light text-lg leading-relaxed selection:bg-white/20">
-                    {{ asNote.note }}
-                  </div>
-                </div>
-
-                <!-- Floating Action -->
-                <div
-                  class="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                  <UButton icon="i-heroicons-document-duplicate" color="neutral" variant="ghost" size="sm"
-                    class="bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10"
-                    @click="copyToClipboard(asNote.note!, 'Nota')" />
-                </div>
-              </div>
-
-              <!-- Footer -->
-              <div
-                class="mt-8 pt-4 flex items-center justify-between opacity-40 hover:opacity-100 transition-opacity duration-500 px-2">
-                <div class="flex items-center gap-2 text-[10px] font-medium tracking-widest text-neutral-400 uppercase">
-                  <UIcon name="i-heroicons-lock-closed" class="w-3 h-3" />
-                  <span>End-to-End Encrypted</span>
-                </div>
-                <div class="text-[10px] font-mono text-neutral-600">
-                  ID-{{ asNote.id?.toString().padStart(4, '0') }}
-                </div>
+    <!-- Layout Asimétrico -->
+    <div class="relative z-10 w-full max-w-6xl mx-auto flex flex-col lg:flex-row gap-16 items-start">
+      
+      <!-- Lado Izquierdo: El Item (Protagonista) -->
+      <div class="w-full lg:flex-1 space-y-8">
+        <Transition appear enter-active-class="duration-1000 ease-out" enter-from-class="opacity-0 translate-y-12">
+          <div class="w-full">
+            <!-- Edit Mode -->
+            <div v-if="isEditing" class="w-full max-w-lg mx-auto relative">
+              <div class="relative overflow-hidden rounded-[32px] bg-zinc-950/80 shadow-2xl ring-1 ring-white/10 p-8 backdrop-blur-3xl">
+                <component :is="getComponentForType(item.item_type)" :initial-data="item" :loading="isSaving"
+                  @save="handleSave" @back="isEditing = false" class="relative z-10" />
               </div>
             </div>
-          </div>
-        </div>
 
-        <!-- Card View -->
-        <div v-else-if="asCard" class="w-full max-w-2xl mx-auto perspective-1000">
-          <div class="relative overflow-hidden rounded-4xl bg-[#050505] shadow-2xl ring-1 ring-white/8">
-
-            <!-- Cinematic Glows -->
-            <div
-              class="absolute -top-50 -right-50 w-125 h-125 bg-white/3 blur-[120px] rounded-full pointer-events-none">
-            </div>
-            <div
-              class="absolute -bottom-50 -left-50 w-125 h-125 bg-white/2 blur-[120px] rounded-full pointer-events-none">
-            </div>
-
-            <!-- Header -->
-            <div class="relative p-10 pb-4 flex items-start justify-between z-10">
-              <div class="flex items-center gap-8">
-                <div class="relative group cursor-default">
-                  <div
-                    class="absolute inset-0 bg-linear-to-tr from-white/20 to-transparent blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-                  </div>
-                  <div
-                    class="relative size-20 rounded-[20px] bg-linear-to-br from-white/8 to-white/1 flex items-center justify-center ring-1 ring-white/10 shadow-lg backdrop-blur-md">
-                    <UIcon :name="asCard.icon"
-                      class="size-10 text-white/90 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" />
-                  </div>
-                </div>
-                <div class="space-y-2">
-                  <h1
-                    class="text-4xl font-light text-transparent bg-clip-text bg-linear-to-b from-white via-white to-white/60 tracking-tight">
-                    {{ asCard.title }}</h1>
-                  <div class="flex items-center gap-3">
-                    <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/3 ring-1 ring-white/5">
-                      <span class="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">{{ asCard.folder
-                        }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <UButton icon="i-heroicons-pencil-square" color="neutral" variant="ghost" :ui="{ base: 'rounded-full' }"
-                class="opacity-40 hover:opacity-100 hover:bg-white/8 transition-all duration-300 w-10 h-10 flex items-center justify-center"
-                @click="isEditing = true" />
-            </div>
-
-            <!-- Content -->
-            <div class="p-10 pt-6 space-y-8 relative z-10">
-
-              <!-- The Card Itself -->
-              <div
-                class="relative w-full aspect-[1.586/1] rounded-3xl overflow-hidden shadow-2xl transition-all duration-700 hover:scale-[1.02] group ring-1 ring-white/10">
-                <!-- Premium Matte Black Texture -->
-                <div class="absolute inset-0 bg-[#080808]">
-                  <!-- Subtle noise/gradient -->
-                  <div class="absolute inset-0 bg-linear-to-br from-white/10 via-transparent to-black opacity-60"></div>
-                  <div
-                    class="absolute -top-1/2 -right-1/2 w-full h-full bg-white/5 blur-[80px] rounded-full mix-blend-overlay">
-                  </div>
-                </div>
-
-                <div class="relative z-10 p-8 flex flex-col justify-between h-full">
-                  <div class="flex justify-between items-start">
-                    <div class="text-sm font-bold tracking-[0.3em] text-white/30 font-mono">ALCATRAZ TITANIUM</div>
-                    <UIcon name="i-heroicons-wifi" class="size-10 rotate-90 text-white/20" />
-                  </div>
-
-                  <div class="space-y-8">
+            <!-- View Mode -->
+            <div v-else>
+              <!-- Password Card -->
+              <div v-if="asPassword" class="group/card relative">
+                <div class="absolute -inset-4 bg-white/5 blur-3xl opacity-0 group-hover/card:opacity-100 transition-opacity duration-1000"></div>
+                <div class="relative rounded-[40px] bg-zinc-950 shadow-2xl ring-1 ring-white/10 overflow-hidden">
+                  <div class="absolute inset-0 bg-linear-to-b from-white/3 to-transparent"></div>
+                  
+                  <div class="p-10 flex items-start justify-between">
                     <div class="flex items-center gap-6">
-                      <!-- Chip -->
-                      <div
-                        class="w-14 h-10 rounded-lg bg-linear-to-tr from-[#d4af37]/20 to-[#f9d976]/20 border border-[#d4af37]/40 flex items-center justify-center relative overflow-hidden backdrop-blur-sm">
-                        <div class="absolute inset-0 bg-linear-to-b from-white/10 to-transparent"></div>
-                        <div class="w-full h-px bg-[#d4af37]/30 absolute top-1/3"></div>
-                        <div class="w-full h-px bg-[#d4af37]/30 absolute bottom-1/3"></div>
-                        <div class="h-full w-px bg-[#d4af37]/30 absolute left-1/3"></div>
-                        <div class="h-full w-px bg-[#d4af37]/30 absolute right-1/3"></div>
+                      <div class="size-16 rounded-2xl bg-zinc-900 border border-white/10 flex items-center justify-center">
+                        <UIcon :name="asPassword.icon" class="size-8 text-white" />
                       </div>
-                      <UIcon name="i-heroicons-signal" class="size-6 text-white/20 rotate-90" />
-                    </div>
-
-                    <div class="group/number cursor-pointer"
-                      @click="copyToClipboard(asCard.number!, 'Número de tarjeta')">
-                      <div
-                        class="font-mono text-3xl tracking-[0.15em] text-white/90 drop-shadow-2xl transition-all duration-300 group-hover/number:text-white flex items-center gap-4">
-                        <span>{{ showPassword ? asCard.number : '•••• •••• •••• ' + asCard.number?.slice(-4) }}</span>
-                        <UIcon name="i-heroicons-document-duplicate"
-                          class="size-4 text-white/20 opacity-0 group-hover/number:opacity-100 transition-opacity" />
+                      <div>
+                        <h1 class="text-4xl font-light text-white tracking-tight">{{ asPassword.title }}</h1>
+                        <p class="text-xs text-zinc-500 uppercase tracking-widest mt-1 font-bold">{{ folderName }}</p>
                       </div>
                     </div>
+                    <UButton icon="i-heroicons-pencil-square" color="neutral" variant="ghost" class="rounded-full h-12 w-12" @click="isEditing = true" />
                   </div>
 
-                  <div class="flex justify-between items-end text-neutral-400">
-                    <div>
-                      <div class="text-[9px] uppercase tracking-widest mb-1.5 opacity-40 font-bold">Titular</div>
-                      <div class="font-medium uppercase tracking-[0.15em] text-sm text-neutral-200">{{ asCard.holder }}
+                  <div class="p-10 pt-0 space-y-4">
+                    <div v-if="asPassword.username" class="p-6 rounded-2xl bg-zinc-900/50 border border-white/3 group/field">
+                      <label class="text-[9px] font-bold text-zinc-600 uppercase tracking-widest mb-1 block">Usuario</label>
+                      <div class="flex items-center justify-between">
+                        <span class="text-zinc-200 text-xl font-light">{{ asPassword.username }}</span>
+                        <UButton icon="i-heroicons-document-duplicate" color="neutral" variant="ghost" @click="copyToClipboard(asPassword.username!, 'Usuario')" />
                       </div>
                     </div>
-                    <div class="text-right">
-                      <div class="text-[9px] uppercase tracking-widest mb-1.5 opacity-40 font-bold">Expira</div>
-                      <div class="font-mono text-sm text-neutral-200 tracking-wider">{{ asCard.expiry }}</div>
+
+                    <div v-if="asPassword.password" class="p-6 rounded-2xl bg-zinc-900/50 border border-white/3 group/field">
+                      <label class="text-[9px] font-bold text-zinc-600 uppercase tracking-widest mb-1 block">Contraseña</label>
+                      <div class="flex items-center justify-between">
+                        <span class="text-white font-mono text-2xl tracking-tighter">{{ showPassword ? asPassword.password : '••••••••••••••••' }}</span>
+                        <div class="flex items-center gap-1">
+                          <UButton :icon="showPassword ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'" color="neutral" variant="ghost" @click="showPassword = !showPassword" />
+                          <UButton icon="i-heroicons-document-duplicate" color="neutral" variant="ghost" @click="copyToClipboard(asPassword.password!, 'Contraseña')" />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <!-- Security Details -->
-              <div class="grid grid-cols-2 gap-4">
-                <div
-                  class="group relative bg-white/2 hover:bg-white/4 rounded-2xl p-5 transition-all duration-500 ring-1 ring-transparent hover:ring-white/10">
-                  <label
-                    class="text-[10px] font-bold text-neutral-600 uppercase tracking-[0.2em] transition-colors group-hover:text-neutral-500">CVC
-                    / CVV</label>
-                  <div class="flex items-center justify-between mt-2">
-                    <span class="text-white font-mono text-xl tracking-wider">{{ showPassword ? asCard.cvv : '•••'
-                      }}</span>
-                    <div class="flex gap-2">
-                      <UButton :icon="showPassword ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'" color="neutral"
-                        variant="ghost" size="xs"
-                        class="opacity-0 group-hover:opacity-60 hover:opacity-100! transition-all duration-300"
-                        @click="showPassword = !showPassword" />
-                      <UButton icon="i-heroicons-document-duplicate" color="neutral" variant="ghost" size="xs"
-                        class="opacity-0 group-hover:opacity-60 hover:opacity-100! transition-all duration-300"
-                        @click="copyToClipboard(asCard.cvv!, 'CVV')" />
-                    </div>
-                  </div>
+              <!-- Note Card -->
+              <div v-else-if="asNote" class="relative rounded-[40px] bg-zinc-950 ring-1 ring-white/10 p-12 overflow-hidden">
+                <div class="flex items-center justify-between mb-10">
+                   <div class="flex items-center gap-6">
+                      <div class="size-14 rounded-2xl bg-zinc-900 border border-white/10 flex items-center justify-center">
+                        <UIcon :name="asNote.icon" class="size-7 text-white" />
+                      </div>
+                      <h1 class="text-3xl font-light text-white tracking-tight">{{ asNote.title }}</h1>
+                   </div>
+                   <UButton icon="i-heroicons-pencil-square" color="neutral" variant="ghost" @click="isEditing = true" />
                 </div>
-                <div
-                  class="group relative bg-white/2 hover:bg-white/4 rounded-2xl p-5 transition-all duration-500 ring-1 ring-transparent hover:ring-white/10 flex items-center justify-center">
-                  <div class="text-center">
-                    <div class="text-[10px] font-bold text-neutral-600 uppercase tracking-[0.2em] mb-1">Tipo</div>
-                    <div class="text-white font-mono text-sm tracking-wider">VISA / MC</div>
-                  </div>
+                <div class="bg-zinc-900/40 rounded-3xl p-10 border border-white/5 min-h-80 relative group/note">
+                   <p class="whitespace-pre-wrap text-zinc-400 text-xl leading-relaxed">{{ asNote.note }}</p>
+                   <UButton icon="i-heroicons-document-duplicate" color="neutral" variant="ghost" class="absolute top-6 right-6 opacity-0 group-hover/note:opacity-100 transition-opacity" @click="copyToClipboard(asNote.note!, 'Nota')" />
+                </div>
+              </div>
+
+              <!-- Card/Identity (Simplified for layout) -->
+              <div v-else class="w-full">
+                <!-- Fallback to previous card logic but wrapped -->
+                <div v-if="asCard" class="relative rounded-[40px] bg-zinc-950 p-12 ring-1 ring-white/10">
+                   <!-- Repetir lógica de tarjeta visual... pero ya optimizada -->
+                   <div class="flex items-center justify-between mb-10">
+                      <h1 class="text-3xl font-light text-white">{{ asCard.title }}</h1>
+                      <UButton icon="i-heroicons-pencil-square" color="neutral" variant="ghost" @click="isEditing = true" />
+                   </div>
+                   <div class="relative w-full aspect-[1.6] rounded-3xl overflow-hidden bg-zinc-900 ring-1 ring-white/10 mb-8 p-10 flex flex-col justify-between">
+                      <div class="text-[10px] font-mono tracking-[0.5em] text-white/20">ENCRYPTED CREDIT ASSET</div>
+                      <div class="text-3xl font-mono text-white tracking-widest text-center">{{ showPassword ? asCard.number : '•••• •••• •••• ' + asCard.number?.slice(-4) }}</div>
+                      <div class="flex justify-between items-end">
+                         <div class="uppercase text-xs font-light text-zinc-400 tracking-widest">{{ asCard.holder }}</div>
+                         <div class="font-mono text-zinc-400">{{ asCard.expiry }}</div>
+                      </div>
+                   </div>
+                </div>
+
+                <div v-else-if="asIdentity" class="relative rounded-[40px] bg-zinc-950 p-12 ring-1 ring-white/10">
+                   <div class="flex items-center justify-between mb-10">
+                      <h1 class="text-4xl font-light text-white">{{ asIdentity.firstName }} {{ asIdentity.lastName }}</h1>
+                      <UButton icon="i-heroicons-pencil-square" color="neutral" variant="ghost" @click="isEditing = true" />
+                   </div>
+                   <div class="grid grid-cols-2 gap-4">
+                      <template v-for="(val, key) in { email: asIdentity.email, phone: asIdentity.phone, address: asIdentity.address }" :key="key">
+                        <div v-if="val" class="p-6 rounded-2xl bg-zinc-900/50 border border-white/3">
+                           <label class="text-[9px] font-bold text-zinc-600 uppercase tracking-widest mb-1 block">{{ String(key).toUpperCase() }}</label>
+                           <div class="text-zinc-200">{{ val }}</div>
+                        </div>
+                      </template>
+                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- Identity View -->
-        <div v-else-if="asIdentity" class="w-full max-w-2xl mx-auto perspective-1000">
-          <div class="relative overflow-hidden rounded-4xl bg-[#050505] shadow-2xl ring-1 ring-white/8">
-
-            <!-- Cinematic Glows -->
-            <div
-              class="absolute -top-50 -right-50 w-125 h-125 bg-white/3 blur-[120px] rounded-full pointer-events-none">
-            </div>
-            <div
-              class="absolute -bottom-50 -left-50 w-125 h-125 bg-white/2 blur-[120px] rounded-full pointer-events-none">
-            </div>
-
-            <!-- Header -->
-            <div class="relative p-10 pb-8 flex items-start justify-between z-10">
-              <div class="flex items-center gap-8">
-                <!-- Avatar Circle -->
-                <div class="relative group cursor-default">
-                  <div
-                    class="absolute inset-0 bg-linear-to-tr from-white/20 to-transparent blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-                  </div>
-                  <div
-                    class="relative size-20 rounded-full bg-linear-to-br from-white/8 to-white/1 flex items-center justify-center ring-1 ring-white/10 shadow-lg backdrop-blur-md overflow-hidden">
-                    <span class="text-2xl font-light text-white tracking-widest">{{ asIdentity.firstName?.[0] }}{{
-                      asIdentity.lastName?.[0] }}</span>
-                  </div>
-                </div>
-
-                <div class="space-y-2">
-                  <h1
-                    class="text-4xl font-light text-transparent bg-clip-text bg-linear-to-b from-white via-white to-white/60 tracking-tight">
-                    {{ asIdentity.firstName }} {{ asIdentity.lastName }}</h1>
-                  <div class="flex items-center gap-3">
-                    <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/3 ring-1 ring-white/5">
-                      <span class="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Identidad</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <UButton icon="i-heroicons-pencil-square" color="neutral" variant="ghost" :ui="{ base: 'rounded-full' }"
-                class="opacity-40 hover:opacity-100 hover:bg-white/8 transition-all duration-300 w-10 h-10 flex items-center justify-center"
-                @click="isEditing = true" />
-            </div>
-
-            <!-- Content Grid -->
-            <div class="p-10 pt-2 relative z-10">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                <!-- Email -->
-                <div v-if="asIdentity.email"
-                  class="group relative bg-white/2 hover:bg-white/4 rounded-2xl p-5 transition-all duration-500 ring-1 ring-transparent hover:ring-white/10 col-span-2 md:col-span-1">
-                  <div class="flex flex-col gap-1.5">
-                    <label
-                      class="text-[10px] font-bold text-neutral-600 uppercase tracking-[0.2em] transition-colors group-hover:text-neutral-500">Email</label>
-                    <div class="flex items-center justify-between">
-                      <span class="text-neutral-200 font-light text-base truncate">{{ asIdentity.email }}</span>
-                      <UButton icon="i-heroicons-document-duplicate" color="neutral" variant="ghost" size="xs"
-                        class="opacity-0 group-hover:opacity-100 transition-opacity"
-                        @click="copyToClipboard(asIdentity.email!, 'Email')" />
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Phone -->
-                <div v-if="asIdentity.phone"
-                  class="group relative bg-white/2 hover:bg-white/4 rounded-2xl p-5 transition-all duration-500 ring-1 ring-transparent hover:ring-white/10 col-span-2 md:col-span-1">
-                  <div class="flex flex-col gap-1.5">
-                    <label
-                      class="text-[10px] font-bold text-neutral-600 uppercase tracking-[0.2em] transition-colors group-hover:text-neutral-500">Teléfono</label>
-                    <div class="flex items-center justify-between">
-                      <span class="text-neutral-200 font-light text-base">{{ asIdentity.phone }}</span>
-                      <UButton icon="i-heroicons-document-duplicate" color="neutral" variant="ghost" size="xs"
-                        class="opacity-0 group-hover:opacity-100 transition-opacity"
-                        @click="copyToClipboard(asIdentity.phone!, 'Teléfono')" />
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Address -->
-                <div v-if="asIdentity.address"
-                  class="group relative bg-white/2 hover:bg-white/4 rounded-2xl p-5 transition-all duration-500 ring-1 ring-transparent hover:ring-white/10 col-span-2">
-                  <div class="flex flex-col gap-1.5">
-                    <label
-                      class="text-[10px] font-bold text-neutral-600 uppercase tracking-[0.2em] transition-colors group-hover:text-neutral-500">Dirección</label>
-                    <div class="flex items-start justify-between">
-                      <span class="text-neutral-200 font-light text-base leading-relaxed">{{ asIdentity.address
-                        }}</span>
-                      <UButton icon="i-heroicons-document-duplicate" color="neutral" variant="ghost" size="xs"
-                        class="opacity-0 group-hover:opacity-100 transition-opacity"
-                        @click="copyToClipboard(asIdentity.address!, 'Dirección')" />
-                    </div>
-                  </div>
-                </div>
-
-                <!-- License / Passport Placeholders (Future proofing) -->
-                <div v-if="asIdentity.licenseNumber"
-                  class="group relative bg-white/2 hover:bg-white/4 rounded-2xl p-5 transition-all duration-500 ring-1 ring-transparent hover:ring-white/10 col-span-2 md:col-span-1">
-                  <div class="flex flex-col gap-1.5">
-                    <label class="text-[10px] font-bold text-neutral-600 uppercase tracking-[0.2em]">Licencia</label>
-                    <span class="text-neutral-200 font-mono text-base">{{ asIdentity.licenseNumber }}</span>
-                  </div>
-                </div>
-
-                <div v-if="asIdentity.passportNumber"
-                  class="group relative bg-white/2 hover:bg-white/4 rounded-2xl p-5 transition-all duration-500 ring-1 ring-transparent hover:ring-white/10 col-span-2 md:col-span-1">
-                  <div class="flex flex-col gap-1.5">
-                    <label class="text-[10px] font-bold text-neutral-600 uppercase tracking-[0.2em]">Pasaporte</label>
-                    <span class="text-neutral-200 font-mono text-base">{{ asIdentity.passportNumber }}</span>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </div>
-        </div>
-
+        </Transition>
       </div>
+
+      <!-- Lado Derecho: Metadatos y Auditoría -->
+      <Transition appear enter-active-class="delay-300 duration-1000 ease-out" enter-from-class="opacity-0 translate-x-12">
+        <div class="w-full lg:w-96 space-y-8">
+          
+          <!-- Security Integrity Panel -->
+          <div class="p-8 rounded-[32px] bg-zinc-950 ring-1 ring-white/10 relative overflow-hidden group">
+            <div class="absolute inset-0 bg-linear-to-br from-emerald-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
+            <h3 class="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] mb-6">Integridad del Elemento</h3>
+            
+            <div class="space-y-6">
+              <!-- Password Analysis -->
+              <div v-if="passwordStrength !== null" class="space-y-4">
+                <div class="space-y-2">
+                  <div class="flex justify-between items-end">
+                    <span class="text-xs text-zinc-400 font-medium tracking-tight">Cifrado de Contraseña</span>
+                    <span class="text-xs font-bold" :class="passwordStrength > 75 ? 'text-emerald-500' : 'text-amber-500'">{{ passwordStrength > 75 ? 'Robusto' : 'Vulnerable' }}</span>
+                  </div>
+                  <div class="h-1.5 w-full bg-zinc-900 rounded-full overflow-hidden">
+                    <div class="h-full transition-all duration-1000" :style="{ width: `${passwordStrength || 0}%` }" :class="(passwordStrength || 0) > 75 ? 'bg-emerald-500' : 'bg-amber-500'"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- General Meta -->
+              <div class="space-y-4 pt-4 border-t border-white/5">
+                <div class="flex justify-between group/meta">
+                  <span class="text-[10px] uppercase text-zinc-600 font-bold tracking-widest">Creado</span>
+                  <span class="text-xs text-zinc-400 group-hover:text-white transition-colors">{{ timeSince(item.created_at) }}</span>
+                </div>
+                <div class="flex justify-between group/meta">
+                  <span class="text-[10px] uppercase text-zinc-600 font-bold tracking-widest">Modificado</span>
+                  <span class="text-xs text-zinc-400 group-hover:text-white transition-colors">{{ timeSince(item.updated_at) }}</span>
+                </div>
+                <div class="flex justify-between group/meta">
+                  <span class="text-[10px] uppercase text-zinc-600 font-bold tracking-widest">Visibilidad</span>
+                  <span class="text-xs text-emerald-500 font-bold tracking-widest">PRIVATE NODE</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Technical Specs -->
+          <div class="p-8 rounded-[32px] bg-zinc-950/40 ring-1 ring-white/5 border-dashed border-white/5">
+            <h3 class="text-[10px] font-bold text-zinc-700 uppercase tracking-[0.3em] mb-4">Encryption Props</h3>
+            <div class="font-mono text-[9px] text-zinc-600 space-y-1.5 overflow-hidden">
+              <div class="truncate">ID_TAG: {{ itemId }}</div>
+              <div>VERSION: 4.2.0-STABLE</div>
+              <div>CHIP: AES-GCM-256V2</div>
+              <div>SALT_IV: [REDACTED_MEMORY]</div>
+            </div>
+          </div>
+        </div>
+      </Transition>
+
     </div>
+
   </div>
 </template>

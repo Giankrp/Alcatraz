@@ -10,24 +10,27 @@
     "postinstall": "nuxt prepare",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
-    "init": "oxlint --init"
+    "init": "oxlint --init",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check"
   },
   "dependencies": {
     "@nuxt/fonts": "^0.14.0",
     "@nuxt/image": "^2.0.0",
-    "@nuxt/ui": "4.3.0",
+    "@nuxt/ui": "4.6.0",
     "@sidebase/nuxt-auth": "1.2.0",
-    "@tailwindcss/vite": "4.1.18",
+    "@tailwindcss/vite": "4.2.2",
     "next-auth": "4.21.1",
-    "nuxt": "4.2.2",
-    "tailwindcss": "4.1.18",
-    "vue": "3.5.26",
-    "vue-router": "4.6.4",
-    "zod": "^4.3.5"
+    "nuxt": "4.4.2",
+    "tailwindcss": "4.2.2",
+    "vue": "3.5.31",
+    "vue-router": "5.0.4",
+    "zod": "^4.3.6"
   },
   "packageManager": "pnpm@10.20.0+sha512.cf9998222162dd85864d0a8102e7892e7ba4ceadebbf5a31f9c2fce48dfce317a9c53b9f6464d1ef9042cba2e02ae02a9f7c143a2b438cd93c91840f0192b9dd",
   "devDependencies": {
-    "oxlint": "^1.42.0",
-    "vite-tsconfig-paths": "^6.0.3"
+    "oxfmt": "^0.43.0",
+    "oxlint": "^1.58.0",
+    "vite-tsconfig-paths": "^6.1.1"
   }
 }

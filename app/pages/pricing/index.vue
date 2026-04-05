@@ -7,7 +7,7 @@ const commonUi = {
   description: 'text-neutral-400 text-sm leading-relaxed mt-2',
   price: 'text-white text-4xl font-bold tracking-tight',
   billingCycle: 'text-neutral-500 text-sm font-medium',
-  featureIcon: 'size-5 shrink-0 text-white',
+  featureIcon: 'size-5 shrink-0 text-green-400',
   featureTitle: 'text-neutral-300 text-sm',
 }
 
@@ -24,7 +24,7 @@ const plans: PricingPlanProps[] = [
       'Generador de contraseñas',
       'Autocompletado en sitios',
     ],
-    button: { label: 'Empezar', to: '/login', color: 'neutral', variant: 'outline', size: 'lg', block: true },
+    button: { label: 'Empezar', to: '/login', color: 'neutral', variant: 'outline', size: 'lg', block: true, class: 'hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-400 transition-colors' },
     ui: commonUi
   },
   {
@@ -32,7 +32,7 @@ const plans: PricingPlanProps[] = [
     description: 'Para usuarios avanzados que quieren más control, auditoría y seguridad extra.',
     price: '€20',
     billingCycle: '/mes',
-    badge: { label: 'Mejor valor', color: 'neutral', variant: 'solid' },
+    badge: { label: 'Mejor valor', color: 'neutral', variant: 'subtle', class: 'bg-green-500/10 text-green-400 border border-green-500/20' },
     highlight: true,
     scale: true,
     features: [
@@ -42,11 +42,11 @@ const plans: PricingPlanProps[] = [
       'Carpetas y etiquetas avanzadas',
       'Compartir ítems de forma segura',
     ],
-    button: { label: 'Elegir Pro', to: '/login', color: 'neutral', variant: 'solid', size: 'lg', block: true },
+    button: { label: 'Elegir Pro', to: '/login', size: 'lg', block: true, class: 'btn-accent' },
     class: 'ring-2 ring-white/20 relative z-10',
     ui: {
       ...commonUi,
-      root: 'relative grid rounded-2xl p-8 gap-6 bg-white/10 backdrop-blur-xl border border-white/20 shadow-[0_0_40px_rgba(255,255,255,0.1)] transition-transform duration-300 hover:scale-[1.02]',
+      root: 'relative grid rounded-2xl p-8 gap-6 bg-green-500/5 backdrop-blur-xl border border-green-500/20 shadow-[0_0_40px_rgba(34,197,94,0.1)] transition-transform duration-300 hover:scale-[1.02]',
     }
   },
   {
@@ -62,7 +62,7 @@ const plans: PricingPlanProps[] = [
       'Políticas y controles de acceso',
       'SLA, soporte 24/7 y gestor dedicado',
     ],
-    button: { label: 'Hablar con ventas', to: '/contacto', color: 'neutral', variant: 'soft', size: 'lg', block: true },
+    button: { label: 'Hablar con ventas', to: '/contacto', color: 'neutral', variant: 'soft', size: 'lg', block: true, class: 'hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-400 transition-colors' },
     ui: commonUi
   }
 ]
@@ -73,8 +73,8 @@ const plans: PricingPlanProps[] = [
   <div class="relative min-h-screen bg-black text-white overflow-hidden">
     <!-- Background Effects -->
     <div class="absolute inset-0 pointer-events-none">
-      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-200 h-150 bg-neutral-900/30 rounded-full blur-3xl opacity-50"></div>
-      <div class="absolute bottom-0 right-0 w-150 h-150 bg-neutral-900/20 rounded-full blur-3xl opacity-30"></div>
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-200 h-150 bg-green-500/10 rounded-full blur-[120px]"></div>
+      <div class="absolute bottom-0 right-0 w-150 h-150 bg-green-900/20 rounded-full blur-[100px]"></div>
     </div>  
 
     <UContainer class="relative z-10 py-16 sm:py-24">

@@ -1,367 +1,546 @@
 <script setup lang="ts">
 definePageMeta({
-    layout: 'vault',
-    middleware: 'auth'
+  layout: "vault",
+  middleware: "auth",
 })
 
 useHead({
-    title: 'Perfil',
-    meta: [
-        { name: 'description', content: 'Gestiona tu perfil y configuración de seguridad en Alcatraz.' }
-    ]
+  title: "Perfil",
+  meta: [
+    {
+      name: "description",
+      content: "Gestiona tu perfil y configuración de seguridad en Alcatraz.",
+    },
+  ],
 })
 
-const { email, initials, avatarColor, createdAt, fetchUser } = useUser()
+const {
+  email,
+  displayName,
+  avatarUrl,
+  language: userLanguage,
+  initials,
+  avatarColor,
+  createdAt,
+  loading: userLoading,
+  fetchUser,
+  updateProfile
+} = useUser()
 
-onMounted(() => {
-    fetchUser()
+const { items } = useVault()
+const toast = useToast()
+
+// Profile Editing State
+const editName = ref('')
+const editAvatarUrl = ref('')
+const editLanguage = ref('es')
+const isSavingProfile = ref(false)
+
+const languages = [
+  { label: 'Español (ES)', value: 'es' },
+  { label: 'English (EN)', value: 'en' },
+  { label: 'Français (FR)', value: 'fr' },
+  { label: 'Deutsch (DE)', value: 'de' },
+  { label: 'Português (PT)', value: 'pt' }
+]
+
+onMounted(async () => {
+  const { masterPassword } = useMasterPassword()
+  if (!masterPassword.value) {
+    navigateTo("/login/unlock")
+    return
+  }
+  await fetchUser()
+
+  // Sync local edit state with user data
+  const currentEmail = email.value || ''
+  const currentName = displayName.value || ''
+  const emailPrefix = currentEmail.includes('@') ? currentEmail.split('@')[0] : ''
+
+  editName.value = currentName !== emailPrefix ? currentName : ''
+  editAvatarUrl.value = avatarUrl.value || ''
+  editLanguage.value = userLanguage.value || 'es'
 })
+
+const handleUpdateProfile = async () => {
+  isSavingProfile.value = true
+  try {
+    await updateProfile({
+      name: editName.value,
+      avatar_url: editAvatarUrl.value,
+      language: editLanguage.value
+    })
+    toast.add({
+      title: 'Perfil actualizado',
+      description: 'Tus cambios de identidad se han guardado correctamente.',
+      color: 'success',
+      icon: 'i-heroicons-check-circle',
+      ui: { root: "bg-black border-white/10" }
+    })
+  } catch (e) {
+    toast.add({
+      title: 'Error',
+      description: 'No se pudo actualizar el perfil.',
+      color: 'error',
+      icon: 'i-heroicons-x-circle',
+      ui: { root: "bg-red-500/10 border-red-500/20" }
+    })
+  } finally {
+    isSavingProfile.value = false
+  }
+}
 
 const formattedDate = computed(() => {
-    if (!createdAt.value) return 'Desconocida'
-    return new Date(createdAt.value).toLocaleDateString('es-ES', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    })
+  if (!createdAt.value) return "Desconocida"
+  return new Date(createdAt.value).toLocaleDateString("es-ES", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })
 })
 
-// Placeholder actions
+// Existing features state
 const showDeleteModal = ref(false)
 const showPasswordModal = ref(false)
 const twoFactorEnabled = ref(false)
 
 const sessions = ref([
-    { browser: 'Chrome', os: 'Linux', ip: '192.168.1.x', current: true, lastActive: 'Ahora' },
-    { browser: 'Safari', os: 'iOS', ip: '10.0.0.x', current: false, lastActive: 'Hace 2 horas' },
+  { browser: "Chrome", os: "Linux", ip: "192.168.1.x", current: true, lastActive: "Ahora" },
+  { browser: "Safari", os: "iOS", ip: "10.0.0.x", current: false, lastActive: "Hace 2 horas" },
 ])
+
+const showExportModal = ref(false)
+const exportPassword = ref('')
+const exportError = ref('')
+
+const confirmExport = () => {
+  const { masterPassword } = useMasterPassword()
+  exportError.value = ''
+  if (exportPassword.value !== masterPassword.value) {
+    exportError.value = 'Contraseña maestra incorrecta'
+    return
+  }
+  const data = JSON.stringify(items.value, null, 2)
+  const blob = new Blob([data], { type: "application/json" })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  const date = new Date().toISOString().split('T')[0]
+  a.download = `alcatraz_backup_${date}.json`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+
+  toast.add({
+    title: 'Datos exportados',
+    description: 'Tu copia de seguridad local se ha descargado correctamente.',
+    color: 'success',
+    icon: 'i-heroicons-arrow-down-on-square',
+    ui: { root: "bg-black border-white/10" }
+  })
+  exportPassword.value = ''
+  showExportModal.value = false
+}
+
+const fileInput = ref<HTMLInputElement | null>(null)
+const triggerFileInput = () => fileInput.value?.click()
+
+const handleFileImport = async (event: Event) => {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+  try {
+    const text = await file.text()
+    const parsedData = JSON.parse(text)
+    if (Array.isArray(parsedData)) {
+      items.value = [...items.value, ...parsedData]
+      toast.add({
+        title: 'Importación exitosa',
+        description: `Se restauraron ${parsedData.length} registros correctamente.`,
+        color: 'success',
+        icon: 'i-heroicons-check-circle',
+        ui: { root: "bg-black border-white/10" }
+      })
+    } else { throw new Error("Inv") }
+  } catch (e) {
+    toast.add({
+      title: 'Error al importar',
+      description: 'Archivo JSON inválido.',
+      color: 'error',
+      icon: 'i-heroicons-x-circle',
+      ui: { root: "bg-red-500/10 border-red-500/20" }
+    })
+  } finally { input.value = '' }
+}
 </script>
 
 <template>
-    <div class="min-h-screen vault-bg text-white font-sans selection:bg-primary-500/30">
-        <div class="max-w-3xl mx-auto px-4 sm:px-6 py-8 md:py-12">
-            <!-- Back navigation -->
-            <UButton to="/boveda" variant="ghost" color="neutral" size="sm" icon="i-heroicons-arrow-left"
-                class="mb-8 text-neutral-400 hover:text-white transition-colors">
-                Volver a la bóveda
-            </UButton>
+  <div class="min-h-screen bg-black text-zinc-400 font-sans selection:bg-emerald-500/30 py-12">
+    <div class="max-w-6xl mx-auto px-8 relative">
 
-            <!-- Profile Header -->
-            <div class="profile-header-card p-6 sm:p-8 mb-8 animate-fade-up">
-                <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-                    <!-- Avatar -->
-                    <div class="relative group">
-                        <div class="avatar-glow absolute inset-0 rounded-full blur-xl opacity-50 group-hover:opacity-80 transition-opacity duration-500"
-                            :style="{ background: avatarColor }" />
-                        <div class="relative size-20 sm:size-24 rounded-full flex items-center justify-center text-2xl sm:text-3xl font-bold border-2 border-white/10 shadow-xl transition-transform duration-300 group-hover:scale-105"
-                            :style="{ background: avatarColor }">
-                            {{ initials }}
-                        </div>
-                    </div>
+      <!-- Back navigation -->
+      <UButton to="/boveda" variant="ghost" color="neutral" size="sm" icon="i-heroicons-arrow-left"
+        class="mb-12 text-zinc-600 hover:text-emerald-400 transition-all group pl-0">
+        <span
+          class="group-hover:-translate-x-1 transition-transform font-mono uppercase text-[10px] tracking-widest">SISTEMA
+          / VOLVER</span>
+      </UButton>
 
-                    <!-- Info -->
-                    <div class="flex-1 min-w-0 text-center sm:text-left">
-                        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Mi Perfil</h1>
-                        <p class="mt-1 text-neutral-400 truncate">{{ email || 'Cargando...' }}</p>
-                        <div class="mt-3 flex flex-wrap gap-2 justify-center sm:justify-start">
-                            <span
-                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                                <UIcon name="i-heroicons-shield-check" class="size-3" />
-                                Zero-Knowledge
-                            </span>
-                            <span
-                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-white/5 text-neutral-400 border border-white/10">
-                                <UIcon name="i-heroicons-calendar" class="size-3" />
-                                Desde {{ formattedDate }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
+      <!-- PROFILE HEADER -->
+      <header class="flex items-center gap-10 mb-16 animate-fade-in">
+        <div class="relative group">
+          <div
+            class="size-32 rounded-full border border-zinc-800 flex items-center justify-center bg-zinc-950 relative overflow-hidden transition-all duration-700 group-hover:border-emerald-500/30"
+            :style="{ background: avatarUrl ? 'black' : avatarColor }">
+            <img v-if="avatarUrl" :src="avatarUrl"
+              class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+            <span v-else class="text-4xl font-light text-zinc-100">{{ initials }}</span>
+            <!-- Status Dot -->
+            <div
+              class="absolute bottom-2 right-2 size-4 bg-emerald-500 rounded-full border-4 border-black shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+          </div>
+        </div>
+
+        <div class="flex-1">
+          <h1 class="text-4xl font-normal text-zinc-100 tracking-tight mb-1">{{ displayName }}</h1>
+          <p class="text-xs font-mono text-zinc-600 uppercase tracking-[0.2em] mb-6">{{ email }}</p>
+
+          <div class="flex flex-wrap gap-3">
+            <div class="badge-tech group">
+              <UIcon name="i-heroicons-cpu-chip"
+                class="size-3 text-emerald-500/50 group-hover:text-emerald-400 transition-colors" />
+              <span>NODO: {{ (displayName || 'ALCATRAZ').toUpperCase() }}</span>
+            </div>
+            <div class="badge-tech group">
+              <UIcon name="i-heroicons-shield-check"
+                class="size-3 text-emerald-500/50 group-hover:text-emerald-400 transition-colors" />
+              <span>ACCESO SEGURO</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
+
+        <!-- LEFT COLUMN -->
+        <div class="lg:col-span-7 space-y-16">
+
+          <!-- IDENTITY -->
+          <section class="animate-fade-up">
+            <div class="section-header">
+              <h2 class="text-emerald-500">AJUSTES DE IDENTIDAD</h2>
+              <div class="header-line" />
             </div>
 
-            <!-- Account Section -->
-            <section class="mb-6 animate-fade-up animate-delay-100">
-                <h2 class="section-label">Cuenta</h2>
-                <div class="settings-card">
-                    <!-- Email row -->
-                    <div class="settings-row">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <div class="settings-icon">
-                                <UIcon name="i-heroicons-envelope" class="size-4" />
-                            </div>
-                            <div class="min-w-0">
-                                <div class="text-sm font-medium">Email</div>
-                                <div class="text-xs text-neutral-500 truncate">{{ email }}</div>
-                            </div>
-                        </div>
-                        <span class="text-xs text-neutral-600">No modificable</span>
-                    </div>
+            <div class="space-y-8 mt-10">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <UFormGroup label="NOMBRE PÚBLICO" :ui="{ label: { base: 'label-tech' } }">
+                  <UInput v-model="editName" placeholder="Alias o nombre real" size="lg"
+                    :ui="{ base: 'input-tech h-12' }" />
+                </UFormGroup>
 
-                    <div class="settings-divider" />
+                <UFormGroup label="IDIOMA DE INTERFAZ" :ui="{ label: { base: 'label-tech' } }">
+                  <USelect v-model="editLanguage" :items="languages" size="lg" :ui="{ base: 'input-tech h-12' }" />
+                </UFormGroup>
+              </div>
 
-                    <!-- Password row -->
-                    <div class="settings-row">
-                        <div class="flex items-center gap-3">
-                            <div class="settings-icon">
-                                <UIcon name="i-heroicons-key" class="size-4" />
-                            </div>
-                            <div>
-                                <div class="text-sm font-medium">Contraseña Maestra</div>
-                                <div class="text-xs text-neutral-500">Última modificación: desconocida</div>
-                            </div>
-                        </div>
-                        <UButton variant="outline" color="neutral" size="xs"
-                            class="text-xs border-white/10 hover:border-white/20" @click="showPasswordModal = true">
-                            Cambiar
-                        </UButton>
-                    </div>
+              <UFormGroup label="URL DEL AVATAR" :ui="{ label: { base: 'label-tech' } }">
+                <UInput v-model="editAvatarUrl" placeholder="https://ejemplo.com/perfil.jpg" size="lg"
+                  :ui="{ base: 'input-tech h-12' }" />
+                <p class="text-[9px] text-zinc-700 mt-2 tracking-wider">Se recomienda una resolución mínima de
+                  400x400px.</p>
+              </UFormGroup>
+
+              <UButton @click="handleUpdateProfile" :loading="isSavingProfile"
+                class="bg-emerald-500 hover:bg-emerald-400 text-black px-8 py-3 rounded-lg font-bold tracking-widest text-xs transition-all active:scale-95 shadow-[0_0_20px_rgba(16,185,129,0.1)]">
+                GUARDAR IDENTIDAD
+              </UButton>
+            </div>
+          </section>
+
+          <!-- SECURITY -->
+          <section class="animate-fade-up animate-delay-100">
+            <div class="section-header">
+              <h2 class="text-emerald-500">SEGURIDAD Y ACCESO</h2>
+              <div class="header-line" />
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-10">
+              <div class="card-tech p-6 group hover:border-emerald-500/20 transition-all">
+                <div class="flex justify-between items-start mb-10">
+                  <div class="size-10 rounded-lg bg-zinc-900 flex items-center justify-center border border-zinc-800">
+                    <UIcon name="i-heroicons-key" class="size-5 text-emerald-500/50" />
+                  </div>
+                  <UButton variant="ghost" color="neutral" size="xs"
+                    class="text-emerald-500 hover:text-emerald-400 font-bold tracking-widest text-[10px]"
+                    @click="showPasswordModal = true">
+                    ACTUALIZAR
+                  </UButton>
                 </div>
-            </section>
+                <h3 class="text-zinc-100 font-medium text-sm mb-1">Contraseña Maestra</h3>
+              </div>
 
-            <!-- Security Section -->
-            <section class="mb-6 animate-fade-up animate-delay-200">
-                <h2 class="section-label">Seguridad</h2>
-                <div class="settings-card">
-                    <!-- 2FA row -->
-                    <div class="settings-row">
-                        <div class="flex items-center gap-3">
-                            <div class="settings-icon text-amber-400 bg-amber-500/10">
-                                <UIcon name="i-heroicons-device-phone-mobile" class="size-4" />
-                            </div>
-                            <div>
-                                <div class="text-sm font-medium">Autenticación de dos factores</div>
-                                <div class="text-xs text-neutral-500">
-                                    {{ twoFactorEnabled ? 'Activada' : 'No configurada' }}
-                                </div>
-                            </div>
-                        </div>
-                        <USwitch v-model="twoFactorEnabled" color="primary" />
-                    </div>
-
-                    <div class="settings-divider" />
-
-                    <!-- Sessions -->
-                    <div class="px-5 py-4">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center gap-3">
-                                <div class="settings-icon text-blue-400 bg-blue-500/10">
-                                    <UIcon name="i-heroicons-computer-desktop" class="size-4" />
-                                </div>
-                                <div class="text-sm font-medium">Sesiones activas</div>
-                            </div>
-                            <span class="text-xs text-neutral-500">{{ sessions.length }} dispositivos</span>
-                        </div>
-
-                        <div class="space-y-2">
-                            <div v-for="(session, idx) in sessions" :key="idx"
-                                class="flex items-center justify-between p-3 rounded-xl bg-white/2 border border-white/5 hover:border-white/10 transition-colors">
-                                <div class="flex items-center gap-3 min-w-0">
-                                    <UIcon
-                                        :name="session.os === 'iOS' ? 'i-heroicons-device-phone-mobile' : 'i-heroicons-computer-desktop'"
-                                        class="size-4 text-neutral-500 shrink-0" />
-                                    <div class="min-w-0">
-                                        <div class="text-sm">
-                                            {{ session.browser }} · {{ session.os }}
-                                            <span v-if="session.current"
-                                                class="ml-2 text-[10px] font-semibold uppercase tracking-wider text-emerald-400">
-                                                Actual
-                                            </span>
-                                        </div>
-                                        <div class="text-xs text-neutral-600">{{ session.ip }} · {{ session.lastActive
-                                        }}</div>
-                                    </div>
-                                </div>
-                                <UButton v-if="!session.current" variant="ghost" color="neutral" size="xs"
-                                    icon="i-heroicons-x-mark" class="text-neutral-500 hover:text-red-400" />
-                            </div>
-                        </div>
-                    </div>
+              <div class="card-tech p-6">
+                <div class="flex justify-between items-start mb-10">
+                  <div class="size-10 rounded-lg bg-zinc-900 flex items-center justify-center border border-zinc-800">
+                    <UIcon name="i-heroicons-shield-check" class="size-5 text-emerald-500/50" />
+                  </div>
+                  <USwitch v-model="twoFactorEnabled" color="success" />
                 </div>
-            </section>
-
-            <!-- Export Section -->
-            <section class="mb-6 animate-fade-up animate-delay-300">
-                <h2 class="section-label">Datos</h2>
-                <div class="settings-card">
-                    <div class="settings-row">
-                        <div class="flex items-center gap-3">
-                            <div class="settings-icon text-purple-400 bg-purple-500/10">
-                                <UIcon name="i-heroicons-arrow-down-tray" class="size-4" />
-                            </div>
-                            <div>
-                                <div class="text-sm font-medium">Exportar bóveda</div>
-                                <div class="text-xs text-neutral-500">Descarga una copia cifrada de todos tus datos
-                                </div>
-                            </div>
-                        </div>
-                        <UButton variant="outline" color="neutral" size="xs"
-                            class="text-xs border-white/10 hover:border-white/20">
-                            Exportar
-                        </UButton>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Danger Zone -->
-            <section class="mb-12 animate-fade-up animate-delay-400">
-                <h2 class="section-label text-red-400/70">Zona de peligro</h2>
-                <div class="settings-card border-red-500/10">
-                    <div class="settings-row">
-                        <div class="flex items-center gap-3">
-                            <div class="settings-icon text-red-400 bg-red-500/10">
-                                <UIcon name="i-heroicons-trash" class="size-4" />
-                            </div>
-                            <div>
-                                <div class="text-sm font-medium text-red-400">Eliminar cuenta</div>
-                                <div class="text-xs text-neutral-500">Esto eliminará permanentemente tu cuenta y todos
-                                    tus datos</div>
-                            </div>
-                        </div>
-                        <UButton variant="outline" color="error" size="xs" class="text-xs"
-                            @click="showDeleteModal = true">
-                            Eliminar
-                        </UButton>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Delete Account Modal -->
-            <UModal v-model:open="showDeleteModal">
-                <template #content>
-                    <div class="p-6 bg-neutral-950 border border-white/10 rounded-2xl">
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="size-10 rounded-full bg-red-500/10 flex items-center justify-center">
-                                <UIcon name="i-heroicons-exclamation-triangle" class="size-5 text-red-400" />
-                            </div>
-                            <h3 class="text-lg font-bold">Eliminar cuenta</h3>
-                        </div>
-                        <p class="text-sm text-neutral-400 mb-6">
-                            Esta acción es irreversible. Todos tus datos, contraseñas y notas cifradas serán eliminados
-                            permanentemente.
-                        </p>
-                        <div class="flex justify-end gap-3">
-                            <UButton variant="ghost" color="neutral" @click="showDeleteModal = false">
-                                Cancelar
-                            </UButton>
-                            <UButton variant="solid" color="error">
-                                Sí, eliminar mi cuenta
-                            </UButton>
-                        </div>
-                    </div>
-                </template>
-            </UModal>
-
-            <!-- Change Password Modal -->
-            <UModal v-model:open="showPasswordModal">
-                <template #content>
-                    <div class="p-6 bg-neutral-950 border border-white/10 rounded-2xl">
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="size-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                                <UIcon name="i-heroicons-key" class="size-5 text-emerald-400" />
-                            </div>
-                            <h3 class="text-lg font-bold">Cambiar contraseña maestra</h3>
-                        </div>
-                        <div class="space-y-4 mb-6">
-                            <UInput type="password" placeholder="Contraseña actual" class="w-full"
-                                :ui="{ base: 'bg-black border-white/10' }" />
-                            <UInput type="password" placeholder="Nueva contraseña" class="w-full"
-                                :ui="{ base: 'bg-black border-white/10' }" />
-                            <UInput type="password" placeholder="Confirmar nueva contraseña" class="w-full"
-                                :ui="{ base: 'bg-black border-white/10' }" />
-                        </div>
-                        <div class="flex justify-end gap-3">
-                            <UButton variant="ghost" color="neutral" @click="showPasswordModal = false">
-                                Cancelar
-                            </UButton>
-                            <UButton class="btn-accent" @click="showPasswordModal = false">
-                                Guardar
-                            </UButton>
-                        </div>
-                    </div>
-                </template>
-            </UModal>
+                <h3 class="text-zinc-100 font-medium text-sm mb-1">Factor de Doble Autenticación</h3>
+                <p class="text-emerald-500/60 text-[10px] uppercase tracking-wider font-bold">ACTIVO Y SEGURO</p>
+              </div>
+            </div>
+          </section>
         </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="lg:col-span-5 space-y-12">
+
+          <!-- STATS -->
+          <section class="animate-fade-up animate-delay-200">
+            <div class="card-tech p-8 relative overflow-hidden group">
+              <div class="absolute top-4 right-4 text-[9px] font-mono text-zinc-700 tracking-widest">V1.0.4</div>
+              <h4 class="label-tech mb-8 opacity-60">ESTADÍSTICAS DE USO</h4>
+
+              <div class="flex items-baseline gap-4 mb-3">
+                <span class="text-7xl font-light text-zinc-100 tracking-tighter">{{ items.length }}</span>
+                <span class="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] pb-2">Elementos
+                  Cifrados</span>
+              </div>
+
+              <div class="w-full h-[3px] bg-zinc-900 rounded-full mb-12">
+                <div class="h-full bg-emerald-500/40 w-1/3 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.2)]" />
+              </div>
+
+              <div class="space-y-1">
+                <h5 class="label-tech opacity-40">MIEMBRO DE LA BÓVEDA DESDE</h5>
+                <div class="text-zinc-300 font-medium text-lg capitalize">{{ formattedDate }}</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- DATA MANAGEMENT -->
+          <section class="animate-fade-up animate-delay-300">
+            <div class="section-header">
+              <h2 class="text-emerald-500/60 text-[10px] uppercase tracking-[0.3em] font-bold">GESTIÓN DE DATOS</h2>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mt-6">
+              <button @click="showExportModal = true"
+                class="card-tech p-5 hover:bg-zinc-900/50 transition-all text-left group cursor-pointer">
+                <UIcon name="i-heroicons-arrow-down-tray"
+                  class="size-4 text-emerald-500 mb-4 group-hover:scale-110 transition-transform" />
+                <div class="text-[10px] font-bold text-zinc-200 tracking-widest uppercase mb-1">EXPORTAR</div>
+                <div class="text-[9px] text-zinc-600 font-mono">JSON Cifrado AES-256</div>
+              </button>
+              <button @click="triggerFileInput"
+                class="card-tech p-5 hover:bg-zinc-900/50 transition-all text-left group cursor-pointer">
+                <UIcon name="i-heroicons-arrow-up-tray"
+                  class="size-4 text-emerald-500 mb-4 group-hover:scale-110 transition-transform" />
+                <div class="text-[10px] font-bold text-zinc-200 tracking-widest uppercase mb-1">IMPORTAR</div>
+                <div class="text-[9px] text-zinc-600 font-mono">Sincronización externa</div>
+              </button>
+              <input type="file" ref="fileInput" accept=".json" class="hidden" @change="handleFileImport" />
+            </div>
+          </section>
+
+          <!-- DEVICES -->
+          <section class="animate-fade-up animate-delay-400">
+            <div class="section-header">
+              <h2 class="text-emerald-500/60 text-[10px] uppercase tracking-[0.3em] font-bold">DISPOSITIVOS ACTIVOS</h2>
+            </div>
+            <div class="space-y-3 mt-6">
+              <div v-for="(session, idx) in sessions" :key="idx"
+                class="card-tech px-5 py-4 flex items-center justify-between group">
+                <div class="flex items-center gap-4">
+                  <UIcon
+                    :name="session.os === 'iOS' ? 'i-heroicons-device-phone-mobile' : 'i-heroicons-computer-desktop'"
+                    class="size-5 text-zinc-700 group-hover:text-emerald-500 transition-colors" />
+                  <div>
+                    <div class="text-[11px] font-bold text-zinc-200 uppercase tracking-wider">{{ session.browser }} en
+                      {{ session.os }}</div>
+                    <div class="text-[9px] font-mono text-zinc-600 uppercase mt-0.5">{{ session.current ? session.ip :
+                      'Última conexión hace 2h' }}</div>
+                  </div>
+                </div>
+                <span
+                  :class="session.current ? 'text-emerald-500 border-emerald-500/20' : 'text-zinc-700 border-zinc-800'"
+                  class="text-[8px] font-bold border px-2 py-0.5 rounded tracking-widest uppercase">
+                  {{ session.current ? 'ACTIVA' : 'HISTORIAL' }}
+                </span>
+              </div>
+            </div>
+          </section>
+
+          <!-- DANGER -->
+          <section class="animate-fade-up animate-delay-500">
+            <div class="card-tech p-8 border-red-500/20 bg-red-500/2">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="size-10 rounded-lg bg-red-500/10 flex items-center justify-center border border-red-500/20">
+                  <UIcon name="i-heroicons-shield-exclamation" class="size-5 text-red-500" />
+                </div>
+                <h4 class="text-[10px] font-bold text-red-500 uppercase tracking-[0.3em]">Zona de Riesgo</h4>
+              </div>
+              <p class="text-[11px] text-zinc-600 leading-relaxed mb-10">
+                La eliminación de la cuenta es un proceso irreversible. Todos los activos cifrados serán purgados del
+                servidor de forma permanente.
+              </p>
+              <button @click="showDeleteModal = true"
+                class="w-full py-4 border border-red-500/30 rounded-lg text-red-500 text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-red-500/10 transition-all active:scale-95 cursor-pointer">
+                EJECUTAR ELIMINACIÓN DE CUENTA
+              </button>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <footer class="mt-32 pb-8 flex justify-center">
+        <span class="text-[9px] font-mono text-zinc-800 tracking-[0.6em] uppercase">VAULT SYSTEMS SECURITY</span>
+      </footer>
+
+      <!-- MODALS -->
+      <UModal v-model:open="showPasswordModal">
+        <template #content>
+          <div
+            class="p-10 bg-black border border-emerald-500/20 rounded-2xl max-w-md mx-auto shadow-[0_0_50px_rgba(0,0,0,1)]">
+            <h3 class="text-lg font-bold text-zinc-100 uppercase tracking-widest mb-8">Contraseña Maestra</h3>
+            <div class="space-y-6 mb-10">
+              <UInput type="password" placeholder="Contraseña Actual" :ui="{ base: 'input-tech text-white' }" />
+              <UInput type="password" placeholder="Nueva Contraseña" :ui="{ base: 'input-tech text-white' }" />
+              <UInput type="password" placeholder="Confirmar" :ui="{ base: 'input-tech text-white' }" />
+            </div>
+            <UButton block
+              class="bg-emerald-500 hover:bg-emerald-400 text-black h-12 rounded-lg font-bold tracking-widest uppercase text-xs"
+              @click="showPasswordModal = false">
+              CIFRAR & ACTUALIZAR
+            </UButton>
+          </div>
+        </template>
+      </UModal>
+
+      <UModal v-model:open="showExportModal">
+        <template #content>
+          <div
+            class="p-10 bg-black border border-emerald-500/20 rounded-2xl max-w-md mx-auto shadow-[0_0_50px_rgba(0,0,0,1)] text-center">
+            <UIcon name="i-heroicons-lock-closed" class="size-12 text-emerald-500 mb-6 mx-auto" />
+            <h3 class="text-lg font-bold text-zinc-100 uppercase tracking-widest mb-4">Verificar Identidad</h3>
+            <p class="text-xs text-zinc-600 mb-8 uppercase tracking-wider leading-relaxed">Se requiere autorización del
+              nodo para descifrar y exportar la bóveda localmente.</p>
+            <UInput v-model="exportPassword" type="password" placeholder="Master Password" class="mb-3"
+              :ui="{ base: 'input-tech text-white' }" @keyup.enter="confirmExport" />
+            <p v-if="exportError" class="text-[10px] text-red-500 mb-8 font-mono uppercase">{{ exportError }}</p>
+            <div class="flex flex-col gap-3">
+              <UButton block
+                class="bg-emerald-500 hover:bg-emerald-400 text-black h-12 rounded-lg font-bold tracking-widest uppercase text-xs"
+                @click="confirmExport">
+                AUTORIZAR DESCARGA
+              </UButton>
+              <UButton block variant="ghost" color="neutral" class="text-zinc-600 hover:text-zinc-400"
+                @click="showExportModal = false">
+                CANCELAR
+              </UButton>
+            </div>
+          </div>
+        </template>
+      </UModal>
+
+      <UModal v-model:open="showDeleteModal">
+        <template #content>
+          <div class="p-10 bg-black border border-red-500/20 rounded-2xl max-w-sm mx-auto shadow-2xl">
+            <h3 class="text-lg font-bold text-red-500 uppercase tracking-widest mb-4">¿Confirmar Destrucción?</h3>
+            <p class="text-xs text-zinc-600 mb-10 leading-relaxed">Esta acción es irreversible y purgará permanentemente
+              todos tus activos. El nodo cesará su actividad de inmediato.</p>
+            <div class="flex flex-col gap-3">
+              <UButton block color="error" class="h-12 rounded-lg font-bold tracking-widest uppercase text-xs">SÍ,
+                BORRAR TODO</UButton>
+              <UButton block variant="ghost" color="neutral" class="text-zinc-600 hover:text-zinc-400"
+                @click="showDeleteModal = false">CANCELAR</UButton>
+            </div>
+          </div>
+        </template>
+      </UModal>
     </div>
+  </div>
 </template>
 
 <style scoped>
-.vault-bg {
-    background-color: #020202;
-    background-image:
-        radial-gradient(circle at 0% 0%, rgba(30, 41, 59, 0.4) 0%, transparent 50%),
-        radial-gradient(circle at 100% 0%, rgba(15, 23, 42, 0.4) 0%, transparent 50%),
-        radial-gradient(circle at 50% 100%, rgba(30, 41, 59, 0.2) 0%, transparent 50%);
+.section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.profile-header-card {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 20px;
-    backdrop-filter: blur(10px);
+.section-header h2 {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
 }
 
-.section-label {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.35);
-    padding-left: 4px;
-    margin-bottom: 8px;
+.header-line {
+  height: 1px;
+  width: 2.5rem;
+  background: currentColor;
+  opacity: 0.5;
 }
 
-.settings-card {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 16px;
-    overflow: hidden;
+.label-tech {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #52525b;
+  /* zinc-600 */
 }
 
-.settings-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem 1.25rem;
-    transition: background 0.2s ease;
+.badge-tech {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  background: #09090b;
+  /* zinc-950 */
+  border: 1px solid #18181b;
+  /* zinc-900 */
+  border-radius: 8px;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: #71717a;
+  /* zinc-500 */
 }
 
-.settings-row:hover {
-    background: rgba(255, 255, 255, 0.02);
+.input-tech {
+  background: #09090b !important;
+  /* zinc-950 */
+  border: 1px solid #18181b !important;
+  /* zinc-900 */
+  border-radius: 8px !important;
+  color: #d4d4d8 !important;
+  /* zinc-300 */
+  transition: all 0.3s ease !important;
 }
 
-.settings-divider {
-    height: 1px;
-    background: rgba(255, 255, 255, 0.05);
-    margin: 0 1.25rem;
+.input-tech:focus-within {
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  /* emerald-500/30 */
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.05) !important;
+  /* emerald-500/5 */
 }
 
-.settings-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.05);
-    color: rgba(255, 255, 255, 0.6);
-    flex-shrink: 0;
+.card-tech {
+  background: #09090b;
+  /* zinc-950 */
+  border: 1px solid #18181b;
+  /* zinc-900 */
+  border-radius: 16px;
 }
 
-.avatar-glow {
-    animation: avatarPulse 4s ease-in-out infinite;
-}
-
-@keyframes avatarPulse {
-
-    0%,
-    100% {
-        opacity: 0.3;
-        transform: scale(0.95);
-    }
-
-    50% {
-        opacity: 0.6;
-        transform: scale(1.05);
-    }
+@media (max-width: 1024px) {
+  .grid {
+    gap: 3rem;
+  }
 }
 </style>

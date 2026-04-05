@@ -21,6 +21,14 @@ const schema = z.object({
   folder: z.string()
 })
 
+const { folders: rawFolders } = useVault()
+const folderOptions = computed(() => rawFolders.value.map(f => ({
+  label: f.name,
+  value: f.id
+})))
+
+const defaultFolderId = computed(() => rawFolders.value.find(f => f.is_default)?.id || 'personal')
+
 const state = reactive({
   title: props.initialData?.title || '',
   firstName: props.initialData?.firstName || '',
@@ -30,13 +38,8 @@ const state = reactive({
   address: props.initialData?.address || '',
   licenseNumber: props.initialData?.licenseNumber || '',
   passportNumber: props.initialData?.passportNumber || '',
-  folder: props.initialData?.folder || 'personal'
+  folder: props.initialData?.folder || defaultFolderId.value
 })
-
-const folders = [
-  { label: 'Personal', value: 'personal' },
-  { label: 'Trabajo', value: 'work' }
-]
 
 function handleSaveLayout() {
   emit('save', { ...state })
@@ -68,7 +71,7 @@ function handleSaveLayout() {
         <UFormGroup label="Categoría" name="folder">
           <USelect 
             v-model="state.folder" 
-            :options="folders" 
+            :items="folderOptions" 
             variant="none" 
             class="bg-white/5 rounded-lg border border-white/5 focus-within:border-white/20 transition-colors"
             icon="i-heroicons-folder"

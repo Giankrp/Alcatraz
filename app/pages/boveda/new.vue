@@ -25,6 +25,13 @@ const views = {
 
 const currentComponent = computed(() => views[currentView.value as keyof typeof views] || TypeSelector)
 
+onMounted(() => {
+  const { masterPassword } = useMasterPassword()
+  if (!masterPassword.value) {
+    navigateTo('/login/unlock')
+  }
+})
+
 function handleSelect(type: string) {
   currentView.value = type
 }
@@ -37,16 +44,20 @@ function handleBack() {
   }
 }
 
-function handleSave(data: any) {
+async function handleSave(data: any) {
   // Extract createAnother flag and clean data
   const { createAnother, ...itemData } = data
 
-  addItem({ item_type: currentView.value as any, ...itemData })
+  try {
+    await addItem({ item_type: currentView.value as any, ...itemData })
 
-  if (createAnother) {
-    currentView.value = 'selector'
-  } else {
-    router.push('/boveda')
+    if (createAnother) {
+      currentView.value = 'selector'
+    } else {
+      router.push('/boveda')
+    }
+  } catch (error) {
+    console.error('Error creating item:', error)
   }
 }
 </script>
