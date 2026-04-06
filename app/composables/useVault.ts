@@ -312,6 +312,12 @@ export const useVault = () => {
     }
   }
 
+  const clearVault = () => {
+    items.value = []
+    folders.value = []
+    searchQuery.value = ''
+  }
+
   return {
     items,
     searchQuery,
@@ -332,6 +338,7 @@ export const useVault = () => {
     fetchFolders,
     addFolder,
     updateFolder,
-    deleteFolder
+    deleteFolder,
+    clearVault
   }
 }

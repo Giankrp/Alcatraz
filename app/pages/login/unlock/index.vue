@@ -114,8 +114,10 @@ const onSubmit = async () => {
 }
 
 const handleSignOut = async () => {
+  const { clearVault } = useVault()
   clearMasterPassword()
   clearUserEmail()
+  clearVault()
   
   try {
     await $fetch(`${config.public.apiBase}/api/auth/logout`, {

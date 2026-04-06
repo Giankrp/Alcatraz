@@ -82,6 +82,9 @@ export const useUser = () => {
 
     const logout = async () => {
         const config = useRuntimeConfig()
+        const { clearVault } = useVault()
+        const { clearMasterPassword, clearUserEmail } = useMasterPassword()
+
         try {
             await $fetch(`${config.public.apiBase}/api/auth/logout`, {
                 method: 'POST',
@@ -90,8 +93,13 @@ export const useUser = () => {
         } catch (e) {
             console.error('Logout error:', e)
         } finally {
+            // Limpiar todo el estado de la aplicación para evitar fugas entre sesiones
             user.value = null
             profile.value = null
+            clearVault()
+            clearMasterPassword()
+            clearUserEmail()
+
             navigateTo('/login')
         }
     }
