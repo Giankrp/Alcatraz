@@ -1,0 +1,77 @@
+{
+  "profile": {
+    "title": "Perfil",
+    "description": "Gestiona tu perfil y configuración de seguridad en Alcatraz.",
+    "back": "SISTEMA / VOLVER",
+    "header": {
+      "node": "NODO",
+      "secureAccess": "ACCESO SEGURO"
+    },
+    "identity": {
+      "title": "AJUSTES DE IDENTIDAD",
+      "nameLabel": "NOMBRE PÚBLICO",
+      "languageLabel": "IDIOMA DE INTERFAZ",
+      "avatarLabel": "URL DEL AVATAR",
+      "avatarHelp": "Se recomienda una resolución mínima de 400x400px.",
+      "saveButton": "GUARDAR IDENTIDAD",
+      "success": "Perfil actualizado",
+      "successDesc": "Tus cambios de identidad se han guardado correctamente.",
+      "error": "Error",
+      "errorDesc": "No se pudo actualizar el perfil."
+    },
+    "security": {
+      "title": "SEGURIDAD Y ACCESO",
+      "masterPassword": "Contraseña Maestra",
+      "update": "ACTUALIZAR",
+      "twoFactor": "Factor de Doble Autenticación",
+      "twoFactorStatus": "ACTIVO Y SEGURO"
+    },
+    "stats": {
+      "title": "ESTADÍSTICAS DE USO",
+      "items": "Elementos Cifrados",
+      "memberSince": "MIEMBRO DE LA BÓVEDA DESDE",
+      "dateUnknown": "Desconocida"
+    },
+    "management": {
+      "title": "GESTIÓN DE DATOS",
+      "export": "EXPORTAR",
+      "exportDesc": "JSON Cifrado AES-256",
+      "import": "IMPORTAR",
+      "importDesc": "Sincronización externa",
+      "exportSuccess": "Datos exportados",
+      "exportSuccessDesc": "Tu copia de seguridad local se ha descargado correctamente.",
+      "importSuccess": "Importación exitosa",
+      "importSuccessDesc": "Se restauraron {count} registros correctamente.",
+      "importError": "Error al importar",
+      "importErrorDesc": "Archivo JSON inválido."
+    },
+    "devices": {
+      "title": "DISPOSITIVOS ACTIVOS",
+      "active": "ACTIVA",
+      "history": "HISTORIAL",
+      "lastActive": "Última conexión hace 2h",
+      "now": "Ahora"
+    },
+    "danger": {
+      "title": "Zona de Riesgo",
+      "desc": "La eliminación de la cuenta es un proceso irreversible. Todos los activos cifrados serán purgados del servidor de forma permanente.",
+      "deleteButton": "EJECUTAR ELIMINACIÓN DE CUENTA",
+      "modalTitle": "¿Confirmar Destrucción?",
+      "modalDesc": "Esta acción es irreversible y purgará permanentemente todos tus activos. El nodo cesará su actividad de inmediato.",
+      "confirmDelete": "SÍ, BORRAR TODO",
+      "cancel": "CANCELAR"
+    },
+    "modals": {
+      "passwordTitle": "Contraseña Maestra",
+      "passwordCurrent": "Contraseña Actual",
+      "passwordNew": "Nueva Contraseña",
+      "passwordConfirm": "Confirmar",
+      "passwordSave": "CIFRAR & ACTUALIZAR",
+      "exportVerify": "Verificar Identidad",
+      "exportAuth": "Se requiere autorización del nodo para descifrar y exportar la bóveda localmente.",
+      "exportPassword": "Master Password",
+      "exportButton": "AUTORIZAR DESCARGA",
+      "masterPasswordError": "Contraseña maestra incorrecta"
+    }
+  }
+}

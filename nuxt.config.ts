@@ -3,7 +3,7 @@ import tailwindcss from "@tailwindcss/vite"
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  modules: ['@nuxt/ui', '@sidebase/nuxt-auth', '@nuxt/fonts', '@nuxt/image'],
+  modules: ['@nuxt/ui', '@sidebase/nuxt-auth', '@nuxt/fonts', '@nuxt/image', '@nuxtjs/i18n'],
   css: ["~/assets/css/main.css"],
   colorMode: {
     preference: 'dark',
@@ -54,4 +54,14 @@ export default defineNuxtConfig({
       include: ["zod"]
     }
   },
+
+  i18n: {
+    locales: [
+      { code: 'es', file: 'es.json' },
+      { code: 'en', file: 'en.json' }
+    ],
+    defaultLocale: 'es',
+    langDir: 'locales/',
+    strategy: 'no_prefix'
+  }
 })

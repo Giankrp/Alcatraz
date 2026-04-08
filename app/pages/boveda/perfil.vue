@@ -4,12 +4,14 @@ definePageMeta({
   middleware: "auth",
 })
 
+const { t } = useI18n()
+
 useHead({
-  title: "Perfil",
+  title: t('profile.title'),
   meta: [
     {
       name: "description",
-      content: "Gestiona tu perfil y configuración de seguridad en Alcatraz.",
+      content: t('profile.description'),
     },
   ],
 })
@@ -38,10 +40,7 @@ const isSavingProfile = ref(false)
 
 const languages = [
   { label: 'Español (ES)', value: 'es' },
-  { label: 'English (EN)', value: 'en' },
-  { label: 'Français (FR)', value: 'fr' },
-  { label: 'Deutsch (DE)', value: 'de' },
-  { label: 'Português (PT)', value: 'pt' }
+  { label: 'English (EN)', value: 'en' }
 ]
 
 onMounted(async () => {
@@ -52,35 +51,43 @@ onMounted(async () => {
   }
   await fetchUser()
 
-  // Sync local edit state with user data
-  const currentEmail = email.value || ''
-  const currentName = displayName.value || ''
-  const emailPrefix = currentEmail.includes('@') ? currentEmail.split('@')[0] : ''
+  watchEffect(() => {
+    const currentEmail = email.value || ''
+    const currentName = displayName.value || ''
+    const emailPrefix = currentEmail.includes('@') ? currentEmail.split('@')[0] : ''
 
-  editName.value = currentName !== emailPrefix ? currentName : ''
-  editAvatarUrl.value = avatarUrl.value || ''
-  editLanguage.value = userLanguage.value || 'es'
+    if (!isSavingProfile.value) {
+      editName.value = currentName !== emailPrefix ? currentName : ''
+      editAvatarUrl.value = avatarUrl.value || ''
+      editLanguage.value = userLanguage.value || 'es'
+    }
+  })
 })
 
 const handleUpdateProfile = async () => {
   isSavingProfile.value = true
   try {
-    await updateProfile({
+    const updated = await updateProfile({
       name: editName.value,
       avatar_url: editAvatarUrl.value,
       language: editLanguage.value
     })
     toast.add({
-      title: 'Perfil actualizado',
-      description: 'Tus cambios de identidad se han guardado correctamente.',
+      title: t('profile.identity.success'),
+      description: t('profile.identity.successDesc'),
       color: 'success',
-      icon: 'i-heroicons-check-circle',
-      ui: { root: "bg-black border-white/10" }
+      icon: 'i-heroicons-check-circle'
     })
+    // Forzamos actualización de los campos de edición
+    if (updated) {
+      editName.value = updated.name || ''
+      editAvatarUrl.value = updated.avatar_url || ''
+      editLanguage.value = updated.language || 'es'
+    }
   } catch (e) {
     toast.add({
-      title: 'Error',
-      description: 'No se pudo actualizar el perfil.',
+      title: t('profile.identity.error'),
+      description: t('profile.identity.errorDesc'),
       color: 'error',
       icon: 'i-heroicons-x-circle',
       ui: { root: "bg-red-500/10 border-red-500/20" }
@@ -91,8 +98,8 @@ const handleUpdateProfile = async () => {
 }
 
 const formattedDate = computed(() => {
-  if (!createdAt.value) return "Desconocida"
-  return new Date(createdAt.value).toLocaleDateString("es-ES", {
+  if (!createdAt.value) return t('profile.stats.dateUnknown')
+  return new Date(createdAt.value).toLocaleDateString(editLanguage.value === 'es' ? 'es-ES' : 'en-US', {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -133,8 +140,8 @@ const confirmExport = () => {
   URL.revokeObjectURL(url)
 
   toast.add({
-    title: 'Datos exportados',
-    description: 'Tu copia de seguridad local se ha descargado correctamente.',
+    title: t('profile.management.exportSuccess'),
+    description: t('profile.management.exportSuccessDesc'),
     color: 'success',
     icon: 'i-heroicons-arrow-down-on-square',
     ui: { root: "bg-black border-white/10" }
@@ -156,8 +163,8 @@ const handleFileImport = async (event: Event) => {
     if (Array.isArray(parsedData)) {
       items.value = [...items.value, ...parsedData]
       toast.add({
-        title: 'Importación exitosa',
-        description: `Se restauraron ${parsedData.length} registros correctamente.`,
+        title: t('profile.management.importSuccess'),
+        description: t('profile.management.importSuccessDesc', { count: parsedData.length }),
         color: 'success',
         icon: 'i-heroicons-check-circle',
         ui: { root: "bg-black border-white/10" }
@@ -165,8 +172,8 @@ const handleFileImport = async (event: Event) => {
     } else { throw new Error("Inv") }
   } catch (e) {
     toast.add({
-      title: 'Error al importar',
-      description: 'Archivo JSON inválido.',
+      title: t('profile.management.importError'),
+      description: t('profile.management.importErrorDesc'),
       color: 'error',
       icon: 'i-heroicons-x-circle',
       ui: { root: "bg-red-500/10 border-red-500/20" }
@@ -182,9 +189,7 @@ const handleFileImport = async (event: Event) => {
       <!-- Back navigation -->
       <UButton to="/boveda" variant="ghost" color="neutral" size="sm" icon="i-heroicons-arrow-left"
         class="mb-12 text-zinc-600 hover:text-emerald-400 transition-all group pl-0">
-        <span
-          class="group-hover:-translate-x-1 transition-transform font-mono uppercase text-[10px] tracking-widest">SISTEMA
-          / VOLVER</span>
+        <span class="group-hover:-translate-x-1 transition-transform font-mono uppercase text-[10px] tracking-widest">{{ $t('profile.back') }}</span>
       </UButton>
 
       <!-- PROFILE HEADER -->
@@ -210,12 +215,12 @@ const handleFileImport = async (event: Event) => {
             <div class="badge-tech group">
               <UIcon name="i-heroicons-cpu-chip"
                 class="size-3 text-emerald-500/50 group-hover:text-emerald-400 transition-colors" />
-              <span>NODO: {{ (displayName || 'ALCATRAZ').toUpperCase() }}</span>
+              <span>{{ $t('profile.header.node') }}: {{ (displayName || 'ALCATRAZ').toUpperCase() }}</span>
             </div>
             <div class="badge-tech group">
               <UIcon name="i-heroicons-shield-check"
                 class="size-3 text-emerald-500/50 group-hover:text-emerald-400 transition-colors" />
-              <span>ACCESO SEGURO</span>
+              <span>{{ $t('profile.header.secureAccess') }}</span>
             </div>
           </div>
         </div>
@@ -229,32 +234,31 @@ const handleFileImport = async (event: Event) => {
           <!-- IDENTITY -->
           <section class="animate-fade-up">
             <div class="section-header">
-              <h2 class="text-emerald-500">AJUSTES DE IDENTIDAD</h2>
+              <h2 class="text-emerald-500">{{ $t('profile.identity.title') }}</h2>
               <div class="header-line" />
             </div>
 
             <div class="space-y-8 mt-10">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <UFormGroup label="NOMBRE PÚBLICO" :ui="{ label: { base: 'label-tech' } }">
+                <UFormField :label="$t('profile.identity.nameLabel')" :ui="{ label: 'label-tech' }">
                   <UInput v-model="editName" placeholder="Alias o nombre real" size="lg"
                     :ui="{ base: 'input-tech h-12' }" />
-                </UFormGroup>
+                </UFormField>
 
-                <UFormGroup label="IDIOMA DE INTERFAZ" :ui="{ label: { base: 'label-tech' } }">
+                <UFormField :label="$t('profile.identity.languageLabel')" :ui="{ label: 'label-tech' }">
                   <USelect v-model="editLanguage" :items="languages" size="lg" :ui="{ base: 'input-tech h-12' }" />
-                </UFormGroup>
+                </UFormField>
               </div>
 
-              <UFormGroup label="URL DEL AVATAR" :ui="{ label: { base: 'label-tech' } }">
+              <UFormField :label="$t('profile.identity.avatarLabel')" :ui="{ label: 'label-tech' }">
                 <UInput v-model="editAvatarUrl" placeholder="https://ejemplo.com/perfil.jpg" size="lg"
                   :ui="{ base: 'input-tech h-12' }" />
-                <p class="text-[9px] text-zinc-700 mt-2 tracking-wider">Se recomienda una resolución mínima de
-                  400x400px.</p>
-              </UFormGroup>
+                <p class="text-[9px] text-zinc-700 mt-2 tracking-wider">{{ $t('profile.identity.avatarHelp') }}</p>
+              </UFormField>
 
               <UButton @click="handleUpdateProfile" :loading="isSavingProfile"
                 class="bg-emerald-500 hover:bg-emerald-400 text-black px-8 py-3 rounded-lg font-bold tracking-widest text-xs transition-all active:scale-95 shadow-[0_0_20px_rgba(16,185,129,0.1)]">
-                GUARDAR IDENTIDAD
+                {{ $t('profile.identity.saveButton') }}
               </UButton>
             </div>
           </section>
@@ -262,7 +266,7 @@ const handleFileImport = async (event: Event) => {
           <!-- SECURITY -->
           <section class="animate-fade-up animate-delay-100">
             <div class="section-header">
-              <h2 class="text-emerald-500">SEGURIDAD Y ACCESO</h2>
+              <h2 class="text-emerald-500">{{ $t('profile.security.title') }}</h2>
               <div class="header-line" />
             </div>
 
@@ -275,10 +279,10 @@ const handleFileImport = async (event: Event) => {
                   <UButton variant="ghost" color="neutral" size="xs"
                     class="text-emerald-500 hover:text-emerald-400 font-bold tracking-widest text-[10px]"
                     @click="showPasswordModal = true">
-                    ACTUALIZAR
+                    {{ $t('profile.security.update') }}
                   </UButton>
                 </div>
-                <h3 class="text-zinc-100 font-medium text-sm mb-1">Contraseña Maestra</h3>
+                <h3 class="text-zinc-100 font-medium text-sm mb-1">{{ $t('profile.security.masterPassword') }}</h3>
               </div>
 
               <div class="card-tech p-6">
@@ -288,8 +292,8 @@ const handleFileImport = async (event: Event) => {
                   </div>
                   <USwitch v-model="twoFactorEnabled" color="success" />
                 </div>
-                <h3 class="text-zinc-100 font-medium text-sm mb-1">Factor de Doble Autenticación</h3>
-                <p class="text-emerald-500/60 text-[10px] uppercase tracking-wider font-bold">ACTIVO Y SEGURO</p>
+                <h3 class="text-zinc-100 font-medium text-sm mb-1">{{ $t('profile.security.twoFactor') }}</h3>
+                <p class="text-emerald-500/60 text-[10px] uppercase tracking-wider font-bold">{{ $t('profile.security.twoFactorStatus') }}</p>
               </div>
             </div>
           </section>
@@ -302,12 +306,11 @@ const handleFileImport = async (event: Event) => {
           <section class="animate-fade-up animate-delay-200">
             <div class="card-tech p-8 relative overflow-hidden group">
               <div class="absolute top-4 right-4 text-[9px] font-mono text-zinc-700 tracking-widest">V1.0.4</div>
-              <h4 class="label-tech mb-8 opacity-60">ESTADÍSTICAS DE USO</h4>
+              <h4 class="label-tech mb-8 opacity-60">{{ $t('profile.stats.title') }}</h4>
 
               <div class="flex items-baseline gap-4 mb-3">
                 <span class="text-7xl font-light text-zinc-100 tracking-tighter">{{ items.length }}</span>
-                <span class="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] pb-2">Elementos
-                  Cifrados</span>
+                <span class="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] pb-2">{{ $t('profile.stats.items') }}</span>
               </div>
 
               <div class="w-full h-[3px] bg-zinc-900 rounded-full mb-12">
@@ -315,7 +318,7 @@ const handleFileImport = async (event: Event) => {
               </div>
 
               <div class="space-y-1">
-                <h5 class="label-tech opacity-40">MIEMBRO DE LA BÓVEDA DESDE</h5>
+                <h5 class="label-tech opacity-40">{{ $t('profile.stats.memberSince') }}</h5>
                 <div class="text-zinc-300 font-medium text-lg capitalize">{{ formattedDate }}</div>
               </div>
             </div>
@@ -324,22 +327,22 @@ const handleFileImport = async (event: Event) => {
           <!-- DATA MANAGEMENT -->
           <section class="animate-fade-up animate-delay-300">
             <div class="section-header">
-              <h2 class="text-emerald-500/60 text-[10px] uppercase tracking-[0.3em] font-bold">GESTIÓN DE DATOS</h2>
+              <h2 class="text-emerald-500/60 text-[10px] uppercase tracking-[0.3em] font-bold">{{ $t('profile.management.title') }}</h2>
             </div>
             <div class="grid grid-cols-2 gap-4 mt-6">
               <button @click="showExportModal = true"
                 class="card-tech p-5 hover:bg-zinc-900/50 transition-all text-left group cursor-pointer">
                 <UIcon name="i-heroicons-arrow-down-tray"
                   class="size-4 text-emerald-500 mb-4 group-hover:scale-110 transition-transform" />
-                <div class="text-[10px] font-bold text-zinc-200 tracking-widest uppercase mb-1">EXPORTAR</div>
-                <div class="text-[9px] text-zinc-600 font-mono">JSON Cifrado AES-256</div>
+                <div class="text-[10px] font-bold text-zinc-200 tracking-widest uppercase mb-1">{{ $t('profile.management.export') }}</div>
+                <div class="text-[9px] text-zinc-600 font-mono">{{ $t('profile.management.exportDesc') }}</div>
               </button>
               <button @click="triggerFileInput"
                 class="card-tech p-5 hover:bg-zinc-900/50 transition-all text-left group cursor-pointer">
                 <UIcon name="i-heroicons-arrow-up-tray"
                   class="size-4 text-emerald-500 mb-4 group-hover:scale-110 transition-transform" />
-                <div class="text-[10px] font-bold text-zinc-200 tracking-widest uppercase mb-1">IMPORTAR</div>
-                <div class="text-[9px] text-zinc-600 font-mono">Sincronización externa</div>
+                <div class="text-[10px] font-bold text-zinc-200 tracking-widest uppercase mb-1">{{ $t('profile.management.import') }}</div>
+                <div class="text-[9px] text-zinc-600 font-mono">{{ $t('profile.management.importDesc') }}</div>
               </button>
               <input type="file" ref="fileInput" accept=".json" class="hidden" @change="handleFileImport" />
             </div>
@@ -348,27 +351,21 @@ const handleFileImport = async (event: Event) => {
           <!-- DEVICES -->
           <section class="animate-fade-up animate-delay-400">
             <div class="section-header">
-              <h2 class="text-emerald-500/60 text-[10px] uppercase tracking-[0.3em] font-bold">DISPOSITIVOS ACTIVOS</h2>
+              <h2 class="text-emerald-500/60 text-[10px] uppercase tracking-[0.3em] font-bold">{{ $t('profile.devices.title') }}</h2>
             </div>
             <div class="space-y-3 mt-6">
               <div v-for="(session, idx) in sessions" :key="idx"
                 class="card-tech px-5 py-4 flex items-center justify-between group">
                 <div class="flex items-center gap-4">
-                  <UIcon
-                    :name="session.os === 'iOS' ? 'i-heroicons-device-phone-mobile' : 'i-heroicons-computer-desktop'"
+                  <UIcon :name="session.os === 'iOS' ? 'i-heroicons-device-phone-mobile' : 'i-heroicons-computer-desktop'"
                     class="size-5 text-zinc-700 group-hover:text-emerald-500 transition-colors" />
                   <div>
-                    <div class="text-[11px] font-bold text-zinc-200 uppercase tracking-wider">{{ session.browser }} en
-                      {{ session.os }}</div>
-                    <div class="text-[9px] font-mono text-zinc-600 uppercase mt-0.5">{{ session.current ? session.ip :
-                      'Última conexión hace 2h' }}</div>
+                    <div class="text-[11px] font-bold text-zinc-200 uppercase tracking-wider">{{ session.browser }} en {{ session.os }}</div>
+                    <div class="text-[9px] font-mono text-zinc-600 uppercase mt-0.5">{{ session.current ? session.ip : $t('profile.devices.lastActive') }}</div>
                   </div>
                 </div>
-                <span
-                  :class="session.current ? 'text-emerald-500 border-emerald-500/20' : 'text-zinc-700 border-zinc-800'"
-                  class="text-[8px] font-bold border px-2 py-0.5 rounded tracking-widest uppercase">
-                  {{ session.current ? 'ACTIVA' : 'HISTORIAL' }}
-                </span>
+                <span :class="session.current ? 'text-emerald-500 border-emerald-500/20' : 'text-zinc-700 border-zinc-800'"
+                  class="text-[8px] font-bold border px-2 py-0.5 rounded tracking-widest uppercase">{{ session.current ? $t('profile.devices.active') : $t('profile.devices.history') }}</span>
               </div>
             </div>
           </section>
@@ -380,15 +377,14 @@ const handleFileImport = async (event: Event) => {
                 <div class="size-10 rounded-lg bg-red-500/10 flex items-center justify-center border border-red-500/20">
                   <UIcon name="i-heroicons-shield-exclamation" class="size-5 text-red-500" />
                 </div>
-                <h4 class="text-[10px] font-bold text-red-500 uppercase tracking-[0.3em]">Zona de Riesgo</h4>
+                <h4 class="text-[10px] font-bold text-red-500 uppercase tracking-[0.3em]">{{ $t('profile.danger.title') }}</h4>
               </div>
               <p class="text-[11px] text-zinc-600 leading-relaxed mb-10">
-                La eliminación de la cuenta es un proceso irreversible. Todos los activos cifrados serán purgados del
-                servidor de forma permanente.
+                {{ $t('profile.danger.desc') }}
               </p>
               <button @click="showDeleteModal = true"
                 class="w-full py-4 border border-red-500/30 rounded-lg text-red-500 text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-red-500/10 transition-all active:scale-95 cursor-pointer">
-                EJECUTAR ELIMINACIÓN DE CUENTA
+                {{ $t('profile.danger.deleteButton') }}
               </button>
             </div>
           </section>
@@ -399,69 +395,57 @@ const handleFileImport = async (event: Event) => {
       <footer class="mt-32 pb-8 flex justify-center">
         <span class="text-[9px] font-mono text-zinc-800 tracking-[0.6em] uppercase">VAULT SYSTEMS SECURITY</span>
       </footer>
+    </div>
 
-      <!-- MODALS -->
-      <UModal v-model:open="showPasswordModal">
-        <template #content>
-          <div
-            class="p-10 bg-black border border-emerald-500/20 rounded-2xl max-w-md mx-auto shadow-[0_0_50px_rgba(0,0,0,1)]">
-            <h3 class="text-lg font-bold text-zinc-100 uppercase tracking-widest mb-8">Contraseña Maestra</h3>
-            <div class="space-y-6 mb-10">
-              <UInput type="password" placeholder="Contraseña Actual" :ui="{ base: 'input-tech text-white' }" />
-              <UInput type="password" placeholder="Nueva Contraseña" :ui="{ base: 'input-tech text-white' }" />
-              <UInput type="password" placeholder="Confirmar" :ui="{ base: 'input-tech text-white' }" />
-            </div>
-            <UButton block
-              class="bg-emerald-500 hover:bg-emerald-400 text-black h-12 rounded-lg font-bold tracking-widest uppercase text-xs"
-              @click="showPasswordModal = false">
-              CIFRAR & ACTUALIZAR
+    <!-- MODALS (Moved outside main relative container to ensure correct teleportation) -->
+    <UModal v-model:open="showPasswordModal">
+      <template #content>
+        <div class="p-10 bg-black border border-emerald-500/20 rounded-2xl max-w-md mx-auto shadow-[0_0_50px_rgba(0,0,0,1)]">
+          <h3 class="text-lg font-bold text-zinc-100 uppercase tracking-widest mb-8">{{ $t('profile.modals.passwordTitle') }}</h3>
+          <div class="space-y-6 mb-10">
+            <UInput type="password" :placeholder="$t('profile.modals.passwordCurrent')" :ui="{ base: 'input-tech text-white' }" />
+            <UInput type="password" :placeholder="$t('profile.modals.passwordNew')" :ui="{ base: 'input-tech text-white' }" />
+            <UInput type="password" :placeholder="$t('profile.modals.passwordConfirm')" :ui="{ base: 'input-tech text-white' }" />
+          </div>
+          <UButton block class="bg-emerald-500 hover:bg-emerald-400 text-black h-12 rounded-lg font-bold tracking-widest uppercase text-xs" @click="showPasswordModal = false">
+            {{ $t('profile.modals.passwordSave') }}
+          </UButton>
+        </div>
+      </template>
+    </UModal>
+
+    <UModal v-model:open="showExportModal">
+      <template #content>
+        <div class="p-10 bg-black border border-emerald-500/20 rounded-2xl max-w-md mx-auto shadow-[0_0_50px_rgba(0,0,0,1)] text-center">
+          <UIcon name="i-heroicons-lock-closed" class="size-12 text-emerald-500 mb-6 mx-auto" />
+          <h3 class="text-lg font-bold text-zinc-100 uppercase tracking-widest mb-4">{{ $t('profile.modals.exportVerify') }}</h3>
+          <p class="text-xs text-zinc-600 mb-8 uppercase tracking-wider leading-relaxed">{{ $t('profile.modals.exportAuth') }}</p>
+          <UInput v-model="exportPassword" type="password" :placeholder="$t('profile.modals.exportPassword')" class="mb-3" :ui="{ base: 'input-tech text-white' }" @keyup.enter="confirmExport" />
+          <p v-if="exportError" class="text-[10px] text-red-500 mb-8 font-mono uppercase">{{ $t(`profile.modals.${exportError === 'Contraseña maestra incorrecta' ? 'masterPasswordError' : ''}`) || exportError }}</p>
+          <div class="flex flex-col gap-3">
+            <UButton block class="bg-emerald-500 hover:bg-emerald-400 text-black h-12 rounded-lg font-bold tracking-widest uppercase text-xs" @click="confirmExport">
+              {{ $t('profile.modals.exportButton') }}
+            </UButton>
+            <UButton block variant="ghost" color="neutral" class="text-zinc-600 hover:text-zinc-400" @click="showExportModal = false">
+              {{ $t('profile.danger.cancel') }}
             </UButton>
           </div>
-        </template>
-      </UModal>
+        </div>
+      </template>
+    </UModal>
 
-      <UModal v-model:open="showExportModal">
-        <template #content>
-          <div
-            class="p-10 bg-black border border-emerald-500/20 rounded-2xl max-w-md mx-auto shadow-[0_0_50px_rgba(0,0,0,1)] text-center">
-            <UIcon name="i-heroicons-lock-closed" class="size-12 text-emerald-500 mb-6 mx-auto" />
-            <h3 class="text-lg font-bold text-zinc-100 uppercase tracking-widest mb-4">Verificar Identidad</h3>
-            <p class="text-xs text-zinc-600 mb-8 uppercase tracking-wider leading-relaxed">Se requiere autorización del
-              nodo para descifrar y exportar la bóveda localmente.</p>
-            <UInput v-model="exportPassword" type="password" placeholder="Master Password" class="mb-3"
-              :ui="{ base: 'input-tech text-white' }" @keyup.enter="confirmExport" />
-            <p v-if="exportError" class="text-[10px] text-red-500 mb-8 font-mono uppercase">{{ exportError }}</p>
-            <div class="flex flex-col gap-3">
-              <UButton block
-                class="bg-emerald-500 hover:bg-emerald-400 text-black h-12 rounded-lg font-bold tracking-widest uppercase text-xs"
-                @click="confirmExport">
-                AUTORIZAR DESCARGA
-              </UButton>
-              <UButton block variant="ghost" color="neutral" class="text-zinc-600 hover:text-zinc-400"
-                @click="showExportModal = false">
-                CANCELAR
-              </UButton>
-            </div>
+    <UModal v-model:open="showDeleteModal">
+      <template #content>
+        <div class="p-10 bg-black border border-red-500/20 rounded-2xl max-w-sm mx-auto shadow-2xl">
+          <h3 class="text-lg font-bold text-red-500 uppercase tracking-widest mb-4">{{ $t('profile.danger.modalTitle') }}</h3>
+          <p class="text-xs text-zinc-600 mb-10 leading-relaxed">{{ $t('profile.danger.modalDesc') }}</p>
+          <div class="flex flex-col gap-3">
+            <UButton block color="error" class="h-12 rounded-lg font-bold tracking-widest uppercase text-xs">{{ $t('profile.danger.confirmDelete') }}</UButton>
+            <UButton block variant="ghost" color="neutral" class="text-zinc-600 hover:text-zinc-400" @click="showDeleteModal = false">{{ $t('profile.danger.cancel') }}</UButton>
           </div>
-        </template>
-      </UModal>
-
-      <UModal v-model:open="showDeleteModal">
-        <template #content>
-          <div class="p-10 bg-black border border-red-500/20 rounded-2xl max-w-sm mx-auto shadow-2xl">
-            <h3 class="text-lg font-bold text-red-500 uppercase tracking-widest mb-4">¿Confirmar Destrucción?</h3>
-            <p class="text-xs text-zinc-600 mb-10 leading-relaxed">Esta acción es irreversible y purgará permanentemente
-              todos tus activos. El nodo cesará su actividad de inmediato.</p>
-            <div class="flex flex-col gap-3">
-              <UButton block color="error" class="h-12 rounded-lg font-bold tracking-widest uppercase text-xs">SÍ,
-                BORRAR TODO</UButton>
-              <UButton block variant="ghost" color="neutral" class="text-zinc-600 hover:text-zinc-400"
-                @click="showDeleteModal = false">CANCELAR</UButton>
-            </div>
-          </div>
-        </template>
-      </UModal>
-    </div>
+        </div>
+      </template>
+    </UModal>
   </div>
 </template>
 
@@ -492,7 +476,6 @@ const handleFileImport = async (event: Event) => {
   letter-spacing: 0.25em;
   text-transform: uppercase;
   color: #52525b;
-  /* zinc-600 */
 }
 
 .badge-tech {
@@ -501,40 +484,30 @@ const handleFileImport = async (event: Event) => {
   gap: 0.5rem;
   padding: 0.4rem 0.75rem;
   background: #09090b;
-  /* zinc-950 */
   border: 1px solid #18181b;
-  /* zinc-900 */
   border-radius: 8px;
   font-size: 0.6rem;
   font-weight: 800;
   letter-spacing: 0.15em;
   color: #71717a;
-  /* zinc-500 */
 }
 
 .input-tech {
   background: #09090b !important;
-  /* zinc-950 */
   border: 1px solid #18181b !important;
-  /* zinc-900 */
   border-radius: 8px !important;
   color: #d4d4d8 !important;
-  /* zinc-300 */
   transition: all 0.3s ease !important;
 }
 
 .input-tech:focus-within {
   border-color: rgba(16, 185, 129, 0.3) !important;
-  /* emerald-500/30 */
   box-shadow: 0 0 15px rgba(16, 185, 129, 0.05) !important;
-  /* emerald-500/5 */
 }
 
 .card-tech {
   background: #09090b;
-  /* zinc-950 */
   border: 1px solid #18181b;
-  /* zinc-900 */
   border-radius: 16px;
 }
 

@@ -1,19 +1,39 @@
 import type { UserProfile, UpdateUserProfileDTO } from '~/types/user'
 
+/**
+ * useUser - Singleton-style composable for managing user profile and identity.
+ * Handles state synchronization between local reactive properties and the backend API.
+ */
 export const useUser = () => {
+    // States are persistent across the application thanks to Nuxt's useState keys.
     const user = useState<{ email: string; createdAt: string | null } | null>('user-data', () => null)
     const profile = useState<UserProfile | null>('user-profile', () => null)
     const loading = useState('user-loading', () => false)
+    
+    // Config and i18n must be accessed within the setup context.
+    const config = useRuntimeConfig()
+    const { setLocale } = useI18n()
 
+    /**
+     * fetchUser - Loads the user account (auth) and its associated profile from the API.
+     */
     const fetchUser = async () => {
         loading.value = true
         try {
             const [userData, profileData] = await Promise.all([
-                $fetch<{ email: string; createdAt: string | null }>('/api/auth/me'),
-                $fetch<UserProfile>('/api/user/profile').catch(() => null)
+                $fetch<{ email: string; createdAt: string | null }>(`/api/auth/me`),
+                $fetch<UserProfile>(`${config.public.apiBase}/api/user/profile`, {
+                    credentials: 'include'
+                }).catch(() => null)
             ])
             user.value = userData
-            if (profileData) profile.value = profileData
+            if (profileData) {
+                profile.value = profileData
+                if (profileData.language) {
+                    // Fix ts(2345): Casting specifically to supported locales
+                    await setLocale(profileData.language as 'es' | 'en')
+                }
+            }
         } catch (e) {
             console.error('Error fetching user data:', e)
         } finally {
@@ -21,13 +41,21 @@ export const useUser = () => {
         }
     }
 
+    /**
+     * updateProfile - Updates the profile on the server and synchronizes the local state instantly.
+     */
     const updateProfile = async (data: UpdateUserProfileDTO) => {
         try {
-            const updated = await $fetch<UserProfile>('/api/user/profile', {
+            const updated = await $fetch<UserProfile>(`${config.public.apiBase}/api/user/profile`, {
                 method: 'PUT',
-                body: data
+                body: data,
+                credentials: 'include'
             })
+            // Updating the shared state instantly triggers reactivity across all referencing components.
             profile.value = updated
+            if (updated.language) {
+                await setLocale(updated.language as 'es' | 'en')
+            }
             return updated
         } catch (e) {
             console.error('Error updating profile:', e)
@@ -35,7 +63,10 @@ export const useUser = () => {
         }
     }
 
+    // Computed properties are derived from the shared useState values.
+    // They reference the SAME global states ('user-profile', etc.).
     const email = computed(() => user.value?.email || '')
+    
     const displayName = computed(() => {
         const name = profile.value?.name?.trim()
         if (name) return name
@@ -46,6 +77,7 @@ export const useUser = () => {
         }
         return e || 'Usuario'
     })
+    
     const avatarUrl = computed(() => profile.value?.avatar_url || '')
     const language = computed(() => profile.value?.language || 'es')
 
@@ -81,7 +113,6 @@ export const useUser = () => {
     const createdAt = computed(() => user.value?.createdAt || null)
 
     const logout = async () => {
-        const config = useRuntimeConfig()
         const { clearVault } = useVault()
         const { clearMasterPassword, clearUserEmail } = useMasterPassword()
 
@@ -93,13 +124,11 @@ export const useUser = () => {
         } catch (e) {
             console.error('Logout error:', e)
         } finally {
-            // Limpiar todo el estado de la aplicación para evitar fugas entre sesiones
             user.value = null
             profile.value = null
             clearVault()
             clearMasterPassword()
             clearUserEmail()
-
             navigateTo('/login')
         }
     }

@@ -1,0 +1,77 @@
+{
+  "profile": {
+    "title": "Profile",
+    "description": "Manage your profile and security settings in Alcatraz.",
+    "back": "SYSTEM / BACK",
+    "header": {
+      "node": "NODE",
+      "secureAccess": "SECURE ACCESS"
+    },
+    "identity": {
+      "title": "IDENTITY SETTINGS",
+      "nameLabel": "PUBLIC NAME",
+      "languageLabel": "INTERFACE LANGUAGE",
+      "avatarLabel": "AVATAR URL",
+      "avatarHelp": "Minimum resolution of 400x400px is recommended.",
+      "saveButton": "SAVE IDENTITY",
+      "success": "Profile updated",
+      "successDesc": "Your identity changes have been saved successfully.",
+      "error": "Error",
+      "errorDesc": "Could not update profile."
+    },
+    "security": {
+      "title": "SECURITY AND ACCESS",
+      "masterPassword": "Master Password",
+      "update": "UPDATE",
+      "twoFactor": "Two-Factor Authentication",
+      "twoFactorStatus": "ACTIVE AND SECURE"
+    },
+    "stats": {
+      "title": "USAGE STATISTICS",
+      "items": "Encrypted Items",
+      "memberSince": "VAULT MEMBER SINCE",
+      "dateUnknown": "Unknown"
+    },
+    "management": {
+      "title": "DATA MANAGEMENT",
+      "export": "EXPORT",
+      "exportDesc": "AES-256 Encrypted JSON",
+      "import": "IMPORT",
+      "importDesc": "External sync",
+      "exportSuccess": "Data exported",
+      "exportSuccessDesc": "Your local backup has been downloaded successfully.",
+      "importSuccess": "Import successful",
+      "importSuccessDesc": "Restored {count} records successfully.",
+      "importError": "Import error",
+      "importErrorDesc": "Invalid JSON file."
+    },
+    "devices": {
+      "title": "ACTIVE DEVICES",
+      "active": "ACTIVE",
+      "history": "HISTORY",
+      "lastActive": "Last active 2h ago",
+      "now": "Now"
+    },
+    "danger": {
+      "title": "Risk Zone",
+      "desc": "Account deletion is irreversible. All encrypted assets will be permanently purged from the server.",
+      "deleteButton": "EXECUTE ACCOUNT DELETION",
+      "modalTitle": "Confirm Destruction?",
+      "modalDesc": "This action is irreversible and will permanently purge all your assets. The node will cease activity immediately.",
+      "confirmDelete": "YES, DELETE EVERYTHING",
+      "cancel": "CANCEL"
+    },
+    "modals": {
+      "passwordTitle": "Master Password",
+      "passwordCurrent": "Current Password",
+      "passwordNew": "New Password",
+      "passwordConfirm": "Confirm",
+      "passwordSave": "ENCRYPT & UPDATE",
+      "exportVerify": "Verify Identity",
+      "exportAuth": "Node authorization is required to decrypt and export the local vault.",
+      "exportPassword": "Master Password",
+      "exportButton": "AUTHORIZE DOWNLOAD",
+      "masterPasswordError": "Incorrect master password"
+    }
+  }
+}
