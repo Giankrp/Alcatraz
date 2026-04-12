@@ -24,7 +24,8 @@
       "masterPassword": "Master Password",
       "update": "UPDATE",
       "twoFactor": "Two-Factor Authentication",
-      "twoFactorStatus": "ACTIVE AND SECURE"
+      "twoFactorActive": "ACTIVE AND SECURE",
+      "twoFactorInactive": "DISABLED (VULNERABLE)"
     },
     "stats": {
       "title": "USAGE STATISTICS",
@@ -72,6 +73,206 @@
       "exportPassword": "Master Password",
       "exportButton": "AUTHORIZE DOWNLOAD",
       "masterPasswordError": "Incorrect master password"
+    }
+  },
+  "auth": {
+    "2fa": {
+      "title": "2FA Verification",
+      "verify": "Verify Identity",
+      "backup": "Use backup code",
+      "totp": "Use authenticator code",
+      "backupHelp": "Enter one of your 8-character backup codes",
+      "totpHelp": "Enter the 6-digit code from your app",
+      "error": "Invalid or expired code",
+      "success": "Login successful"
+    },
+    "setup": {
+      "title": "Enable 2FA",
+      "desc": "Add an extra layer of security. You will need an app like Google Authenticator or Authy to generate codes.",
+      "button": "Setup now",
+      "scan": "Scan the code",
+      "manual": "Or enter the secret manually:",
+      "verify": "Verification code",
+      "activate": "Enable protection",
+      "back": "Back",
+      "enabled": "2FA Enabled!",
+      "important": "IMPORTANT: Save these backup codes. They are the only way to access if you lose your device.",
+      "copy": "Copy",
+      "download": "Download",
+      "finish": "I have saved the codes"
+    },
+    "fields": {
+      "email": "Email address",
+      "password": "Password",
+      "remember": "Remember me",
+      "name": "Full name",
+      "terms": "I accept terms and conditions"
+    },
+    "validation": {
+      "email": "Enter a valid email",
+      "passwordMin": "Minimum 8 characters",
+      "passwordMatch": "Passwords do not match",
+      "required": "Field required"
+    }
+  },
+  "nav": {
+    "features": "Features",
+    "security": "Security",
+    "pricing": "Pricing",
+    "login": "Login",
+    "getStarted": "Get Started Free"
+  },
+  "footer": {
+    "rights": "© {year} Alcatraz. All rights reserved.",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "contact": "Contact"
+  },
+  "landing": {
+    "hero": {
+      "badge": "Maximum Protection Security",
+      "title": "Your secrets under",
+      "titleAccent": "maximum security",
+      "desc": "Like the world's most secure prison, Alcatraz protects your passwords and notes with military-grade encryption. No one enters, no one leaves without your authorization.",
+      "ctaStart": "Start Now",
+      "ctaDemo": "View Demo"
+    },
+    "stats": {
+      "encryption": "AES Encryption",
+      "notes": "Encrypted notes",
+      "notesCount": "Unlimited",
+      "architecture": "Architecture",
+      "architectureDesc": "Zero-knowledge"
+    },
+    "features": {
+      "title": "Everything you need to stay safe",
+      "desc": "Features designed to protect your most valuable information",
+      "manager": {
+        "title": "Password Manager",
+        "desc": "Store and generate secure passwords with a single click. Smart autofill across all your websites."
+      },
+      "notes": {
+        "title": "Encrypted Notes",
+        "desc": "Save sensitive information like card numbers, codes, and documents with end-to-end encryption."
+      },
+      "multiplatform": {
+        "title": "Multiplatform",
+        "desc": "Access from iOS, Android, Windows, Mac, and Linux. Instant synchronization."
+      },
+      "backup": {
+        "title": "Automatic Backup",
+        "desc": "Encrypted automatic cloud backup. Never lose your information."
+      },
+      "biometric": {
+        "title": "Biometric Authentication",
+        "desc": "Unlock with fingerprint or face recognition. Hassle-free security."
+      },
+      "audit": {
+        "title": "Security Audit",
+        "desc": "Analyze the strength of your passwords and receive alerts of known breaches."
+      }
+    },
+    "security": {
+      "title": "Security at every step",
+      "desc": "Your privacy is our priority. We implement the highest security standards.",
+      "featured": {
+        "title": "End-to-End Encryption",
+        "desc": "We use AES-256 encryption, the same standard used by banks and governments. Your data is encrypted on your device before being sent to the cloud.",
+        "list": [
+          "AES-256 encryption at rest and in transit",
+          "Key derivation with Argon2id",
+          "Two-factor authentication (2FA) available"
+        ]
+      },
+      "cards": {
+        "zeroKnowledge": {
+          "title": "Zero-Knowledge Architecture",
+          "desc": "Not even we can see your data. Only you have access to your information."
+        },
+        "infrastructure": {
+          "title": "Secure Infrastructure",
+          "desc": "Certified data centers with 24/7 monitoring and regular audits."
+        },
+        "openSource": {
+          "title": "Open Source",
+          "desc": "Total transparency: our code is audited by the community."
+        }
+      }
+    },
+    "cta": {
+      "title": "Start protecting your data today",
+      "desc": "Join over 100,000 users. Free 30-day trial, no card required.",
+      "start": "Get Started Free",
+      "sales": "Talk to Sales",
+      "benefits": [
+        "No credit card required",
+        "Cancel anytime",
+        "24/7 Support"
+      ]
+    }
+  },
+  "pricing": {
+    "title": "Plans and Pricing",
+    "desc": "Choose the security that best fits your needs.",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "save": "Save 20%",
+    "plans": {
+      "free": {
+        "name": "Personal",
+        "price": "0",
+        "desc": "For individuals looking for essential security.",
+        "button": "Start Free"
+      },
+      "premium": {
+        "name": "Premium",
+        "price": "3.99",
+        "desc": "Advanced security for demanding users.",
+        "button": "Get Premium"
+      },
+      "family": {
+        "name": "Family",
+        "price": "7.99",
+        "desc": "Protection for your whole family (up to 6 users).",
+        "button": "Get Family"
+      }
+    }
+  },
+  "login": {
+    "title": "Login",
+    "desc": "Welcome back. We protect your data with maximum security.",
+    "meta": {
+      "desc": "Access your secure vault for passwords and encrypted notes in Alcatraz."
+    },
+    "alerts": {
+      "success": "Access granted",
+      "successDesc": "You have logged in successfully.",
+      "error": "Login error",
+      "errorDesc": "Incorrect username or password."
+    },
+    "form": {
+      "separator": "or continue with",
+      "submit": "Access",
+      "forgot": "Forgot your password?",
+      "noAccount": "Don't have an account?",
+      "register": "Sign up"
+    }
+  },
+  "register": {
+    "title": "Create Account",
+    "desc": "Join Alcatraz and secure your digital life today.",
+    "meta": {
+      "desc": "Create your Alcatraz account to manage your passwords securely."
+    },
+    "alerts": {
+      "success": "Account created",
+      "successDesc": "You have registered successfully."
+    },
+    "form": {
+      "separator": "or sign up with",
+      "submit": "Create account",
+      "hasAccount": "Already have an account?",
+      "login": "Login"
     }
   }
 }

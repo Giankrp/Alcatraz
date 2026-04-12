@@ -6,15 +6,15 @@ definePageMeta({
 
 const { t } = useI18n()
 
-useHead({
-  title: t('profile.title'),
+useHead(() => ({
+  title: t('profile.title') + ' · Alcatraz',
   meta: [
     {
       name: "description",
       content: t('profile.description'),
     },
   ],
-})
+}))
 
 const {
   email,
@@ -24,6 +24,7 @@ const {
   initials,
   avatarColor,
   createdAt,
+  twoFactorEnabled,
   loading: userLoading,
   fetchUser,
   updateProfile
@@ -59,9 +60,16 @@ onMounted(async () => {
     if (!isSavingProfile.value) {
       editName.value = currentName !== emailPrefix ? currentName : ''
       editAvatarUrl.value = avatarUrl.value || ''
-      editLanguage.value = userLanguage.value || 'es'
+      editLanguage.value = userLanguage.value || useI18n().locale.value || 'es'
     }
   })
+})
+
+// Sync editLanguage with i18n locale for instant feedback
+watch(() => useI18n().locale.value, (newLocale) => {
+  if (!isSavingProfile.value) {
+    editLanguage.value = newLocale
+  }
 })
 
 const handleUpdateProfile = async () => {
@@ -99,7 +107,8 @@ const handleUpdateProfile = async () => {
 
 const formattedDate = computed(() => {
   if (!createdAt.value) return t('profile.stats.dateUnknown')
-  return new Date(createdAt.value).toLocaleDateString(editLanguage.value === 'es' ? 'es-ES' : 'en-US', {
+  const { locale } = useI18n()
+  return new Date(createdAt.value).toLocaleDateString(locale.value === 'es' ? 'es-ES' : 'en-US', {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -109,11 +118,39 @@ const formattedDate = computed(() => {
 // Existing features state
 const showDeleteModal = ref(false)
 const showPasswordModal = ref(false)
-const twoFactorEnabled = ref(false)
+const showTwoFactorSetup = ref(false)
+const localTwoFactor = ref(false)
 
-const sessions = ref([
-  { browser: "Chrome", os: "Linux", ip: "192.168.1.x", current: true, lastActive: "Ahora" },
-  { browser: "Safari", os: "iOS", ip: "10.0.0.x", current: false, lastActive: "Hace 2 horas" },
+// Sync local state with real user state
+watch(twoFactorEnabled, (val) => {
+  localTwoFactor.value = val
+}, { immediate: true })
+
+const handleTwoFactorToggle = (val: boolean) => {
+  if (val && !twoFactorEnabled.value) {
+    // Intentando activar
+    localTwoFactor.value = true // Animamos el switch a 'ON'
+    showTwoFactorSetup.value = true
+  } else if (!val && twoFactorEnabled.value) {
+    // Intentando desactivar (Pendiente de implementación en backend)
+    toast.add({
+      title: 'Desactivar 2FA',
+      description: 'La desactivación manual estará disponible pronto. Contacta con soporte si necesitas ayuda.',
+      color: 'warning'
+    })
+  }
+}
+
+// Revertir el switch si el usuario cierra el modal de configuración sin terminar
+watch(showTwoFactorSetup, (isSetupOpen) => {
+  if (!isSetupOpen && !twoFactorEnabled.value) {
+    localTwoFactor.value = false
+  }
+})
+
+const sessions = computed(() => [
+  { browser: "Chrome", os: "Linux", ip: "192.168.1.x", current: true, lastActive: t('profile.devices.now') },
+  { browser: "Safari", os: "iOS", ip: "10.0.0.x", current: false, lastActive: t('profile.devices.lastActive') },
 ])
 
 const showExportModal = ref(false)
@@ -290,10 +327,16 @@ const handleFileImport = async (event: Event) => {
                   <div class="size-10 rounded-lg bg-zinc-900 flex items-center justify-center border border-zinc-800">
                     <UIcon name="i-heroicons-shield-check" class="size-5 text-emerald-500/50" />
                   </div>
-                  <USwitch v-model="twoFactorEnabled" color="success" />
+                  <USwitch 
+                    :model-value="localTwoFactor" 
+                    color="success" 
+                    @update:model-value="handleTwoFactorToggle" 
+                  />
                 </div>
                 <h3 class="text-zinc-100 font-medium text-sm mb-1">{{ $t('profile.security.twoFactor') }}</h3>
-                <p class="text-emerald-500/60 text-[10px] uppercase tracking-wider font-bold">{{ $t('profile.security.twoFactorStatus') }}</p>
+                <p class="text-emerald-500/60 text-[10px] uppercase tracking-wider font-bold">
+                  {{ twoFactorEnabled ? $t('profile.security.twoFactorActive') : $t('profile.security.twoFactorInactive') }}
+                </p>
               </div>
             </div>
           </section>
@@ -446,6 +489,8 @@ const handleFileImport = async (event: Event) => {
         </div>
       </template>
     </UModal>
+
+    <ProfileTwoFactorSetup v-model:open="showTwoFactorSetup" @enabled="fetchUser" />
   </div>
 </template>
 

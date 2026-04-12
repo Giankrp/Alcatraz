@@ -10,6 +10,10 @@ export const useUser = () => {
     const profile = useState<UserProfile | null>('user-profile', () => null)
     const loading = useState('user-loading', () => false)
     
+    // 2FA login state
+    const twoFactorTempToken = useState<string | null>('2fa-temp-token', () => null)
+    const twoFactorEmail = useState<string | null>('2fa-email', () => null)
+
     // Config and i18n must be accessed within the setup context.
     const config = useRuntimeConfig()
     const { setLocale } = useI18n()
@@ -111,6 +115,7 @@ export const useUser = () => {
     })
 
     const createdAt = computed(() => user.value?.createdAt || null)
+    const twoFactorEnabled = computed(() => profile.value?.two_factor_enabled || false)
 
     const logout = async () => {
         const { clearVault } = useVault()
@@ -143,6 +148,9 @@ export const useUser = () => {
         initials, 
         avatarColor, 
         createdAt, 
+        twoFactorEnabled,
+        twoFactorTempToken,
+        twoFactorEmail,
         loading, 
         fetchUser,
         updateProfile,

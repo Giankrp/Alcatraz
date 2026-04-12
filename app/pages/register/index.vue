@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { useRegisterForm } from "~/composables/useRegisterForm"
 
-const { schema, fields, providers, submitted, onSubmit, resetFeedback } = useRegisterForm()
-useHead({
-  title: 'Crear cuenta',
+const { t, schema, fields, providers, submitted, onSubmit, resetFeedback } = useRegisterForm()
+useHead(() => ({
+  title: t('register.title') + ' · Alcatraz',
   meta: [
-    { name: 'description', content: 'Crea tu cuenta en Alcatraz para gestionar tus contraseñas de forma segura.' },
-    { property: 'og:title', content: 'Crear cuenta — Alcatraz' },
-    { property: 'og:description', content: 'Protege tu información digital con Alcatraz.' }
+    { name: 'description', content: t('register.meta.desc') },
+    { property: 'og:title', content: t('register.title') + ' — Alcatraz' },
+    { property: 'og:description', content: t('register.meta.desc') }
   ]
-})
+}))
 </script>
 
 <template>
@@ -28,19 +28,19 @@ useHead({
       <div class="mx-auto max-w-md relative z-10">
         <UCard class="glass-card-dark transition-all duration-300 hover:shadow-2xl"
           :ui="{ body: 'p-6 sm:p-8', header: 'p-0' }">
-          <UAlert v-if="submitted" color="success" variant="soft" title="Cuenta creada"
-            description="Te has registrado correctamente." class="mb-4" @close="resetFeedback" />
+          <UAlert v-if="submitted" color="success" variant="soft" :title="$t('register.alerts.success')"
+            :description="$t('register.alerts.successDesc')" class="mb-4" @close="resetFeedback" />
 
-          <UAuthForm title="Crear cuenta" description="Únete a Alcatraz y asegura tu vida digital hoy mismo."
+          <UAuthForm :title="$t('register.title')" :description="$t('register.desc')"
             icon="i-heroicons-user-plus" :schema="schema" :fields="fields" :providers="providers"
-            :separator="{ label: 'o regístrate con' }"
-            :submit="{ label: 'Crear cuenta', icon: 'i-heroicons-arrow-right-16-solid', color: 'neutral', variant: 'solid', class: 'btn btn-lg' }"
+            :separator="{ label: $t('register.form.separator') }"
+            :submit="{ label: $t('register.form.submit'), icon: 'i-heroicons-arrow-right-16-solid', color: 'neutral', variant: 'solid', class: 'btn btn-lg' }"
             class="w-full space-y-6 auth-dark" @submit="onSubmit" @error="resetFeedback">
 
             <template #footer>
               <p class="text-center text-sm">
-                ¿Ya tienes cuenta?
-                <ULink to="/login" class="font-medium">Inicia sesión</ULink>
+                {{ $t('register.form.hasAccount') }}
+                <ULink to="/login" class="font-medium">{{ $t('register.form.login') }}</ULink>
               </p>
             </template>
           </UAuthForm>

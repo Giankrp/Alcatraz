@@ -14,22 +14,21 @@
           <span class="font-semibold">Alcatraz</span>
         </div>
         <p class="mt-4 text-sm opacity-70">
-          Seguridad impenetrable para tus contraseñas y notas cifradas.
+          {{ $t('landing.hero.desc').split('.')[0] }}.
         </p>
       </div>
 
-      <!-- Producto -->
       <div>
-        <div class="font-semibold">Producto</div>
+        <div class="font-semibold">{{ $t('profile.identity.title').split(' ')[0] }}</div>
         <ul class="mt-3 space-y-2 text-sm opacity-90">
           <li>
-            <ULink to="#caracteristicas">Características</ULink>
+            <ULink to="/#caracteristicas">{{ $t('nav.features') }}</ULink>
           </li>
           <li>
-            <ULink to="#seguridad">Seguridad</ULink>
+            <ULink to="/#seguridad">{{ $t('nav.security') }}</ULink>
           </li>
           <li>
-            <ULink to="/pricing">Precios</ULink>
+            <ULink to="/pricing">{{ $t('nav.pricing') }}</ULink>
           </li>
           <li>
             <ULink to="/descargas">Descargas</ULink>
@@ -51,7 +50,7 @@
             <ULink to="/careras">Carreras</ULink>
           </li>
           <li>
-            <ULink to="/contacto">Contacto</ULink>
+            <ULink to="/contacto">{{ $t('footer.contact') }}</ULink>
           </li>
         </ul>
       </div>
@@ -61,10 +60,10 @@
         <div class="font-semibold">Legal</div>
         <ul class="mt-3 space-y-2 text-sm opacity-90">
           <li>
-            <ULink to="/privacidad">Privacidad</ULink>
+            <ULink to="/privacidad">{{ $t('footer.privacy') }}</ULink>
           </li>
           <li>
-            <ULink to="/terminos">Términos</ULink>
+            <ULink to="/terminos">{{ $t('footer.terms') }}</ULink>
           </li>
           <li>
             <ULink to="/cookies">Cookies</ULink>
@@ -78,7 +77,7 @@
 
     <div class="border-t border-white/10">
       <UContainer class="py-6 text-center text-sm opacity-70">
-        &copy; {{ new Date().getFullYear() }} Alcatraz. Todos los derechos reservados.
+        {{ $t('footer.rights', { year: new Date().getFullYear() }) }}
       </UContainer>
     </div>
   </footer>

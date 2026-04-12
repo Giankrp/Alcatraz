@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import { useAuthForm } from "~/composables/useAuthForm"
 
-const { schema, fields, providers, submitted, error, onSubmit, resetFeedback } = useAuthForm()
+const { t, schema, fields, providers, submitted, error, onSubmit, resetFeedback } = useAuthForm()
 definePageMeta({
   middleware: "guest"
 })
-useHead({
-  title: 'Iniciar sesión',
+useHead(() => ({
+  title: t('login.title') + ' · Alcatraz',
   meta: [
-    { name: 'description', content: 'Accede a tu bóveda segura de contraseñas y notas cifradas en Alcatraz.' },
-    { property: 'og:title', content: 'Iniciar sesión — Alcatraz' },
-    { property: 'og:description', content: 'Tu acceso seguro a la bóveda de contraseñas y notas cifradas.' }
+    { name: 'description', content: t('login.meta.desc') },
+    { property: 'og:title', content: t('login.title') + ' — Alcatraz' },
+    { property: 'og:description', content: t('login.meta.desc') }
   ]
-})
+}))
 </script>
 
 <template>
@@ -31,24 +31,24 @@ useHead({
       <div class="mx-auto max-w-md relative z-10">
         <UCard class="glass-card-dark transition-all duration-300 hover:shadow-2xl"
           :ui="{ body: 'p-6 sm:p-8', header: 'p-0' }">
-          <UAlert v-if="submitted" color="success" variant="soft" title="Acceso concedido"
-            description="Has iniciado sesión correctamente." class="mb-4" @close="resetFeedback" />
-          <UAlert v-if="error" color="error" variant="soft" title="Error al iniciar sesión"
-            description="Usuario o contraseña incorrectos." class="mb-4" @close="resetFeedback" />
+          <UAlert v-if="submitted" color="success" variant="soft" :title="$t('login.alerts.success')"
+            :description="$t('login.alerts.successDesc')" class="mb-4" @close="resetFeedback" />
+          <UAlert v-if="error" color="error" variant="soft" :title="$t('login.alerts.error')"
+            :description="$t('login.alerts.errorDesc')" class="mb-4" @close="resetFeedback" />
 
-          <UAuthForm title="Inicia sesión"
-            description="Bienvenido de vuelta. Protegemos tus datos con máxima seguridad."
+          <UAuthForm :title="$t('login.title')"
+            :description="$t('login.desc')"
             icon="i-heroicons-lock-closed" :schema="schema" :fields="fields" :providers="providers"
-            :separator="{ label: 'o continúa con' }"
-            :submit="{ label: 'Acceder', icon: 'i-heroicons-arrow-right-16-solid', color: 'neutral', variant: 'solid', class: 'btn btn-lg' }"
+            :separator="{ label: $t('login.form.separator') }"
+            :submit="{ label: $t('login.form.submit'), icon: 'i-heroicons-arrow-right-16-solid', color: 'neutral', variant: 'solid', class: 'btn btn-lg' }"
             class="w-full space-y-6 auth-dark" @submit="onSubmit" @error="resetFeedback">
             <template #password-hint>
-              <ULink to="/recuperar" class="text-sm">¿Olvidaste tu contraseña?</ULink>
+              <ULink to="/recuperar" class="text-sm">{{ $t('login.form.forgot') }}</ULink>
             </template>
             <template #footer>
               <p class="text-center text-sm">
-                ¿No tienes cuenta?
-                <ULink to="/register" class="font-medium">Regístrate</ULink>
+                {{ $t('login.form.noAccount') }}
+                <ULink to="/register" class="font-medium">{{ $t('login.form.register') }}</ULink>
               </p>
             </template>
           </UAuthForm>

@@ -1,12 +1,13 @@
 <script lang="ts" setup>
-useHead({
-  title: 'Gestor de contraseñas y notas cifradas',
+const { t } = useI18n()
+useHead(() => ({
+  title: t('landing.hero.title') + ' ' + t('landing.hero.titleAccent') + ' · Alcatraz',
   meta: [
-    { name: 'description', content: 'Alcatraz: seguridad de nivel máximo para tus contraseñas y notas con cifrado AES-256 y arquitectura zero-knowledge.' },
-    { property: 'og:title', content: 'Alcatraz — Seguridad máxima para tus datos' },
-    { property: 'og:description', content: 'Protege contraseñas y notas cifradas con AES-256 y zero-knowledge.' }
+    { name: 'description', content: t('landing.hero.desc') },
+    { property: 'og:title', content: 'Alcatraz — ' + t('landing.hero.badge') },
+    { property: 'og:description', content: t('landing.hero.desc') }
   ]
-})
+}))
 </script>
 
 <template>
@@ -18,31 +19,30 @@ useHead({
           <UBadge color="neutral" variant="soft" size="md"
             class="px-4 py-2 rounded-full border border-green-500/20 bg-green-500/10 text-green-400">
             <UIcon name="i-heroicons-shield-check" class="size-3.5 mr-1" />
-            Seguridad de máxima protección
+            {{ $t('landing.hero.badge') }}
           </UBadge>
         </div>
 
         <h1
           class="mt-10 text-center text-5xl md:text-7xl font-extrabold tracking-tight animate-fade-up animate-delay-100">
-          Tus secretos bajo
+          {{ $t('landing.hero.title') }}
           <span class="block bg-linear-to-r from-green-400 via-green-300 to-green-500 bg-clip-text text-transparent">
-            máxima seguridad
+            {{ $t('landing.hero.titleAccent') }}
           </span>
         </h1>
 
         <p class="mt-8 mx-auto max-w-2xl text-center text-neutral-400 text-lg animate-fade-up animate-delay-200">
-          Como la prisión más segura del mundo, Alcatraz protege tus contraseñas
-          y notas con cifrado militar. Nadie entra, nadie sale sin tu autorización.
+          {{ $t('landing.hero.desc') }}
         </p>
 
         <div class="mt-10 flex items-center justify-center gap-4 animate-fade-up animate-delay-300">
           <UButton to="/login" class="btn-accent btn-lg hover:scale-[1.02] transition-transform">
-            Comenzar Ahora
+            {{ $t('landing.hero.ctaStart') }}
             <UIcon name="i-heroicons-arrow-right-16-solid" class="size-4" />
           </UButton>
           <UButton to="/demo" variant="outline" color="neutral"
             class="btn btn-lg btn-ghost hover:scale-[1.02] transition-transform hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-400">
-            Ver Demo
+            {{ $t('landing.hero.ctaDemo') }}
           </UButton>
         </div>
 
@@ -54,7 +54,7 @@ useHead({
             </div>
             <div>
               <div class="text-2xl font-bold tracking-tight">256-bit</div>
-              <div class="text-sm text-neutral-400">Cifrado AES</div>
+              <div class="text-sm text-neutral-400">{{ $t('landing.stats.encryption') }}</div>
             </div>
           </div>
 
@@ -63,8 +63,8 @@ useHead({
               <UIcon name="i-heroicons-document-text" class="size-5" />
             </div>
             <div>
-              <div class="text-2xl font-bold tracking-tight">Ilimitadas</div>
-              <div class="text-sm text-neutral-400">Notas cifradas</div>
+              <div class="text-2xl font-bold tracking-tight">{{ $t('landing.stats.notesCount') }}</div>
+              <div class="text-sm text-neutral-400">{{ $t('landing.stats.notes') }}</div>
             </div>
           </div>
 
@@ -73,8 +73,8 @@ useHead({
               <UIcon name="i-heroicons-shield-check" class="size-5" />
             </div>
             <div>
-              <div class="text-2xl font-bold tracking-tight">Zero-knowledge</div>
-              <div class="text-sm text-neutral-400">Arquitectura</div>
+              <div class="text-2xl font-bold tracking-tight">{{ $t('landing.stats.architectureDesc') }}</div>
+              <div class="text-sm text-neutral-400">{{ $t('landing.stats.architecture') }}</div>
             </div>
           </div>
         </div>
@@ -112,30 +112,30 @@ useHead({
     <section class="bg-(--surface-1)">
       <UContainer id="caracteristicas" class="py-24">
         <h2 class="text-center text-3xl sm:text-4xl md:text-5xl font-extrabold animate-fade-up">
-          Todo lo que necesitas para estar seguro
+          {{ $t('landing.features.title') }}
         </h2>
         <p class="mt-4 text-center text-neutral-400 px-4 animate-fade-up animate-delay-100">
-          Funciones diseñadas para proteger tu información más valiosa
+          {{ $t('landing.features.desc') }}
         </p>
 
         <div class="mt-12 grid gap-5 sm:grid-cols-2 md:grid-cols-3">
-          <SecurityCard title="Gestor de Contraseñas"
-            description="Almacena y genera contraseñas seguras con un solo clic. Autocompletado inteligente en todos tus sitios web."
+          <SecurityCard :title="$t('landing.features.manager.title')"
+            :description="$t('landing.features.manager.desc')"
             icon="i-heroicons-key" class="animate-fade-up animate-delay-100" />
-          <SecurityCard title="Notas Cifradas"
-            description="Guarda información sensible como números de tarjetas, códigos y documentos con cifrado de extremo a extremo."
+          <SecurityCard :title="$t('landing.features.notes.title')"
+            :description="$t('landing.features.notes.desc')"
             icon="i-heroicons-document-text" class="animate-fade-up animate-delay-200" />
-          <SecurityCard title="Multiplataforma"
-            description="Accede desde iOS, Android, Windows, Mac y Linux. Sincronización instantánea."
+          <SecurityCard :title="$t('landing.features.multiplatform.title')"
+            :description="$t('landing.features.multiplatform.desc')"
             icon="i-heroicons-device-phone-mobile" class="animate-fade-up animate-delay-300" />
-          <SecurityCard title="Backup Automático"
-            description="Respaldo automático en la nube con cifrado. Nunca pierdas tu información."
+          <SecurityCard :title="$t('landing.features.backup.title')"
+            :description="$t('landing.features.backup.desc')"
             icon="i-heroicons-cloud" class="animate-fade-up animate-delay-400" />
-          <SecurityCard title="Autenticación Biométrica"
-            description="Desbloqueo con huella dactilar o reconocimiento facial. Seguridad sin complicaciones."
+          <SecurityCard :title="$t('landing.features.biometric.title')"
+            :description="$t('landing.features.biometric.desc')"
             icon="i-heroicons-finger-print" class="animate-fade-up animate-delay-500" />
-          <SecurityCard title="Auditoría de Seguridad"
-            description="Analiza la fortaleza de tus contraseñas y recibe alertas de brechas conocidas."
+          <SecurityCard :title="$t('landing.features.audit.title')"
+            :description="$t('landing.features.audit.desc')"
             icon="i-heroicons-shield-check" class="animate-fade-up animate-delay-600" />
         </div>
       </UContainer>
@@ -145,9 +145,9 @@ useHead({
 
     <!-- Seguridad en cada paso -->
     <UContainer id="seguridad" class="py-24">
-      <h2 class="text-center text-4xl md:text-5xl font-extrabold animate-fade-up">Seguridad en cada paso</h2>
+      <h2 class="text-center text-4xl md:text-5xl font-extrabold animate-fade-up">{{ $t('landing.security.title') }}</h2>
       <p class="mt-4 text-center text-neutral-400 animate-fade-up animate-delay-100">
-        Tu privacidad es nuestra prioridad. Implementamos los más altos estándares de seguridad.
+        {{ $t('landing.security.desc') }}
       </p>
 
       <div class="mt-12 grid gap-5 md:grid-cols-2">
@@ -167,17 +167,9 @@ useHead({
 
 
           <ul class="mt-6 space-y-3">
-            <li class="flex items-center gap-3 text-neutral-300">
+            <li v-for="(item, idx) in $tm('landing.security.featured.list')" :key="idx" class="flex items-center gap-3 text-neutral-300">
               <UIcon name="i-heroicons-check-circle" class="size-5 text-green-400 shrink-0" />
-              Cifrado AES-256 en reposo y en tránsito
-            </li>
-            <li class="flex items-center gap-3 text-neutral-300">
-              <UIcon name="i-heroicons-check-circle" class="size-5 text-green-400 shrink-0" />
-              Derivación de claves con Argon2id
-            </li>
-            <li class="flex items-center gap-3 text-neutral-300">
-              <UIcon name="i-heroicons-check-circle" class="size-5 text-green-400 shrink-0" />
-              Autenticación de dos factores (2FA) disponible
+              {{ $rt(item) }}
             </li>
           </ul>
         </div>
@@ -189,10 +181,10 @@ useHead({
               <div class="icon-accent">
                 <UIcon name="i-heroicons-eye-slash" class="size-5" />
               </div>
-              <div class="text-base sm:text-lg font-semibold">Arquitectura Zero-Knowledge</div>
+              <div class="text-base sm:text-lg font-semibold">{{ $t('landing.security.cards.zeroKnowledge.title') }}</div>
             </div>
             <p class="text-neutral-400">
-              Ni siquiera nosotros podemos ver tus datos. Solo tú tienes acceso a tu información.
+              {{ $t('landing.security.cards.zeroKnowledge.desc') }}
             </p>
           </div>
 
@@ -201,10 +193,10 @@ useHead({
               <div class="icon-accent">
                 <UIcon name="i-heroicons-server-stack" class="size-5" />
               </div>
-              <div class="text-base sm:text-lg font-semibold">Infraestructura Segura</div>
+              <div class="text-base sm:text-lg font-semibold">{{ $t('landing.security.cards.infrastructure.title') }}</div>
             </div>
             <p class="text-neutral-400">
-              Centros de datos certificados con monitoreo 24/7 y auditorías regulares.
+              {{ $t('landing.security.cards.infrastructure.desc') }}
             </p>
           </div>
 
@@ -213,10 +205,10 @@ useHead({
               <div class="icon-accent">
                 <UIcon name="i-heroicons-code-bracket" class="size-5" />
               </div>
-              <div class="text-base sm:text-lg font-semibold">Código Abierto</div>
+              <div class="text-base sm:text-lg font-semibold">{{ $t('landing.security.cards.openSource.title') }}</div>
             </div>
             <p class="text-neutral-400">
-              Transparencia total: nuestro código es auditado por la comunidad.
+              {{ $t('landing.security.cards.openSource.desc') }}
             </p>
           </div>
         </div>
@@ -229,36 +221,28 @@ useHead({
     <section class="cta-section">
       <UContainer class="py-28 text-center relative z-10">
         <h2 class="text-4xl md:text-5xl font-extrabold animate-fade-up">
-          Comienza a proteger tus datos hoy mismo
+          {{ $t('landing.cta.title') }}
         </h2>
         <p class="mt-4 text-neutral-400 text-lg animate-fade-up animate-delay-100">
-          Únete a más de 100,000 usuarios. Prueba gratis 30 días, sin tarjeta.
+          {{ $t('landing.cta.desc') }}
         </p>
 
         <div class="mt-10 flex justify-center gap-4 animate-fade-up animate-delay-200">
           <UButton to="/login" class="btn-accent btn-lg hover:scale-[1.02] transition-transform">
             <UIcon name="i-heroicons-arrow-right-16-solid" class="size-4" />
-            Comenzar Gratis
+            {{ $t('landing.cta.start') }}
           </UButton>
           <UButton to="/contacto" color="neutral" variant="outline"
             class="btn btn-lg btn-ghost hover:scale-[1.02] transition-transform hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-400">
-            Hablar con Ventas
+            {{ $t('landing.cta.sales') }}
           </UButton>
         </div>
 
         <div
           class="mt-8 flex flex-wrap justify-center gap-6 text-base text-neutral-400 animate-fade-up animate-delay-300">
-          <span class="inline-flex items-center gap-2">
+          <span v-for="(benefit, idx) in $tm('landing.cta.benefits')" :key="idx" class="inline-flex items-center gap-2">
             <UIcon name="i-heroicons-check-circle" class="size-4 text-green-400" />
-            Sin tarjeta de crédito
-          </span>
-          <span class="inline-flex items-center gap-2">
-            <UIcon name="i-heroicons-check-circle" class="size-4 text-green-400" />
-            Cancela cuando quieras
-          </span>
-          <span class="inline-flex items-center gap-2">
-            <UIcon name="i-heroicons-check-circle" class="size-4 text-green-400" />
-            Soporte 24/7
+            {{ $rt(benefit) }}
           </span>
         </div>
       </UContainer>

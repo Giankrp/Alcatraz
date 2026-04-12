@@ -20,14 +20,16 @@ const isMobileMenuOpen = ref(false)
         </div>
 
         <nav class="hidden md:flex items-center gap-8 text-sm">
-          <ULink to="/#caracteristicas">Características</ULink>
-          <ULink to="/#seguridad">Seguridad</ULink>
+          <ULink to="/#caracteristicas">{{ $t('nav.features') }}</ULink>
+          <ULink to="/#seguridad">{{ $t('nav.security') }}</ULink>
+          <ULink to="/pricing">{{ $t('nav.pricing') }}</ULink>
         </nav>
 
         <div class="flex items-center gap-3">
-          <ULink to="/login" class="hidden sm:block">Iniciar Sesión</ULink>
+          <LocaleSwitcher class="mr-2" />
+          <ULink to="/login" class="hidden sm:block text-sm">{{ $t('nav.login') }}</ULink>
           <UButton to="/login" size="sm" class="btn-accent text-sm py-1.5! min-h-0!">
-            Comenzar Gratis
+            {{ $t('nav.getStarted') }}
           </UButton>
         </div>
       </UContainer>
@@ -51,11 +53,20 @@ const isMobileMenuOpen = ref(false)
         </div>
         <nav class="flex flex-col gap-2 p-4">
           <ULink to="/#caracteristicas" class="p-2 hover:bg-green-500/10 hover:text-green-400 transition-colors rounded-md" @click="isMobileMenuOpen = false">
-            Características</ULink>
-          <ULink to="/#seguridad" class="p-2 hover:bg-green-500/10 hover:text-green-400 transition-colors rounded-md" @click="isMobileMenuOpen = false">Seguridad
+            {{ $t('nav.features') }}</ULink>
+          <ULink to="/#seguridad" class="p-2 hover:bg-green-500/10 hover:text-green-400 transition-colors rounded-md" @click="isMobileMenuOpen = false">
+            {{ $t('nav.security') }}
+          </ULink>
+          <ULink to="/pricing" class="p-2 hover:bg-green-500/10 hover:text-green-400 transition-colors rounded-md" @click="isMobileMenuOpen = false">
+            {{ $t('nav.pricing') }}
           </ULink>
           <div class="h-px bg-white/10 my-2"></div>
-          <ULink to="/login" class="p-2 hover:bg-green-500/10 hover:text-green-400 transition-colors rounded-md" @click="isMobileMenuOpen = false">Iniciar Sesión
+          <div class="flex items-center justify-between p-2">
+            <span class="text-xs uppercase tracking-widest text-zinc-600 font-bold">Idioma</span>
+            <LocaleSwitcher />
+          </div>
+          <ULink to="/login" class="p-2 hover:bg-green-500/10 hover:text-green-400 transition-colors rounded-md" @click="isMobileMenuOpen = false">
+            {{ $t('nav.login') }}
           </ULink>
         </nav>
       </div>

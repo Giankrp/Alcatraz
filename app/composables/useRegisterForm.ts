@@ -1,25 +1,27 @@
+import { ref, computed } from "vue";
 import { navigateTo } from "#app";
 import { z } from "zod";
 import type { AuthFormField, ButtonProps, FormSubmitEvent } from "@nuxt/ui";
 
-const schema = z
-    .object({
-        email: z.email("Introduce un email válido"),
-        password: z.string().min(8, "Mínimo 8 caracteres"),
-        password_confirmation: z.string().min(8, "Mínimo 8 caracteres"),
-    })
-    .refine((data) => data.password === data.password_confirmation, {
-        message: "Las contraseñas no coinciden",
-        path: ["password_confirmation"],
-    });
-type Schema = z.infer<typeof schema>;
-
 export function useRegisterForm() {
-    const fields = ref<AuthFormField[]>([
+    const { t } = useI18n()
+
+    const schema = computed(() => z
+        .object({
+            email: z.string().email(t('auth.validation.email')),
+            password: z.string().min(8, t('auth.validation.passwordMin')),
+            password_confirmation: z.string().min(8, t('auth.validation.passwordMin')),
+        })
+        .refine((data) => data.password === data.password_confirmation, {
+            message: t('auth.validation.passwordMatch'),
+            path: ["password_confirmation"],
+        }));
+
+    const fields = computed<AuthFormField[]>(() => [
         {
             name: "email",
             type: "email",
-            label: "Email",
+            label: t('auth.fields.email'),
             placeholder: "tu@correo.com",
             required: true,
             icon: "i-heroicons-envelope",
@@ -27,7 +29,7 @@ export function useRegisterForm() {
         {
             name: "password",
             type: "password",
-            label: "Contraseña",
+            label: t('auth.fields.password'),
             placeholder: "••••••••",
             required: true,
             icon: "i-heroicons-lock-closed",
@@ -35,7 +37,7 @@ export function useRegisterForm() {
         {
             name: "password_confirmation",
             type: "password",
-            label: "Confirmar contraseña",
+            label: t('profile.modals.passwordConfirm'),
             placeholder: "••••••••",
             required: true,
             icon: "i-heroicons-lock-closed",
@@ -44,7 +46,7 @@ export function useRegisterForm() {
 
     const { signIn } = useAuth();
 
-    const providers = ref<ButtonProps[]>([
+    const providers = computed<ButtonProps[]>(() => [
         {
             label: "Google",
             icon: "i-logos-google-icon",
@@ -87,8 +89,7 @@ export function useRegisterForm() {
     const submitted = ref(false);
     const error = ref(false);
 
-    const onSubmit = async (event: FormSubmitEvent<Schema>) => {
-        // Limpiar datos previos por seguridad
+    const onSubmit = async (event: FormSubmitEvent<any>): Promise<void> => {
         clearVault();
         user.value = null;
         profile.value = null;
@@ -106,8 +107,7 @@ export function useRegisterForm() {
             console.log("Registering with:", email, password);
 
             submitted.value = true;
-            // Navigate instantly or maybe wait a bit to show the success alert
-            navigateTo("/login");
+            await navigateTo("/login");
         } catch (e) {
             console.error("Error registering:", e);
             error.value = true;
@@ -121,6 +121,7 @@ export function useRegisterForm() {
     }
 
     return {
+        t,
         schema,
         fields,
         providers,

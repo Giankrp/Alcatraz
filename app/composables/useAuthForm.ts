@@ -1,22 +1,22 @@
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { navigateTo } from "#app";
 import { z } from "zod";
 import type { AuthFormField, ButtonProps, FormSubmitEvent } from "@nuxt/ui";
 
-const schema = z.object({
-    email: z.email("Introduce un email válido"),
-    password: z.string().min(8, "Mínimo 8 caracteres"),
-    remember: z.boolean().optional(),
-});
-
-type Schema = z.infer<typeof schema>;
-
 export function useAuthForm() {
-    const fields = ref<AuthFormField[]>([
+    const { t } = useI18n()
+
+    const schema = computed(() => z.object({
+        email: z.string().email(t('auth.validation.email')),
+        password: z.string().min(8, t('auth.validation.passwordMin')),
+        remember: z.boolean().optional(),
+    }))
+
+    const fields = computed<AuthFormField[]>(() => [
         {
             name: "email",
             type: "email",
-            label: "Email",
+            label: t('auth.fields.email'),
             placeholder: "tu@correo.com",
             required: true,
             icon: "i-heroicons-envelope",
@@ -24,17 +24,17 @@ export function useAuthForm() {
         {
             name: "password",
             type: "password",
-            label: "Contraseña",
+            label: t('auth.fields.password'),
             placeholder: "••••••••",
             required: true,
             icon: "i-heroicons-lock-closed",
         },
-        { name: "remember", type: "checkbox", label: "Recordar credenciales" },
+        { name: "remember", type: "checkbox", label: t('auth.fields.remember') },
     ]);
 
     const { signIn } = useAuth();
 
-    const providers = ref<ButtonProps[]>([
+    const providers = computed<ButtonProps[]>(() => [
         {
             label: "Google",
             icon: "i-logos-google-icon",
@@ -54,10 +54,6 @@ export function useAuthForm() {
             color: "neutral",
             variant: "solid",
             class: "provider-glass text-white",
-            /*  onClick: () => { signIn('apple', { callbackUrl: '/boveda' }) },
-        ui: {
-          base: 'hover:cursor-pointer'
-        }*/
         },
         {
             label: "GitHub",
@@ -78,14 +74,14 @@ export function useAuthForm() {
     const { clearVault } = useVault();
     const user = useState("user-data");
     const profile = useState("user-profile");
+    const { twoFactorTempToken, twoFactorEmail } = useUser();
 
     const submitted = ref(false);
     const error = ref(false);
 
-    const onSubmit = async (event: FormSubmitEvent<Schema>) => {
+    const onSubmit = async (event: FormSubmitEvent<any>): Promise<void> => {
         submitted.value = false;
         try {
-            // Limpiar datos previos por seguridad (ej. expiración de sesión sin logout manual)
             clearVault();
             user.value = null;
             profile.value = null;
@@ -93,19 +89,24 @@ export function useAuthForm() {
             const { email, password } = event.data;
             const config = useRuntimeConfig();
 
-            // Llamada real al backend
-            await $fetch<any>(`${config.public.apiBase}/api/auth/login`, {
+            const response = await $fetch<any>(`${config.public.apiBase}/api/auth/login`, {
                 method: "POST",
                 body: { email, password },
                 credentials: "include",
             });
 
-            // Guardamos la contraseña maestra y el email en memoria temporal
             setMasterPassword(password);
             setUserEmail(email);
 
-            submitted.value = true;
-            navigateTo("/boveda");
+            if (response.require_2fa) {
+                twoFactorTempToken.value = response.temp_token;
+                twoFactorEmail.value = email;
+                submitted.value = true;
+                await navigateTo("/login/2fa");
+            } else {
+                submitted.value = true;
+                await navigateTo("/boveda");
+            }
         } catch (e) {
             console.error("Login failed:", e);
             error.value = true;
@@ -119,6 +120,7 @@ export function useAuthForm() {
     }
 
     return {
+        t,
         schema,
         fields,
         providers,

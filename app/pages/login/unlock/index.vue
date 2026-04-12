@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const { data: session, status, signOut } = useAuth()
 const { setMasterPassword, userEmail, clearMasterPassword, clearUserEmail } = useMasterPassword()
+const { twoFactorTempToken, twoFactorEmail } = useUser()
 
 const route = useRoute()
 const config = useRuntimeConfig()
@@ -90,7 +91,7 @@ const onSubmit = async () => {
     }
 
     // 2. Login (tanto para registro como para login normal)
-    await $fetch<any>(`${config.public.apiBase}/api/auth/login`, {
+    const loginRes = await $fetch<any>(`${config.public.apiBase}/api/auth/login`, {
       method: 'POST',
       body: {
         email: email.value,
@@ -100,7 +101,14 @@ const onSubmit = async () => {
     })
 
     setMasterPassword(masterPassword.value)
-    navigateTo('/boveda')
+    
+    if (loginRes.require_2fa) {
+      twoFactorTempToken.value = loginRes.temp_token
+      twoFactorEmail.value = email.value
+      navigateTo('/login/2fa')
+    } else {
+      navigateTo('/boveda')
+    }
   } catch (err: any) {
     console.error('Unlock failed:', err)
     if (isRegisterMode.value) {

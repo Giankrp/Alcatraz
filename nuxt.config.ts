@@ -51,7 +51,10 @@ export default defineNuxtConfig({
   vite: {
     plugins: [tailwindcss()],
     optimizeDeps: {
-      include: ["zod"]
+      include: [
+        "zod",
+        "qrcode.vue"
+      ]
     }
   },
 

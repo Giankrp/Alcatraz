@@ -3,6 +3,7 @@ export interface UserProfile {
   name: string;
   avatar_url: string;
   language: string;
+  two_factor_enabled: boolean;
   created_at: string;
   updated_at: string;
 }
