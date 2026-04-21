@@ -1,278 +1,320 @@
 {
-  "profile": {
-    "title": "Perfil",
-    "description": "Gestiona tu perfil y configuración de seguridad en Alcatraz.",
-    "back": "SISTEMA / VOLVER",
-    "header": {
-      "node": "NODO",
-      "secureAccess": "ACCESO SEGURO"
-    },
-    "identity": {
-      "title": "AJUSTES DE IDENTIDAD",
-      "nameLabel": "NOMBRE PÚBLICO",
-      "languageLabel": "IDIOMA DE INTERFAZ",
-      "avatarLabel": "URL DEL AVATAR",
-      "avatarHelp": "Se recomienda una resolución mínima de 400x400px.",
-      "saveButton": "GUARDAR IDENTIDAD",
-      "success": "Perfil actualizado",
-      "successDesc": "Tus cambios de identidad se han guardado correctamente.",
-      "error": "Error",
-      "errorDesc": "No se pudo actualizar el perfil."
-    },
-    "security": {
-      "title": "SEGURIDAD Y ACCESO",
-      "masterPassword": "Contraseña Maestra",
-      "update": "ACTUALIZAR",
-      "twoFactor": "Factor de Doble Autenticación",
-      "twoFactorActive": "ACTIVO Y SEGURO",
-      "twoFactorInactive": "DESACTIVADO (VULNERABLE)"
-    },
-    "stats": {
-      "title": "ESTADÍSTICAS DE USO",
-      "items": "Elementos Cifrados",
-      "memberSince": "MIEMBRO DE LA BÓVEDA DESDE",
-      "dateUnknown": "Desconocida"
-    },
-    "management": {
-      "title": "GESTIÓN DE DATOS",
-      "export": "EXPORTAR",
-      "exportDesc": "JSON Cifrado AES-256",
-      "import": "IMPORTAR",
-      "importDesc": "Sincronización externa",
-      "exportSuccess": "Datos exportados",
-      "exportSuccessDesc": "Tu copia de seguridad local se ha descargado correctamente.",
-      "importSuccess": "Importación exitosa",
-      "importSuccessDesc": "Se restauraron {count} registros correctamente.",
-      "importError": "Error al importar",
-      "importErrorDesc": "Archivo JSON inválido."
-    },
-    "devices": {
-      "title": "DISPOSITIVOS ACTIVOS",
-      "active": "ACTIVA",
-      "history": "HISTORIAL",
-      "lastActive": "Última conexión hace 2h",
-      "now": "Ahora"
-    },
-    "danger": {
-      "title": "Zona de Riesgo",
-      "desc": "La eliminación de la cuenta es un proceso irreversible. Todos los activos cifrados serán purgados del servidor de forma permanente.",
-      "deleteButton": "EJECUTAR ELIMINACIÓN DE CUENTA",
-      "modalTitle": "¿Confirmar Destrucción?",
-      "modalDesc": "Esta acción es irreversible y purgará permanentemente todos tus activos. El nodo cesará su actividad de inmediato.",
-      "confirmDelete": "SÍ, BORRAR TODO",
-      "cancel": "CANCELAR"
-    },
-    "modals": {
-      "passwordTitle": "Contraseña Maestra",
-      "passwordCurrent": "Contraseña Actual",
-      "passwordNew": "Nueva Contraseña",
-      "passwordConfirm": "Confirmar",
-      "passwordSave": "CIFRAR & ACTUALIZAR",
-      "exportVerify": "Verificar Identidad",
-      "exportAuth": "Se requiere autorización del nodo para descifrar y exportar la bóveda localmente.",
-      "exportPassword": "Master Password",
-      "exportButton": "AUTORIZAR DESCARGA",
-      "masterPasswordError": "Contraseña maestra incorrecta"
-    }
-  },
-  "auth": {
-    "2fa": {
-      "title": "Verificación 2FA",
-      "verify": "Verificar Identidad",
-      "backup": "Usar código de respaldo",
-      "totp": "Usar código de autenticador",
-      "backupHelp": "Introduce uno de tus códigos de 8 caracteres",
-      "totpHelp": "Introduce el código de 6 dígitos de tu app",
-      "error": "Código inválido o expirado",
-      "success": "Sesión iniciada correctamente"
-    },
-    "setup": {
-      "title": "Activar 2FA",
-      "desc": "Añade una capa extra de seguridad. Necesitarás una aplicación como Google Authenticator o Authy para generar códigos.",
-      "button": "Configurar ahora",
-      "scan": "Escanea el código",
-      "manual": "O introduce el secreto manualmente:",
-      "verify": "Código de verificación",
-      "activate": "Activar protección",
-      "back": "Volver",
-      "enabled": "¡2FA Activado!",
-      "important": "IMPORTANTE: Guarda estos códigos de respaldo. Son la única forma de acceder si pierdes tu dispositivo.",
-      "copy": "Copiar",
-      "download": "Descargar",
-      "finish": "He guardado los códigos"
-    },
-    "fields": {
-      "email": "Correo electrónico",
-      "password": "Contraseña",
-      "remember": "Recordar sesión",
-      "name": "Nombre completo",
-      "terms": "Acepto los términos y condiciones"
-    },
-    "validation": {
-      "email": "Introduce un email válido",
-      "passwordMin": "Mínimo 8 caracteres",
-      "passwordMatch": "Las contraseñas no coinciden",
-      "required": "Campo requerido"
-    }
-  },
-  "nav": {
-    "features": "Características",
-    "security": "Seguridad",
-    "pricing": "Precios",
-    "login": "Iniciar Sesión",
-    "getStarted": "Comenzar Gratis"
-  },
-  "footer": {
-    "rights": "© {year} Alcatraz. Todos los derechos reservados.",
-    "privacy": "Privacidad",
-    "terms": "Términos",
-    "contact": "Contacto"
-  },
-  "landing": {
-    "hero": {
-      "badge": "Seguridad de máxima protección",
-      "title": "Tus secretos bajo",
-      "titleAccent": "máxima seguridad",
-      "desc": "Como la prisión más segura del mundo, Alcatraz protege tus contraseñas y notas con cifrado militar. Nadie entra, nadie sale sin tu autorización.",
-      "ctaStart": "Comenzar Ahora",
-      "ctaDemo": "Ver Demo"
-    },
-    "stats": {
-      "encryption": "Cifrado AES",
-      "notes": "Notas cifradas",
-      "notesCount": "Ilimitadas",
-      "architecture": "Arquitectura",
-      "architectureDesc": "Zero-knowledge"
-    },
-    "features": {
-      "title": "Todo lo que necesitas para estar seguro",
-      "desc": "Funciones diseñadas para proteger tu información más valiosa",
-      "manager": {
-        "title": "Gestor de Contraseñas",
-        "desc": "Almacena y genera contraseñas seguras con un solo clic. Autocompletado inteligente en todos tus sitios web."
-      },
-      "notes": {
-        "title": "Notas Cifradas",
-        "desc": "Guarda información sensible como números de tarjetas, códigos y documentos con cifrado de extremo a extremo."
-      },
-      "multiplatform": {
-        "title": "Multiplataforma",
-        "desc": "Accede desde iOS, Android, Windows, Mac y Linux. Sincronización instantánea."
-      },
-      "backup": {
-        "title": "Backup Automático",
-        "desc": "Respaldo automático en la nube con cifrado. Nunca pierdas tu información."
-      },
-      "biometric": {
-        "title": "Autenticación Biométrica",
-        "desc": "Desbloqueo con huella dactilar o reconocimiento facial. Seguridad sin complicaciones."
-      },
-      "audit": {
-        "title": "Auditoría de Seguridad",
-        "desc": "Analiza la fortaleza de tus contraseñas y recibe alertas de brechas conocidas."
-      }
-    },
-    "security": {
-      "title": "Seguridad en cada paso",
-      "desc": "Tu privacidad es nuestra prioridad. Implementamos los más altos estándares de seguridad.",
-      "featured": {
-        "title": "Cifrado de extremo a extremo",
-        "desc": "Utilizamos cifrado AES-256, el mismo estándar usado por bancos y gobiernos. Tus datos se cifran en tu dispositivo antes de enviarse a la nube.",
-        "list": [
-          "Cifrado AES-256 en reposo y en tránsito",
-          "Derivación de claves con Argon2id",
-          "Autenticación de dos factores (2FA) disponible"
-        ]
-      },
-      "cards": {
-        "zeroKnowledge": {
-          "title": "Arquitectura Zero-Knowledge",
-          "desc": "Ni siquiera nosotros podemos ver tus datos. Solo tú tienes acceso a tu información."
+    "profile": {
+        "title": "Perfil",
+        "description": "Gestiona tu perfil y configuración de seguridad en Alcatraz.",
+        "back": "SISTEMA / VOLVER",
+        "header": {
+            "node": "NODO",
+            "secureAccess": "ACCESO SEGURO"
         },
-        "infrastructure": {
-          "title": "Infraestructura Segura",
-          "desc": "Centros de datos certificados con monitoreo 24/7 y auditorías regulares."
+        "identity": {
+            "title": "AJUSTES DE IDENTIDAD",
+            "nameLabel": "NOMBRE PÚBLICO",
+            "languageLabel": "IDIOMA DE INTERFAZ",
+            "avatarLabel": "URL DEL AVATAR",
+            "avatarHelp": "Se recomienda una resolución mínima de 400x400px.",
+            "saveButton": "GUARDAR IDENTIDAD",
+            "success": "Perfil actualizado",
+            "successDesc": "Tus cambios de identidad se han guardado correctamente.",
+            "error": "Error",
+            "errorDesc": "No se pudo actualizar el perfil."
         },
-        "openSource": {
-          "title": "Código Abierto",
-          "desc": "Transparencia total: nuestro código es auditado por la comunidad."
+        "security": {
+            "title": "SEGURIDAD Y ACCESO",
+            "masterPassword": "Contraseña Maestra",
+            "update": "ACTUALIZAR",
+            "twoFactor": "Factor de Doble Autenticación",
+            "twoFactorActive": "ACTIVO Y SEGURO",
+            "twoFactorInactive": "DESACTIVADO (VULNERABLE)"
+        },
+        "stats": {
+            "title": "ESTADÍSTICAS DE USO",
+            "items": "Elementos Cifrados",
+            "memberSince": "MIEMBRO DE LA BÓVEDA DESDE",
+            "dateUnknown": "Desconocida"
+        },
+        "management": {
+            "title": "GESTIÓN DE DATOS",
+            "export": "EXPORTAR",
+            "exportDesc": "JSON Cifrado AES-256",
+            "import": "IMPORTAR",
+            "importDesc": "Sincronización externa",
+            "exportSuccess": "Datos exportados",
+            "exportSuccessDesc": "Tu copia de seguridad local se ha descargado correctamente.",
+            "importSuccess": "Importación exitosa",
+            "importSuccessDesc": "Se restauraron {count} registros correctamente.",
+            "importError": "Error al importar",
+            "importErrorDesc": "Archivo JSON inválido."
+        },
+        "devices": {
+            "title": "DISPOSITIVOS ACTIVOS",
+            "active": "ACTIVA",
+            "history": "HISTORIAL",
+            "lastActive": "Última conexión hace 2h",
+            "now": "Ahora"
+        },
+        "danger": {
+            "title": "Zona de Riesgo",
+            "desc": "La eliminación de la cuenta es un proceso irreversible. Todos los activos cifrados serán purgados del servidor de forma permanente.",
+            "deleteButton": "EJECUTAR ELIMINACIÓN DE CUENTA",
+            "modalTitle": "¿Confirmar Destrucción?",
+            "modalDesc": "Esta acción es irreversible y purgará permanentemente todos tus activos. El nodo cesará su actividad de inmediato.",
+            "confirmDelete": "SÍ, BORRAR TODO",
+            "cancel": "CANCELAR"
+        },
+        "modals": {
+            "passwordTitle": "Contraseña Maestra",
+            "passwordCurrent": "Contraseña Actual",
+            "passwordNew": "Nueva Contraseña",
+            "passwordConfirm": "Confirmar",
+            "passwordSave": "CIFRAR & ACTUALIZAR",
+            "exportVerify": "Verificar Identidad",
+            "exportAuth": "Se requiere autorización del nodo para descifrar y exportar la bóveda localmente.",
+            "exportPassword": "Master Password",
+            "exportButton": "AUTORIZAR DESCARGA",
+            "masterPasswordError": "Contraseña maestra incorrecta"
         }
-      }
     },
-    "cta": {
-      "title": "Comienza a proteger tus datos hoy mismo",
-      "desc": "Únete a más de 100,000 usuarios. Prueba gratis 30 días, sin tarjeta.",
-      "start": "Comenzar Gratis",
-      "sales": "Hablar con Ventas",
-      "benefits": [
-        "Sin tarjeta de crédito",
-        "Cancela cuando quieras",
-        "Soporte 24/7"
-      ]
+    "auth": {
+        "2fa": {
+            "title": "Verificación 2FA",
+            "verify": "Verificar Identidad",
+            "backup": "Usar código de respaldo",
+            "totp": "Usar código de autenticador",
+            "backupHelp": "Introduce uno de tus códigos de 8 caracteres",
+            "totpHelp": "Introduce el código de 6 dígitos de tu app",
+            "error": "Código inválido o expirado",
+            "success": "Sesión iniciada correctamente"
+        },
+        "setup": {
+            "title": "Activar 2FA",
+            "desc": "Añade una capa extra de seguridad. Necesitarás una aplicación como Google Authenticator o Authy para generar códigos.",
+            "button": "Configurar ahora",
+            "scan": "Escanea el código",
+            "manual": "O introduce el secreto manualmente:",
+            "verify": "Código de verificación",
+            "activate": "Activar protección",
+            "back": "Volver",
+            "enabled": "¡2FA Activado!",
+            "important": "IMPORTANTE: Guarda estos códigos de respaldo. Son la única forma de acceder si pierdes tu dispositivo.",
+            "copy": "Copiar",
+            "download": "Descargar",
+            "finish": "He guardado los códigos"
+        },
+        "fields": {
+            "email": "Correo electrónico",
+            "password": "Contraseña",
+            "remember": "Recordar sesión",
+            "name": "Nombre completo",
+            "terms": "Acepto los términos y condiciones"
+        },
+        "validation": {
+            "email": "Introduce un email válido",
+            "passwordMin": "Mínimo 8 caracteres",
+            "passwordMatch": "Las contraseñas no coinciden",
+            "required": "Campo requerido"
+        }
+    },
+    "nav": {
+        "features": "Características",
+        "security": "Seguridad",
+        "pricing": "Precios",
+        "login": "Iniciar Sesión",
+        "getStarted": "Comenzar Gratis"
+    },
+    "footer": {
+        "rights": "© {year} Alcatraz. Todos los derechos reservados.",
+        "privacy": "Privacidad",
+        "terms": "Términos",
+        "contact": "Contacto"
+    },
+    "landing": {
+        "hero": {
+            "badge": "Seguridad de máxima protección",
+            "title": "Tus secretos bajo",
+            "titleAccent": "máxima seguridad",
+            "desc": "Como la prisión más segura del mundo, Alcatraz protege tus contraseñas y notas con cifrado militar. Nadie entra, nadie sale sin tu autorización.",
+            "ctaStart": "Comenzar Ahora",
+            "ctaDemo": "Ver Demo"
+        },
+        "stats": {
+            "encryption": "Cifrado AES",
+            "notes": "Notas cifradas",
+            "notesCount": "Ilimitadas",
+            "architecture": "Arquitectura",
+            "architectureDesc": "Zero-knowledge"
+        },
+        "features": {
+            "title": "Todo lo que necesitas para estar seguro",
+            "desc": "Funciones diseñadas para proteger tu información más valiosa",
+            "manager": {
+                "title": "Gestor de Contraseñas",
+                "desc": "Almacena y genera contraseñas seguras con un solo clic. Autocompletado inteligente en todos tus sitios web."
+            },
+            "notes": {
+                "title": "Notas Cifradas",
+                "desc": "Guarda información sensible como números de tarjetas, códigos y documentos con cifrado de extremo a extremo."
+            },
+            "multiplatform": {
+                "title": "Multiplataforma",
+                "desc": "Accede desde iOS, Android, Windows, Mac y Linux. Sincronización instantánea."
+            },
+            "backup": {
+                "title": "Backup Automático",
+                "desc": "Respaldo automático en la nube con cifrado. Nunca pierdas tu información."
+            },
+            "biometric": {
+                "title": "Autenticación Biométrica",
+                "desc": "Desbloqueo con huella dactilar o reconocimiento facial. Seguridad sin complicaciones."
+            },
+            "audit": {
+                "title": "Auditoría de Seguridad",
+                "desc": "Analiza la fortaleza de tus contraseñas y recibe alertas de brechas conocidas."
+            }
+        },
+        "security": {
+            "title": "Seguridad en cada paso",
+            "desc": "Tu privacidad es nuestra prioridad. Implementamos los más altos estándares de seguridad.",
+            "featured": {
+                "title": "Cifrado de extremo a extremo",
+                "desc": "Utilizamos cifrado AES-256, el mismo estándar usado por bancos y gobiernos. Tus datos se cifran en tu dispositivo antes de enviarse a la nube.",
+                "list": [
+                    "Cifrado AES-256 en reposo y en tránsito",
+                    "Derivación de claves con Argon2id",
+                    "Autenticación de dos factores (2FA) disponible"
+                ]
+            },
+            "cards": {
+                "zeroKnowledge": {
+                    "title": "Arquitectura Zero-Knowledge",
+                    "desc": "Ni siquiera nosotros podemos ver tus datos. Solo tú tienes acceso a tu información."
+                },
+                "infrastructure": {
+                    "title": "Infraestructura Segura",
+                    "desc": "Centros de datos certificados con monitoreo 24/7 y auditorías regulares."
+                },
+                "openSource": {
+                    "title": "Código Abierto",
+                    "desc": "Transparencia total: nuestro código es auditado por la comunidad."
+                }
+            }
+        },
+        "cta": {
+            "title": "Comienza a proteger tus datos hoy mismo",
+            "desc": "Únete a más de 100,000 usuarios. Prueba gratis 30 días, sin tarjeta.",
+            "start": "Comenzar Gratis",
+            "sales": "Hablar con Ventas",
+            "benefits": [
+                "Sin tarjeta de crédito",
+                "Cancela cuando quieras",
+                "Soporte 24/7"
+            ]
+        }
+    },
+    "pricing": {
+        "title": "Planes y Precios",
+        "desc": "Elige la seguridad que mejor se adapte a tus necesidades.",
+        "monthly": "Mensual",
+        "yearly": "Anual",
+        "save": "Ahorra 20%",
+        "plans": {
+            "free": {
+                "name": "Personal",
+                "price": "0",
+                "desc": "Para individuos que buscan seguridad esencial.",
+                "button": "Comenzar Gratis"
+            },
+            "premium": {
+                "name": "Premium",
+                "price": "3.99",
+                "desc": "Seguridad avanzada para usuarios exigentes.",
+                "button": "Obtener Premium"
+            },
+            "family": {
+                "name": "Familiar",
+                "price": "7.99",
+                "desc": "Protección para toda tu familia (hasta 6 usuarios).",
+                "button": "Obtener Familiar"
+            }
+        }
+    },
+    "login": {
+        "title": "Iniciar sesión",
+        "desc": "Bienvenido de vuelta. Protegemos tus datos con máxima seguridad.",
+        "meta": {
+            "desc": "Accede a tu bóveda segura de contraseñas y notas cifradas en Alcatraz."
+        },
+        "alerts": {
+            "success": "Acceso concedido",
+            "successDesc": "Has iniciado sesión correctamente.",
+            "error": "Error al iniciar sesión",
+            "errorDesc": "Usuario o contraseña incorrectos."
+        },
+        "form": {
+            "separator": "o continúa con",
+            "submit": "Acceder",
+            "forgot": "¿Olvidaste tu contraseña?",
+            "noAccount": "¿No tienes cuenta?",
+            "register": "Regístrate"
+        }
+    },
+    "register": {
+        "title": "Crear cuenta",
+        "desc": "Únete a Alcatraz y asegura tu vida digital hoy mismo.",
+        "meta": {
+            "desc": "Crea tu cuenta en Alcatraz para gestionar tus contraseñas de forma segura."
+        },
+        "alerts": {
+            "success": "Cuenta creada",
+            "successDesc": "Te has registrado correctamente."
+        },
+        "form": {
+            "separator": "o regístrate con",
+            "submit": "Crear cuenta",
+            "hasAccount": "¿Ya tienes cuenta?",
+            "login": "Inicia sesión"
+        }
+    },
+    "legal": {
+        "privacy": {
+            "title": "Política de Privacidad",
+            "lastUpdated": "Última actualización: Abril 2026",
+            "intro": "En Alcatraz, tu privacidad es nuestra prioridad absoluta. Nuestra arquitectura zero-knowledge garantiza que solo tú tengas acceso a tus datos.",
+            "sections": [
+                {
+                    "title": "Recopilación de Datos",
+                    "content": "No recopilamos ni almacenamos tus contraseñas maestras, claves de cifrado o datos de la bóveda en texto plano."
+                },
+                {
+                    "title": "Uso de la Información",
+                    "content": "Solo utilizamos datos técnicos mínimos para garantizar el funcionamiento del servicio y la sincronización entre dispositivos."
+                }
+            ]
+        },
+        "terms": {
+            "title": "Términos de Servicio",
+            "lastUpdated": "Última actualización: Abril 2026",
+            "sections": [
+                {
+                    "title": "Uso del Servicio",
+                    "content": "Alcatraz es una herramienta para la gestión de seguridad personal. Eres responsable de mantener la seguridad de tu contraseña maestra."
+                },
+                {
+                    "title": "Limitación de Responsabilidad",
+                    "content": "Debido a nuestra arquitectura de cifrado, si pierdes tu contraseña maestra y no tienes tu clave de recuperación, no podremos recuperar tus datos."
+                }
+            ]
+        },
+        "contact": {
+            "title": "Contacto",
+            "desc": "¿Tienes alguna duda o necesitas ayuda? Estamos aquí para ti.",
+            "form": {
+                "name": "Nombre",
+                "email": "Correo electrónico",
+                "subject": "Asunto",
+                "message": "Mensaje",
+                "submit": "Enviar Mensaje"
+            }
+        }
     }
-  },
-  "pricing": {
-    "title": "Planes y Precios",
-    "desc": "Elige la seguridad que mejor se adapte a tus necesidades.",
-    "monthly": "Mensual",
-    "yearly": "Anual",
-    "save": "Ahorra 20%",
-    "plans": {
-      "free": {
-        "name": "Personal",
-        "price": "0",
-        "desc": "Para individuos que buscan seguridad esencial.",
-        "button": "Comenzar Gratis"
-      },
-      "premium": {
-        "name": "Premium",
-        "price": "3.99",
-        "desc": "Seguridad avanzada para usuarios exigentes.",
-        "button": "Obtener Premium"
-      },
-      "family": {
-        "name": "Familiar",
-        "price": "7.99",
-        "desc": "Protección para toda tu familia (hasta 6 usuarios).",
-        "button": "Obtener Familiar"
-      }
-    }
-  },
-  "login": {
-    "title": "Iniciar sesión",
-    "desc": "Bienvenido de vuelta. Protegemos tus datos con máxima seguridad.",
-    "meta": {
-      "desc": "Accede a tu bóveda segura de contraseñas y notas cifradas en Alcatraz."
-    },
-    "alerts": {
-      "success": "Acceso concedido",
-      "successDesc": "Has iniciado sesión correctamente.",
-      "error": "Error al iniciar sesión",
-      "errorDesc": "Usuario o contraseña incorrectos."
-    },
-    "form": {
-      "separator": "o continúa con",
-      "submit": "Acceder",
-      "forgot": "¿Olvidaste tu contraseña?",
-      "noAccount": "¿No tienes cuenta?",
-      "register": "Regístrate"
-    }
-  },
-  "register": {
-    "title": "Crear cuenta",
-    "desc": "Únete a Alcatraz y asegura tu vida digital hoy mismo.",
-    "meta": {
-      "desc": "Crea tu cuenta en Alcatraz para gestionar tus contraseñas de forma segura."
-    },
-    "alerts": {
-      "success": "Cuenta creada",
-      "successDesc": "Te has registrado correctamente."
-    },
-    "form": {
-      "separator": "o regístrate con",
-      "submit": "Crear cuenta",
-      "hasAccount": "¿Ya tienes cuenta?",
-      "login": "Inicia sesión"
-    }
-  }
 }

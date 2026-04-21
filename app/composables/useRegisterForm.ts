@@ -4,24 +4,28 @@ import { z } from "zod";
 import type { AuthFormField, ButtonProps, FormSubmitEvent } from "@nuxt/ui";
 
 export function useRegisterForm() {
-    const { t } = useI18n()
+    const { t } = useI18n();
 
-    const schema = computed(() => z
-        .object({
-            email: z.string().email(t('auth.validation.email')),
-            password: z.string().min(8, t('auth.validation.passwordMin')),
-            password_confirmation: z.string().min(8, t('auth.validation.passwordMin')),
-        })
-        .refine((data) => data.password === data.password_confirmation, {
-            message: t('auth.validation.passwordMatch'),
-            path: ["password_confirmation"],
-        }));
+    const schema = computed(() =>
+        z
+            .object({
+                email: z.string().email(t("auth.validation.email")),
+                password: z.string().min(8, t("auth.validation.passwordMin")),
+                password_confirmation: z
+                    .string()
+                    .min(8, t("auth.validation.passwordMin")),
+            })
+            .refine((data) => data.password === data.password_confirmation, {
+                message: t("auth.validation.passwordMatch"),
+                path: ["password_confirmation"],
+            }),
+    );
 
     const fields = computed<AuthFormField[]>(() => [
         {
             name: "email",
             type: "email",
-            label: t('auth.fields.email'),
+            label: t("auth.fields.email"),
             placeholder: "tu@correo.com",
             required: true,
             icon: "i-heroicons-envelope",
@@ -29,7 +33,7 @@ export function useRegisterForm() {
         {
             name: "password",
             type: "password",
-            label: t('auth.fields.password'),
+            label: t("auth.fields.password"),
             placeholder: "••••••••",
             required: true,
             icon: "i-heroicons-lock-closed",
@@ -37,7 +41,7 @@ export function useRegisterForm() {
         {
             name: "password_confirmation",
             type: "password",
-            label: t('profile.modals.passwordConfirm'),
+            label: t("profile.modals.passwordConfirm"),
             placeholder: "••••••••",
             required: true,
             icon: "i-heroicons-lock-closed",
@@ -82,6 +86,8 @@ export function useRegisterForm() {
         },
     ]);
 
+    const { generateMasterKey, encryptMasterKey, hashMasterPassword } =
+        useCrypto();
     const { clearVault } = useVault();
     const user = useState("user-data");
     const profile = useState("user-profile");
@@ -99,12 +105,32 @@ export function useRegisterForm() {
 
         submitted.value = false;
         try {
+            // 1. Generamos el hash determinista para el Login
+            const authHash = await hashMasterPassword(password, email);
+
+            // 2. Generamos una Master Key aleatoria para este usuario
+            const masterKey = generateMasterKey();
+
+            // 3. Ciframos la Master Key con el password del usuario
+            const protectedKeyData = await encryptMasterKey(
+                masterKey,
+                password,
+            );
+
+            // 4. Enviamos todo al backend
             await $fetch(`${config.public.apiBase}/api/auth/register`, {
                 method: "POST",
-                body: { email, password },
+                body: {
+                    email,
+                    password: authHash,
+                    protected_master_key: protectedKeyData.protected_master_key,
+                    master_key_iv: protectedKeyData.master_key_iv,
+                    master_key_salt: protectedKeyData.master_key_salt,
+                },
                 credentials: "include",
             });
-            console.log("Registering with:", email, password);
+
+            console.log("Registered successfully with Protected Master Key.");
 
             submitted.value = true;
             await navigateTo("/login");
