@@ -42,23 +42,23 @@ function handleSaveLayout() {
     :is-editing="!!initialData" :loading="loading" @back="emit('back')" @save="handleSaveLayout">
     <UForm :schema="schema" :state="state" class="space-y-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <UFormGroup label="Título" name="title">
+        <UFormField label="Título" name="title">
           <UInput v-model="state.title" placeholder="Ej. Códigos de respaldo" icon="i-heroicons-document-text"
             variant="none"
             class="bg-white/5 rounded-lg border border-white/5 focus-within:border-white/20 transition-colors"
             autocomplete="off" />
-        </UFormGroup>
+        </UFormField>
 
-        <UFormGroup label="Categoría" name="folder">
+        <UFormField label="Categoría" name="folder">
           <USelect v-model="state.folder" :items="folderOptions" variant="none"
             class="bg-white/5 rounded-lg border border-white/5 focus-within:border-white/20 transition-colors"
             icon="i-heroicons-folder" :ui="{
               trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200 ', base: 'bg-white/5'
             }" />
-        </UFormGroup>
+        </UFormField>
       </div>
 
-      <UFormGroup label="Contenido" name="note">
+      <UFormField label="Contenido" name="note">
         <div
           class="relative bg-white/5 rounded-lg border border-white/5 focus-within:border-white/20 transition-colors group bottom-3">
           <UTextarea v-model="state.note" :rows="12" placeholder="Escribe tu nota segura aquí..." variant="none"
@@ -73,7 +73,7 @@ function handleSaveLayout() {
             </span>
           </div>
         </div>
-      </UFormGroup>
+      </UFormField>
 
       <div class="rounded-xl bg-white/5 p-4 border border-white/5 flex gap-4 items-start">
         <div class="p-2 bg-white/5 rounded-lg">

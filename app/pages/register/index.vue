@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { useRegisterForm } from "~/composables/useRegisterForm"
 
-const { t, schema, fields, providers, submitted, onSubmit, resetFeedback } = useRegisterForm()
+const { t, schema, fields, providers, submitted, error, generatedRecoveryKey, showRecoveryKey, completeRegistration, onSubmit, resetFeedback } = useRegisterForm()
+const hasSavedKey = ref(false)
+
 useHead(() => ({
   title: t('register.title') + ' · Alcatraz',
   meta: [
@@ -28,22 +30,60 @@ useHead(() => ({
       <div class="mx-auto max-w-md relative z-10">
         <UCard class="glass-card-dark transition-all duration-300 hover:shadow-2xl"
           :ui="{ body: 'p-6 sm:p-8', header: 'p-0' }">
-          <UAlert v-if="submitted" color="success" variant="soft" :title="$t('register.alerts.success')"
-            :description="$t('register.alerts.successDesc')" class="mb-4" @close="resetFeedback" />
-
-          <UAuthForm :title="$t('register.title')" :description="$t('register.desc')"
-            icon="i-heroicons-user-plus" :schema="schema" :fields="fields" :providers="providers"
-            :separator="{ label: $t('register.form.separator') }"
-            :submit="{ label: $t('register.form.submit'), icon: 'i-heroicons-arrow-right-16-solid', color: 'neutral', variant: 'solid', class: 'btn btn-lg' }"
-            class="w-full space-y-6 auth-dark" @submit="onSubmit" @error="resetFeedback">
-
-            <template #footer>
-              <p class="text-center text-sm">
-                {{ $t('register.form.hasAccount') }}
-                <ULink to="/login" class="font-medium">{{ $t('register.form.login') }}</ULink>
+          
+          <template v-if="showRecoveryKey">
+            <div class="space-y-6 text-center animate-fade-in">
+              <div class="mx-auto size-16 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center mb-6">
+                <UIcon name="i-heroicons-shield-check" class="size-8 text-emerald-500" />
+              </div>
+              <h2 class="text-2xl font-bold uppercase tracking-widest text-emerald-500">¡Registro Completado!</h2>
+              <p class="text-sm text-zinc-400 leading-relaxed">
+                Esta es tu <strong class="text-emerald-500">Clave de Recuperación</strong>. <br>
+                Es la <strong>única forma</strong> de recuperar tu cuenta si olvidas tu Contraseña Maestra. Guárdala en un lugar seguro y secreto.
               </p>
-            </template>
-          </UAuthForm>
+              
+              <div class="p-5 bg-black border border-emerald-500/30 rounded-lg relative">
+                <code class="text-emerald-400 font-mono text-sm tracking-widest break-all select-all">{{ generatedRecoveryKey }}</code>
+              </div>
+              
+              <UCheckbox 
+                v-model="hasSavedKey" 
+                label="He guardado esta clave en un lugar seguro" 
+                class="mt-6 text-left" 
+                :ui="{ label: 'text-zinc-300 text-xs uppercase tracking-wider' }"
+              />
+              
+              <UButton 
+                block 
+                class="mt-8 bg-emerald-500 hover:bg-emerald-400 text-black h-12 rounded-lg font-bold tracking-widest uppercase text-xs"
+                :disabled="!hasSavedKey"
+                @click="completeRegistration"
+              >
+                Ir al Inicio de Sesión
+              </UButton>
+            </div>
+          </template>
+
+          <template v-else>
+            <UAlert v-if="submitted" color="success" variant="soft" :title="$t('register.alerts.success')"
+              :description="$t('register.alerts.successDesc')" class="mb-4" @close="resetFeedback" />
+            <UAlert v-if="error" color="error" variant="soft" title="Error de registro"
+              description="Ha ocurrido un error al intentar registrar la cuenta. Revisa los datos o intenta con otro correo." class="mb-4" @close="resetFeedback" />
+
+            <UAuthForm :title="$t('register.title')" :description="$t('register.desc')"
+              icon="i-heroicons-user-plus" :schema="schema" :fields="fields" :providers="providers"
+              :separator="{ label: $t('register.form.separator') }"
+              :submit="{ label: $t('register.form.submit'), icon: 'i-heroicons-arrow-right-16-solid', color: 'neutral', variant: 'solid', class: 'btn btn-lg' }"
+              class="w-full space-y-6 auth-dark" @submit="onSubmit" @error="resetFeedback">
+
+              <template #footer>
+                <p class="text-center text-sm text-zinc-400">
+                  {{ $t('register.form.hasAccount') }}
+                  <ULink to="/login" class="font-medium text-emerald-500 hover:text-emerald-400">{{ $t('register.form.login') }}</ULink>
+                </p>
+              </template>
+            </UAuthForm>
+          </template>
         </UCard>
       </div>
     </UContainer>

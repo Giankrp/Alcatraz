@@ -1,6 +1,6 @@
-export default defineNuxtRouteMiddleware(async (to, from) => {
+export default defineNuxtRouteMiddleware(async () => {
     const { data } = await useFetch("/api/auth/check")
     if (data.value?.authenticated) {
-        return navigateTo("/boveda")
+        return navigateTo("/login/unlock")
     }
 })

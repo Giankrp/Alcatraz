@@ -57,12 +57,53 @@ export const useUser = () => {
             })
             // Updating the shared state instantly triggers reactivity across all referencing components.
             profile.value = updated
-            if (updated.language) {
-                await setLocale(updated.language as 'es' | 'en')
-            }
             return updated
         } catch (e) {
             console.error('Error updating profile:', e)
+            throw e
+        }
+    }
+
+    /**
+     * changeMasterPassword - Re-encrypts the master key and updates the security configuration in the backend.
+     * Note: This does not re-encrypt the vault items, saving processing power!
+     */
+    const changeMasterPassword = async (currentPassword: string, newPassword: string) => {
+        const { masterKey } = useMasterPassword()
+        const { encryptMasterKey, hashMasterPassword } = useCrypto()
+        
+        if (!masterKey.value) {
+            throw new Error("La clave maestra no se encuentra en memoria.")
+        }
+        
+        const emailVal = email.value
+        if (!emailVal) {
+            throw new Error("El correo electrónico no se encuentra disponible.")
+        }
+
+        // Generar hashes de autenticación requeridos por el backend
+        const oldAuthHash = await hashMasterPassword(currentPassword, emailVal)
+        const newAuthHash = await hashMasterPassword(newPassword, emailVal)
+
+        // Cifrar la clave maestra en RAM (que se mantiene igual) pero usando la NUEVA contraseña
+        const cryptoContent = await encryptMasterKey(masterKey.value, newPassword)
+
+        const payload = {
+            old_password: oldAuthHash,
+            new_password: newAuthHash,
+            protected_master_key: cryptoContent.protected_master_key,
+            master_key_iv: cryptoContent.master_key_iv,
+            master_key_salt: cryptoContent.master_key_salt
+        }
+
+        try {
+            await $fetch(`${config.public.apiBase}/api/user/change-password`, {
+                method: 'POST', // Backend route maps to POST /api/user/change-password
+                body: payload,
+                credentials: 'include'
+            })
+        } catch (e) {
+            console.error('Error al cambiar la contraseña maestra:', e)
             throw e
         }
     }
@@ -138,6 +179,28 @@ export const useUser = () => {
         }
     }
 
+    const deleteAccount = async () => {
+        const { clearVault } = useVault()
+        const { clearMasterPassword, clearUserEmail } = useMasterPassword()
+
+        try {
+            await $fetch(`${config.public.apiBase}/api/user/account`, {
+                method: 'DELETE',
+                credentials: 'include'
+            })
+        } catch (e) {
+            console.error('Delete account error:', e)
+            throw e
+        } finally {
+            user.value = null
+            profile.value = null
+            clearVault()
+            clearMasterPassword()
+            clearUserEmail()
+            navigateTo('/login')
+        }
+    }
+
     return { 
         user, 
         profile,
@@ -154,6 +217,8 @@ export const useUser = () => {
         loading, 
         fetchUser,
         updateProfile,
-        logout
+        changeMasterPassword,
+        logout,
+        deleteAccount
     }
 }

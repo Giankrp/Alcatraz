@@ -160,45 +160,45 @@ function handleSaveLayout() {
       <!-- Form (Bottom) -->
       <div class="w-full flex flex-col gap-6">
         <UForm :schema="schema" :state="state" class="space-y-5">
-          <UFormGroup label="Nombre descriptivo" name="title">
+          <UFormField label="Nombre descriptivo" name="title">
             <UInput v-model="state.title" placeholder="Ej. Visa Oro" icon="i-heroicons-tag" variant="none"
               class="bg-white/5 rounded-lg border border-white/5 focus-within:border-white/20 transition-colors"
               autocomplete="off" />
-          </UFormGroup>
+          </UFormField>
 
           <div class="space-y-5">
-            <UFormGroup label="Número de tarjeta" name="number">
+            <UFormField label="Número de tarjeta" name="number">
               <UInput v-model="state.number" placeholder="0000 0000 0000 0000" icon="i-heroicons-credit-card"
                 variant="none"
                 class="bg-white/5 rounded-lg border border-white/5 focus-within:border-white/20 transition-colors"
                 autocomplete="off" />
-            </UFormGroup>
+            </UFormField>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <UFormGroup label="Titular de la tarjeta" name="holder">
+              <UFormField label="Titular de la tarjeta" name="holder">
                 <UInput v-model="state.holder" placeholder="NOMBRE APELLIDO" icon="i-heroicons-user" variant="none"
                   class="bg-white/5 rounded-lg border border-white/5 focus-within:border-white/20 transition-colors"
                   autocomplete="off" />
-              </UFormGroup>
+              </UFormField>
 
-              <UFormGroup label="Categoría" name="folder">
+              <UFormField label="Categoría" name="folder">
                 <USelect v-model="state.folder" :items="folderOptions" variant="none"
                   class="bg-white/5 rounded-lg border border-white/5 focus-within:border-white/20 transition-colors"
                   icon="i-heroicons-folder" />
-              </UFormGroup>
+              </UFormField>
             </div>
 
             <div class="grid grid-cols-2 gap-5">
-              <UFormGroup label="Expiración" name="expiry">
+              <UFormField label="Expiración" name="expiry">
                 <UInput v-model="state.expiry" placeholder="MM/AA" variant="none"
                   class="bg-white/5 rounded-lg border border-white/5 focus-within:border-white/20 transition-colors"
                   autocomplete="off" />
-              </UFormGroup>
-              <UFormGroup label="CVV / CVC" name="cvv">
+              </UFormField>
+              <UFormField label="CVV / CVC" name="cvv">
                 <UInput v-model="state.cvv" placeholder="123" type="password" variant="none"
                   class="bg-white/5 rounded-lg border border-white/5 focus-within:border-white/20 transition-colors"
                   autocomplete="off" @focus="isFlipped = true" @blur="isFlipped = false" />
-              </UFormGroup>
+              </UFormField>
             </div>
           </div>
 

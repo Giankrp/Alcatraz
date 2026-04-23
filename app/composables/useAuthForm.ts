@@ -4,19 +4,21 @@ import { z } from "zod";
 import type { AuthFormField, ButtonProps, FormSubmitEvent } from "@nuxt/ui";
 
 export function useAuthForm() {
-    const { t } = useI18n()
+    const { t } = useI18n();
 
-    const schema = computed(() => z.object({
-        email: z.string().email(t('auth.validation.email')),
-        password: z.string().min(8, t('auth.validation.passwordMin')),
-        remember: z.boolean().optional(),
-    }))
+    const schema = computed(() =>
+        z.object({
+            email: z.email(t("auth.validation.email")),
+            password: z.string().min(8, t("auth.validation.passwordMin")),
+            remember: z.boolean().optional(),
+        }),
+    );
 
     const fields = computed<AuthFormField[]>(() => [
         {
             name: "email",
             type: "email",
-            label: t('auth.fields.email'),
+            label: t("auth.fields.email"),
             placeholder: "tu@correo.com",
             required: true,
             icon: "i-heroicons-envelope",
@@ -24,12 +26,16 @@ export function useAuthForm() {
         {
             name: "password",
             type: "password",
-            label: t('auth.fields.password'),
+            label: t("auth.fields.password"),
             placeholder: "••••••••",
             required: true,
             icon: "i-heroicons-lock-closed",
         },
-        { name: "remember", type: "checkbox", label: t('auth.fields.remember') },
+        {
+            name: "remember",
+            type: "checkbox",
+            label: t("auth.fields.remember"),
+        },
     ]);
 
     const { signIn } = useAuth();
@@ -70,7 +76,8 @@ export function useAuthForm() {
         },
     ]);
 
-    const { setMasterPassword, setUserEmail } = useMasterPassword();
+    const { setMasterKey, setUserEmail, setTwoFactorPendingPassword } = useMasterPassword();
+    const { hashMasterPassword, decryptMasterKey } = useCrypto();
     const { clearVault } = useVault();
     const user = useState("user-data");
     const profile = useState("user-profile");
@@ -89,21 +96,38 @@ export function useAuthForm() {
             const { email, password } = event.data;
             const config = useRuntimeConfig();
 
-            const response = await $fetch<any>(`${config.public.apiBase}/api/auth/login`, {
-                method: "POST",
-                body: { email, password },
-                credentials: "include",
-            });
+            // 1. Hash determinista para Login
+            const authHash = await hashMasterPassword(password, email);
 
-            setMasterPassword(password);
+            const response = await $fetch<any>(
+                `${config.public.apiBase}/api/auth/login`,
+                {
+                    method: "POST",
+                    body: { email, password: authHash },
+                    credentials: "include",
+                },
+            );
+
             setUserEmail(email);
 
             if (response.require_2fa) {
                 twoFactorTempToken.value = response.temp_token;
                 twoFactorEmail.value = email;
+                setTwoFactorPendingPassword(password);
                 submitted.value = true;
                 await navigateTo("/login/2fa");
             } else {
+                // 2. Desciframos la Master Key usando el password y la data del server
+                const masterKey = await decryptMasterKey(
+                    response.protected_master_key,
+                    password,
+                    response.master_key_salt,
+                    response.master_key_iv,
+                );
+
+                // 3. Guardamos la Master Key REAL en memoria
+                setMasterKey(masterKey);
+
                 submitted.value = true;
                 await navigateTo("/boveda");
             }
