@@ -6,6 +6,7 @@ const { twoFactorTempToken, twoFactorEmail } = useUser();
 const {
     hashMasterPassword,
     generateMasterKey,
+    generateRecoveryKey,
     encryptMasterKey,
     decryptMasterKey,
 } = useCrypto();
@@ -20,6 +21,12 @@ const masterPassword = ref("");
 const confirmPassword = ref("");
 const loading = ref(false);
 const error = ref("");
+
+// Recovery key state (shown after OAuth registration)
+const showRecoveryModal = ref(false);
+const generatedRecoveryKey = ref("");
+const hasSavedKey = ref(false);
+let pendingMasterKey = "";   // held in closure until modal is confirmed
 
 // Verificar si hay sesión del backend (auth_token cookie) — cubre usuarios sin provider
 const { data: backendAuth } = await useFetch("/api/auth/check");
@@ -123,6 +130,13 @@ const onSubmit = async () => {
                 masterPassword.value,
             );
 
+            // 3. Generar Recovery Key y cifrar la MK con ella
+            const rk = generateRecoveryKey();
+            const recoveryProtectedKeyData = await encryptMasterKey(
+                newMasterKey,
+                rk,
+            );
+
             await $fetch(`${config.public.apiBase}/api/auth/register`, {
                 method: "POST",
                 body: {
@@ -131,9 +145,16 @@ const onSubmit = async () => {
                     protected_master_key: protectedKeyData.protected_master_key,
                     master_key_iv: protectedKeyData.master_key_iv,
                     master_key_salt: protectedKeyData.master_key_salt,
+                    recovery_key: rk,
+                    recovery_protected_master_key: recoveryProtectedKeyData.protected_master_key,
+                    recovery_key_iv: recoveryProtectedKeyData.master_key_iv,
+                    recovery_key_salt: recoveryProtectedKeyData.master_key_salt,
                 },
                 credentials: "include",
             });
+
+            // Guardar la RK para mostrarla al usuario antes de entrar al vault
+            generatedRecoveryKey.value = rk;
         }
 
         // 3. Login
@@ -165,7 +186,14 @@ const onSubmit = async () => {
             );
 
             setMasterKey(masterKey);
-            navigateTo("/boveda");
+
+            // Si acabamos de registrarnos, mostrar la Recovery Key antes de entrar
+            if (generatedRecoveryKey.value) {
+                pendingMasterKey = masterKey;
+                showRecoveryModal.value = true;
+            } else {
+                navigateTo("/boveda");
+            }
         }
     } catch (err: any) {
         console.error("Unlock failed:", err);
@@ -393,6 +421,42 @@ const handleSignOut = async () => {
             </div>
         </UContainer>
     </div>
+
+    <!-- Recovery Key Modal (shown after OAuth registration) -->
+    <UModal v-model:open="showRecoveryModal" :dismissible="false">
+        <template #content>
+            <div class="p-8 bg-black border border-emerald-500/20 rounded-2xl max-w-md mx-auto shadow-[0_0_50px_rgba(0,0,0,1)] space-y-6">
+                <div class="text-center">
+                    <div class="mx-auto size-14 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center mb-4">
+                        <UIcon name="i-heroicons-shield-check" class="size-7 text-emerald-500" />
+                    </div>
+                    <h3 class="text-lg font-bold text-zinc-100 uppercase tracking-widest">¡Cuenta Creada!</h3>
+                    <p class="text-xs text-zinc-500 mt-2 leading-relaxed">
+                        Guarda esta <strong class="text-emerald-500">Clave de Recuperación</strong>. Es la única forma de recuperar tu bóveda si olvidas tu contraseña maestra.
+                    </p>
+                </div>
+
+                <div class="p-4 bg-zinc-950 border border-emerald-500/30 rounded-lg text-center">
+                    <code class="text-emerald-400 font-mono text-sm tracking-widest break-all select-all">{{ generatedRecoveryKey }}</code>
+                </div>
+
+                <UCheckbox
+                    v-model="hasSavedKey"
+                    label="He guardado esta clave en un lugar seguro"
+                    :ui="{ label: 'text-zinc-300 text-xs uppercase tracking-wider' }"
+                />
+
+                <UButton
+                    block
+                    :disabled="!hasSavedKey"
+                    class="bg-emerald-500 hover:bg-emerald-400 text-black h-12 rounded-lg font-bold tracking-widest uppercase text-xs disabled:opacity-40"
+                    @click="navigateTo('/boveda')"
+                >
+                    Entrar a mi Bóveda
+                </UButton>
+            </div>
+        </template>
+    </UModal>
 </template>
 
 <style scoped>

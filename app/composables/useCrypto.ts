@@ -75,6 +75,16 @@ export const useCrypto = () => {
     };
 
     /**
+     * Genera una Recovery Key en formato legible pero segura (128 bits)
+     */
+    const generateRecoveryKey = (): string => {
+        const array = new Uint8Array(16);
+        window.crypto.getRandomValues(array);
+        const hex = Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+        return `RK-${hex.slice(0, 8)}-${hex.slice(8, 16)}-${hex.slice(16, 24)}-${hex.slice(24, 32)}`;
+    };
+
+    /**
      * Cifra la Master Key con una KEK derivada de la contraseña del usuario
      */
     const encryptMasterKey = async (
@@ -204,6 +214,7 @@ export const useCrypto = () => {
 
     return {
         generateMasterKey,
+        generateRecoveryKey,
         encryptMasterKey,
         decryptMasterKey,
         encryptData,

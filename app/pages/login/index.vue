@@ -43,7 +43,7 @@ useHead(() => ({
             :submit="{ label: $t('login.form.submit'), icon: 'i-heroicons-arrow-right-16-solid', color: 'neutral', variant: 'solid', class: 'btn btn-lg' }"
             class="w-full space-y-6 auth-dark" @submit="onSubmit" @error="resetFeedback">
             <template #password-hint>
-              <ULink to="/recuperar" class="text-sm">{{ $t('login.form.forgot') }}</ULink>
+              <ULink to="/login/recovery" class="text-sm">{{ $t('login.form.forgot') }}</ULink>
             </template>
             <template #footer>
               <p class="text-center text-sm">
