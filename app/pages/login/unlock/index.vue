@@ -150,6 +150,8 @@ const onSubmit = async () => {
         );
 
         if (loginRes.require_2fa) {
+            const { setTwoFactorPendingPassword } = useMasterPassword();
+            setTwoFactorPendingPassword(masterPassword.value);
             twoFactorTempToken.value = loginRes.temp_token;
             twoFactorEmail.value = email.value;
             navigateTo("/login/2fa");

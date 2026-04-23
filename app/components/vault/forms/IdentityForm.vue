@@ -57,7 +57,7 @@ function handleSaveLayout() {
   >
     <UForm :schema="schema" :state="state" class="space-y-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <UFormGroup label="Nombre de la identidad" name="title">
+        <UFormField label="Nombre de la identidad" name="title">
           <UInput 
             v-model="state.title" 
             placeholder="Ej. Pasaporte Personal" 
@@ -66,9 +66,9 @@ function handleSaveLayout() {
             class="bg-white/5 rounded-lg border border-white/5 focus-within:border-white/20 transition-colors" 
             autocomplete="off" 
           />
-        </UFormGroup>
+        </UFormField>
 
-        <UFormGroup label="Categoría" name="folder">
+        <UFormField label="Categoría" name="folder">
           <USelect 
             v-model="state.folder" 
             :items="folderOptions" 
@@ -76,11 +76,11 @@ function handleSaveLayout() {
             class="bg-white/5 rounded-lg border border-white/5 focus-within:border-white/20 transition-colors"
             icon="i-heroicons-folder"
           />
-        </UFormGroup>
+        </UFormField>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <UFormGroup label="Nombre" name="firstName">
+        <UFormField label="Nombre" name="firstName">
           <UInput 
             v-model="state.firstName" 
             placeholder="Juan" 
@@ -88,8 +88,8 @@ function handleSaveLayout() {
             class="bg-white/5 rounded-lg border border-white/5 focus-within:border-white/20 transition-colors" 
             autocomplete="off" 
           />
-        </UFormGroup>
-        <UFormGroup label="Apellidos" name="lastName">
+        </UFormField>
+        <UFormField label="Apellidos" name="lastName">
           <UInput 
             v-model="state.lastName" 
             placeholder="Pérez" 
@@ -97,11 +97,11 @@ function handleSaveLayout() {
             class="bg-white/5 rounded-lg border border-white/5 focus-within:border-white/20 transition-colors" 
             autocomplete="off" 
           />
-        </UFormGroup>
+        </UFormField>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <UFormGroup label="Email" name="email">
+        <UFormField label="Email" name="email">
           <UInput 
             v-model="state.email" 
             placeholder="juan@example.com" 
@@ -110,8 +110,8 @@ function handleSaveLayout() {
             class="bg-white/5 rounded-lg border border-white/5 focus-within:border-white/20 transition-colors" 
             autocomplete="off" 
           />
-        </UFormGroup>
-        <UFormGroup label="Teléfono" name="phone">
+        </UFormField>
+        <UFormField label="Teléfono" name="phone">
           <UInput 
             v-model="state.phone" 
             placeholder="+1 234 567 890" 
@@ -120,11 +120,11 @@ function handleSaveLayout() {
             class="bg-white/5 rounded-lg border border-white/5 focus-within:border-white/20 transition-colors" 
             autocomplete="off" 
           />
-        </UFormGroup>
+        </UFormField>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <UFormGroup label="Licencia de conducir" name="licenseNumber">
+        <UFormField label="Licencia de conducir" name="licenseNumber">
           <UInput 
             v-model="state.licenseNumber" 
             placeholder="A-12345678" 
@@ -133,8 +133,8 @@ function handleSaveLayout() {
             class="bg-white/5 rounded-lg border border-white/5 focus-within:border-white/20 transition-colors" 
             autocomplete="off" 
           />
-        </UFormGroup>
-        <UFormGroup label="Pasaporte" name="passportNumber">
+        </UFormField>
+        <UFormField label="Pasaporte" name="passportNumber">
           <UInput 
             v-model="state.passportNumber" 
             placeholder="P-87654321" 
@@ -143,10 +143,10 @@ function handleSaveLayout() {
             class="bg-white/5 rounded-lg border border-white/5 focus-within:border-white/20 transition-colors" 
             autocomplete="off" 
           />
-        </UFormGroup>
+        </UFormField>
       </div>
 
-      <UFormGroup label="Dirección" name="address">
+      <UFormField label="Dirección" name="address">
         <UTextarea 
           v-model="state.address" 
           :rows="3" 
@@ -156,7 +156,7 @@ function handleSaveLayout() {
           autocomplete="off" 
           autoresize
         />
-      </UFormGroup>
+      </UFormField>
 
       <div class="rounded-xl bg-white/5 p-4 border border-white/5 flex gap-4 items-start">
         <div class="p-2 bg-white/5 rounded-lg">

@@ -8,6 +8,7 @@ import type {
     CreateVaultFolderDTO,
     UpdateVaultFolderDTO,
 } from "~/types/vault";
+import { calculatePasswordScore } from "~/utils/securityScore";
 
 export const useVault = () => {
     const config = useRuntimeConfig();
@@ -20,7 +21,6 @@ export const useVault = () => {
 
     /**
      * Helper to extract only the sensitive fields for encryption.
-     * Excludes metadata that is sent flat in the DTO.
      */
     const extractSensitiveData = (
         item: Partial<VaultItem>,
@@ -39,6 +39,14 @@ export const useVault = () => {
         } = item;
         return sensitive as Record<string, unknown>;
     };
+
+    /**
+     * Helper for UUID validation
+     */
+    const isUUID = (str: string) =>
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+            str,
+        );
 
     const fetchFolders = async (): Promise<void> => {
         try {
@@ -66,12 +74,22 @@ export const useVault = () => {
         }
 
         try {
-            const dtos = await $fetch<VaultItemResponse[]>(
-                `${config.public.apiBase}/api/vault/items`,
-                {
-                    credentials: "include",
-                },
-            );
+            const [regularItems, trashedItems] = await Promise.all([
+                $fetch<VaultItemResponse[]>(
+                    `${config.public.apiBase}/api/vault/items`,
+                    {
+                        credentials: "include",
+                    },
+                ),
+                $fetch<VaultItemResponse[]>(
+                    `${config.public.apiBase}/api/vault/trash`,
+                    {
+                        credentials: "include",
+                    },
+                ),
+            ]);
+
+            const dtos = [...regularItems, ...trashedItems];
 
             if (!folders.value.length) {
                 await fetchFolders();
@@ -91,7 +109,7 @@ export const useVault = () => {
                         trashed: dto.trashed,
                         created_at: dto.created_at,
                         updated_at: dto.updated_at,
-                        // Encripted data if present (depends on backend query)
+                        security_score: dto.security_score,
                         encrypted_data: dto.secret?.encrypted_data,
                         iv: dto.secret?.iv,
                         salt: dto.secret?.salt,
@@ -159,6 +177,11 @@ export const useVault = () => {
     };
 
     const deleteFolder = async (id: string): Promise<void> => {
+        const folder = folders.value.find((f) => f.id === id);
+        if (folder?.is_default) {
+            throw new Error("Cannot delete default folder");
+        }
+
         try {
             await $fetch(`${config.public.apiBase}/api/vault/folders/${id}`, {
                 method: "DELETE",
@@ -178,7 +201,6 @@ export const useVault = () => {
         const item = items.value.find((i) => i.id === id);
         if (!item) return undefined;
 
-        // Determine if already decrypted based on typical per-type fields
         const isDecrypted =
             (item.item_type === "password" &&
                 (item as any).username !== undefined) ||
@@ -189,7 +211,6 @@ export const useVault = () => {
 
         if (isDecrypted) return item;
 
-        // Lazy load encrypted data if missing
         if (!item.encrypted_data) {
             try {
                 const detail = await $fetch<VaultItemResponse>(
@@ -225,7 +246,6 @@ export const useVault = () => {
 
             Object.assign(item, sensitiveData);
 
-            // Clean up sensitive encrypted assets from memory
             delete item.encrypted_data;
             delete item.iv;
             delete item.salt;
@@ -262,10 +282,10 @@ export const useVault = () => {
                 await fetchFolders();
             }
 
-            const isUUID = (str: string) =>
-                /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-                    str,
-                );
+            let score = null;
+            if (item.item_type === "password" && sensitiveData.password) {
+                score = calculatePasswordScore(sensitiveData.password as string);
+            }
 
             const payload: CreateVaultItemDTO = {
                 title: item.title,
@@ -273,6 +293,7 @@ export const useVault = () => {
                 folder_id:
                     item.folder && isUUID(item.folder) ? item.folder : null,
                 icon,
+                security_score: score,
                 secret: {
                     data: cryptoResult.encrypted_data,
                     iv: cryptoResult.iv,
@@ -347,14 +368,17 @@ export const useVault = () => {
                 ...updatedFields,
             } as VaultItem;
 
+            const sensitiveExtracted = extractSensitiveData(mergedItem);
+
             const cryptoResult = await encryptData(
-                extractSensitiveData(mergedItem),
+                sensitiveExtracted,
                 masterKey.value,
             );
-            const isUUID = (str: string) =>
-                /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-                    str,
-                );
+
+            let score = mergedItem.security_score || null;
+            if (mergedItem.item_type === "password" && sensitiveExtracted.password) {
+                score = calculatePasswordScore(sensitiveExtracted.password as string);
+            }
 
             const payload: UpdateVaultItemDTO = {
                 title: mergedItem.title,
@@ -365,6 +389,7 @@ export const useVault = () => {
                         : null,
                 icon: mergedItem.icon,
                 trashed: mergedItem.trashed,
+                security_score: score,
                 secret: {
                     data: cryptoResult.encrypted_data,
                     iv: cryptoResult.iv,
@@ -385,6 +410,39 @@ export const useVault = () => {
         }
     };
 
+    const removeItem = async (id: string) => {
+        await $fetch(`${config.public.apiBase}/api/vault/items/${id}`, {
+            method: "DELETE",
+            credentials: "include",
+        });
+        const index = items.value.findIndex((i) => i.id === id);
+        if (index !== -1) {
+            items.value[index]!.trashed = true;
+        }
+    };
+
+    const restoreItem = async (id: string) => {
+        await $fetch(`${config.public.apiBase}/api/vault/items/${id}/restore`, {
+            method: "POST",
+            credentials: "include",
+        });
+        const index = items.value.findIndex((i) => i.id === id);
+        if (index !== -1) {
+            items.value[index]!.trashed = false;
+        }
+    };
+
+    const deleteItemPermanent = async (id: string) => {
+        await $fetch(
+            `${config.public.apiBase}/api/vault/items/${id}/permanent`,
+            {
+                method: "DELETE",
+                credentials: "include",
+            },
+        );
+        items.value = items.value.filter((i) => i.id !== id);
+    };
+
     const clearVault = () => {
         items.value = [];
         folders.value = [];
@@ -397,15 +455,9 @@ export const useVault = () => {
         fetchItems,
         addItem,
         updateItem,
-        removeItem: (id: string) => updateItem(id, { trashed: true }),
-        restoreItem: (id: string) => updateItem(id, { trashed: false }),
-        deleteItemPermanent: async (id: string) => {
-            await $fetch(`${config.public.apiBase}/api/vault/items/${id}`, {
-                method: "DELETE",
-                credentials: "include",
-            });
-            items.value = items.value.filter((i) => i.id !== id);
-        },
+        removeItem,
+        restoreItem,
+        deleteItemPermanent,
         getDecryptedItem,
         folders,
         fetchFolders,

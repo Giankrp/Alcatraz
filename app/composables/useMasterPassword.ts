@@ -8,6 +8,10 @@ export const useMasterPassword = () => {
     // Email del usuario en memoria para contexto de UI
     const userEmail = useState<string | null>("user-email", () => null);
 
+    // Password temporal para completar el flujo 2FA
+    // Se almacena en memoria durante la transición login → 2FA → bóveda
+    const twoFactorPendingPassword = useState<string | null>("2fa-pending-password", () => null);
+
     const setMasterKey = (key: string) => {
         masterKey.value = key;
     };
@@ -24,13 +28,24 @@ export const useMasterPassword = () => {
         userEmail.value = null;
     };
 
+    const setTwoFactorPendingPassword = (password: string) => {
+        twoFactorPendingPassword.value = password;
+    };
+
+    const clearTwoFactorPendingPassword = () => {
+        twoFactorPendingPassword.value = null;
+    };
+
     return {
         masterKey,
         userEmail,
+        twoFactorPendingPassword,
         setMasterKey,
         clearMasterKey,
         setUserEmail,
         clearUserEmail,
+        setTwoFactorPendingPassword,
+        clearTwoFactorPendingPassword,
         // Aliases para compatibilidad temporal si fuera necesario
         masterPassword: masterKey,
         setMasterPassword: setMasterKey,

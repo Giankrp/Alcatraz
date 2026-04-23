@@ -13,6 +13,7 @@ export interface CreateVaultItemDTO {
   type: VaultItemType; // Backend creation DTO uses "type"
   title: string;
   icon: string;
+  security_score?: number | null;
   secret: SecretDTO;
 }
 
@@ -22,6 +23,7 @@ export interface UpdateVaultItemDTO {
   title?: string;
   icon?: string;
   trashed?: boolean;
+  security_score?: number | null;
   secret: SecretDTO;
 }
 
@@ -33,6 +35,7 @@ export interface VaultItemResponse {
   title: string;
   icon: string;
   trashed: boolean;
+  security_score?: number | null;
   secret?: {
     encrypted_data: string;
     iv: string;
@@ -74,6 +77,7 @@ export interface BaseVaultItemUI {
   trashed: boolean;
   icon: string;
   item_type: VaultItemType;
+  security_score?: number | null;
   
   // Timestamps (from API)
   created_at?: string;

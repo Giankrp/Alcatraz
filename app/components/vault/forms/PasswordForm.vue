@@ -73,27 +73,27 @@ function handleSaveLayout() {
     :is-editing="!!initialData" :loading="loading" @back="emit('back')" @save="handleSaveLayout">
     <UForm :schema="schema" :state="state" class="space-y-6" @submit="onSubmit">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <UFormGroup label="Nombre del elemento" name="title">
+        <UFormField label="Nombre del elemento" name="title">
           <UInput v-model="state.title" placeholder="Ej. Google, Netflix" icon="i-heroicons-tag" variant="none"
             class="bg-white/5 rounded-lg border border-white/5 focus-within:border-white/20 transition-colors"
             autocomplete="off" />
-        </UFormGroup>
+        </UFormField>
 
-        <UFormGroup label="Categoría" name="folder">
+        <UFormField label="Categoría" name="folder">
           <USelect v-model="state.folder" :items="folderOptions" variant="none"
             class="bg-white/5 rounded-lg border border-white/5 focus-within:border-white/20 transition-colors"
             icon="i-heroicons-folder" />
-        </UFormGroup>
+        </UFormField>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <UFormGroup label="Usuario / Correo" name="username">
+        <UFormField label="Usuario / Correo" name="username">
           <UInput v-model="state.username" placeholder="user@example.com" icon="i-heroicons-user" variant="none"
             class="bg-white/5 rounded-lg border border-white/5 focus-within:border-white/20 transition-colors"
             autocomplete="off" />
-        </UFormGroup>
+        </UFormField>
 
-        <UFormGroup label="Contraseña" name="password">
+        <UFormField label="Contraseña" name="password">
           <div class="flex items-center gap-2 w-full">
             <UInput v-model="state.password" :type="showPassword ? 'text' : 'password'" placeholder="••••••••"
               icon="i-heroicons-key" variant="none"
@@ -151,14 +151,14 @@ function handleSaveLayout() {
               </template>
             </UPopover>
           </div>
-        </UFormGroup>
+        </UFormField>
       </div>
 
-      <UFormGroup label="URL (Opcional)" name="url">
+      <UFormField label="URL (Opcional)" name="url">
         <UInput v-model="state.url" placeholder="https://..." icon="i-heroicons-link" variant="none"
           class="bg-white/5 rounded-lg border border-white/5 bottom-3 focus-within:border-white/20 transition-colors"
           autocomplete="off" />
-      </UFormGroup>
+      </UFormField>
 
       <div class="rounded-xl bg-white/5 p-4 border border-white/5 flex gap-4 items-start pt-6">
         <div class="p-2 bg-white/5 rounded-lg">

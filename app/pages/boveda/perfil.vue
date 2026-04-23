@@ -4,7 +4,7 @@ definePageMeta({
     middleware: "auth",
 });
 
-const { t } = useI18n();
+const { t, locale, setLocale } = useI18n();
 
 useHead(() => ({
     title: t("profile.title") + " · Alcatraz",
@@ -28,16 +28,26 @@ const {
     loading: userLoading,
     fetchUser,
     updateProfile,
+    changeMasterPassword,
+    deleteAccount
 } = useUser();
 
 const { items } = useVault();
 const toast = useToast();
 
-// Profile Editing State
 const editName = ref("");
 const editAvatarUrl = ref("");
 const editLanguage = ref("es");
 const isSavingProfile = ref(false);
+
+// Password Editing State
+const passwordForm = reactive({
+    current: "",
+    new: "",
+    confirm: ""
+});
+const isUpdatingPassword = ref(false);
+const passwordErrorMessage = ref("");
 
 const languages = [
     { label: "Español (ES)", value: "es" },
@@ -52,40 +62,34 @@ onMounted(async () => {
         return;
     }
     await fetchUser();
-
-    watchEffect(() => {
-        const currentEmail = email.value || "";
-        const currentName = displayName.value || "";
-        const emailPrefix = currentEmail.includes("@")
-            ? currentEmail.split("@")[0]
-            : "";
-
-        if (!isSavingProfile.value) {
-            editName.value = currentName !== emailPrefix ? currentName : "";
-            editAvatarUrl.value = avatarUrl.value || "";
-            editLanguage.value =
-                userLanguage.value || useI18n().locale.value || "es";
-        }
-    });
+    
+    // Sincronizar estado inicial una sola vez sin watchers recursivos
+    const currentName = displayName.value || "";
+    const currentEmail = email.value || "";
+    const emailPrefix = currentEmail.includes("@") ? currentEmail.split("@")[0] : "";
+    
+    editName.value = currentName !== emailPrefix ? currentName : "";
+    editAvatarUrl.value = avatarUrl.value || "";
+    editLanguage.value = userLanguage.value || locale.value || "es";
 });
-
-// Sync editLanguage with i18n locale for instant feedback
-watch(
-    () => useI18n().locale.value,
-    (newLocale) => {
-        if (!isSavingProfile.value) {
-            editLanguage.value = newLocale;
-        }
-    },
-);
 
 const handleUpdateProfile = async () => {
     isSavingProfile.value = true;
+    
+    // Extraer de forma segura el código de idioma ('es' o 'en')
+    const langRaw = toRaw(editLanguage.value);
+    const selectedLang = (typeof langRaw === 'object' && langRaw !== null ? (langRaw as any).value : langRaw) || "es";
+    
+    // Actualizar visualmente primero el idioma para consistencia inmediata con LocaleSwitcher
+    if (locale.value !== selectedLang) {
+        await setLocale(selectedLang as "es" | "en");
+    }
+
     try {
         const updated = await updateProfile({
             name: editName.value,
             avatar_url: editAvatarUrl.value,
-            language: editLanguage.value,
+            language: selectedLang,
         });
         toast.add({
             title: t("profile.identity.success"),
@@ -93,11 +97,10 @@ const handleUpdateProfile = async () => {
             color: "success",
             icon: "i-heroicons-check-circle",
         });
-        // Forzamos actualización de los campos de edición
         if (updated) {
             editName.value = updated.name || "";
             editAvatarUrl.value = updated.avatar_url || "";
-            editLanguage.value = updated.language || "es";
+            editLanguage.value = selectedLang;
         }
     } catch (e) {
         toast.add({
@@ -109,7 +112,37 @@ const handleUpdateProfile = async () => {
         });
     } finally {
         isSavingProfile.value = false;
-        await refreshNuxtData();
+    }
+};
+
+const handleUpdatePassword = async () => {
+    passwordErrorMessage.value = "";
+    if (passwordForm.new !== passwordForm.confirm) {
+        passwordErrorMessage.value = "Las contraseñas no coinciden.";
+        return;
+    }
+    if (passwordForm.new.length < 8) {
+        passwordErrorMessage.value = "La nueva contraseña debe tener al menos 8 caracteres.";
+        return;
+    }
+    
+    isUpdatingPassword.value = true;
+    try {
+        await changeMasterPassword(passwordForm.current, passwordForm.new);
+        toast.add({
+            title: "Contraseña actualizada",
+            description: "Tu contraseña maestra ha sido actualizada de forma segura.",
+            color: "success",
+            icon: "i-heroicons-check-circle",
+        });
+        showPasswordModal.value = false;
+        passwordForm.current = "";
+        passwordForm.new = "";
+        passwordForm.confirm = "";
+    } catch (e: any) {
+        passwordErrorMessage.value = e?.data?.error || "Error al actualizar la contraseña";
+    } finally {
+        isUpdatingPassword.value = false;
     }
 };
 
@@ -131,6 +164,26 @@ const showDeleteModal = ref(false);
 const showPasswordModal = ref(false);
 const showTwoFactorSetup = ref(false);
 const localTwoFactor = ref(false);
+
+const isDeletingAccount = ref(false);
+const deleteConfirmation = ref("");
+const deleteError = ref("");
+
+const handleDeleteAccount = async () => {
+    deleteError.value = "";
+    if (deleteConfirmation.value !== "ELIMINAR") {
+        deleteError.value = "Debes escribir ELIMINAR para confirmar";
+        return;
+    }
+    isDeletingAccount.value = true;
+    try {
+        await deleteAccount();
+    } catch (e) {
+        deleteError.value = "Error al eliminar la cuenta";
+    } finally {
+        isDeletingAccount.value = false;
+    }
+};
 
 // Sync local state with real user state
 watch(
@@ -710,25 +763,36 @@ const handleFileImport = async (event: Event) => {
                     </h3>
                     <div class="space-y-6 mb-10">
                         <UInput
+                            v-model="passwordForm.current"
                             type="password"
                             :placeholder="$t('profile.modals.passwordCurrent')"
                             :ui="{ base: 'input-tech text-white' }"
                         />
                         <UInput
+                            v-model="passwordForm.new"
                             type="password"
                             :placeholder="$t('profile.modals.passwordNew')"
                             :ui="{ base: 'input-tech text-white' }"
                         />
                         <UInput
+                            v-model="passwordForm.confirm"
                             type="password"
                             :placeholder="$t('profile.modals.passwordConfirm')"
                             :ui="{ base: 'input-tech text-white' }"
+                            @keyup.enter="handleUpdatePassword"
                         />
                     </div>
+                    <p
+                        v-if="passwordErrorMessage"
+                        class="text-[10px] text-red-500 mb-8 font-mono uppercase text-center"
+                    >
+                        {{ passwordErrorMessage }}
+                    </p>
                     <UButton
                         block
+                        :loading="isUpdatingPassword"
                         class="bg-emerald-500 hover:bg-emerald-400 text-black h-12 rounded-lg font-bold tracking-widest uppercase text-xs"
-                        @click="showPasswordModal = false"
+                        @click="handleUpdatePassword"
                     >
                         {{ $t("profile.modals.passwordSave") }}
                     </UButton>
@@ -805,14 +869,26 @@ const handleFileImport = async (event: Event) => {
                     >
                         {{ $t("profile.danger.modalTitle") }}
                     </h3>
-                    <p class="text-xs text-zinc-600 mb-10 leading-relaxed">
-                        {{ $t("profile.danger.modalDesc") }}
+                    <p class="text-xs text-zinc-600 mb-6 leading-relaxed">
+                        Para confirmar la eliminación, escribe <strong class="text-red-500">ELIMINAR</strong> en el siguiente campo. Esta acción es irreversible.
                     </p>
-                    <div class="flex flex-col gap-3">
+                    <UInput
+                        v-model="deleteConfirmation"
+                        placeholder="ELIMINAR"
+                        class="mb-2"
+                        :ui="{ base: 'input-tech text-white border-red-500/30 focus-within:border-red-500/60' }"
+                        @keyup.enter="handleDeleteAccount"
+                    />
+                    <p v-if="deleteError" class="text-[10px] text-red-500 mb-6 font-mono uppercase tracking-wider">
+                        {{ deleteError }}
+                    </p>
+                    <div class="flex flex-col gap-3 mt-8">
                         <UButton
                             block
                             color="error"
+                            :loading="isDeletingAccount"
                             class="h-12 rounded-lg font-bold tracking-widest uppercase text-xs"
+                            @click="handleDeleteAccount"
                             >{{ $t("profile.danger.confirmDelete") }}</UButton
                         >
                         <UButton

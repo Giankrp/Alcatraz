@@ -76,7 +76,7 @@ export function useAuthForm() {
         },
     ]);
 
-    const { setMasterKey, setUserEmail } = useMasterPassword();
+    const { setMasterKey, setUserEmail, setTwoFactorPendingPassword } = useMasterPassword();
     const { hashMasterPassword, decryptMasterKey } = useCrypto();
     const { clearVault } = useVault();
     const user = useState("user-data");
@@ -113,11 +113,7 @@ export function useAuthForm() {
             if (response.require_2fa) {
                 twoFactorTempToken.value = response.temp_token;
                 twoFactorEmail.value = email;
-                // En 2FA el masterKey se descifrará después del segundo paso o se guarda temporalmente
-                // Por ahora lo guardamos en un estado temporal si fuera necesario,
-                // pero lo más seguro es pedir el password de nuevo o mantenerlo en memoria volátil.
-                // Para simplificar esta transición, asumimos que el usuario no tiene 2FA o que el 2FA
-                // redirigirá a una pantalla que tiene acceso al password.
+                setTwoFactorPendingPassword(password);
                 submitted.value = true;
                 await navigateTo("/login/2fa");
             } else {

@@ -115,10 +115,11 @@ const documentCount = computed(() => items.value.filter(i => i.item_type === 'do
 // Very basic health score for now (0-100)
 // Higher score if they have many items and some unique ones
 const securityHealth = computed(() => {
-  if (items.value.length === 0) return 0
-  const passItems = items.value.filter(i => i.item_type === 'password')
-  if (passItems.length === 0) return 100 // No passwords = no risks yet?
-  return Math.min(100, (passItems.length * 5) + 40)
+  const scoredItems = items.value.filter(i => !i.trashed && i.item_type === 'password' && i.security_score != null);
+  if (scoredItems.length === 0) return 100;
+  
+  const totalScore = scoredItems.reduce((acc, curr) => acc + (curr.security_score || 0), 0);
+  return Math.round(totalScore / scoredItems.length);
 })
 
 function getSubtitle(item: VaultItem) {
@@ -412,7 +413,7 @@ const handleDeleteFolder = async (id: string) => {
                   </div>
                   
                   <div class="flex items-end gap-4">
-                    <span class="text-6xl font-black tracking-tighter text-white">100%</span>
+                    <span class="text-6xl font-black tracking-tighter text-white">{{ securityHealth }}%</span>
                     <div class="mb-2">
                       <div class="px-2 py-0.5 bg-[#10b981]/10 border border-[#10b981]/30 rounded text-[9px] font-bold text-[#10b981] uppercase tracking-wider">OPTIMIZADO</div>
                     </div>
@@ -525,10 +526,10 @@ const handleDeleteFolder = async (id: string) => {
 
           <!-- Add new folder -->
           <div class="flex items-end gap-2 mb-8">
-            <UFormGroup label="Nueva carpeta" class="flex-1" :ui="{ label: 'text-xs text-gray-500' }">
+            <UFormField label="Nueva carpeta" class="flex-1" :ui="{ label: 'text-xs text-gray-500' }">
               <UInput v-model="newFolderName" placeholder="Nombre de la carpeta" @keyup.enter="handleCreateFolder"
                 variant="none" class="bg-white/5 rounded-lg border border-white/10 focus-within:border-white/20" />
-            </UFormGroup>
+            </UFormField>
             <UButton icon="i-heroicons-plus" color="neutral" :loading="isFolderActionLoading"
               @click="handleCreateFolder">
               Añadir

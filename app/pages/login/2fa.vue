@@ -1,5 +1,7 @@
 <script setup lang="ts">
 const { twoFactorTempToken, twoFactorEmail } = useUser()
+const { setMasterKey, twoFactorPendingPassword, clearTwoFactorPendingPassword } = useMasterPassword()
+const { decryptMasterKey } = useCrypto()
 const { t } = useI18n()
 const config = useRuntimeConfig()
 const toast = useToast()
@@ -18,7 +20,7 @@ const isLoading = ref(false)
 const errorMsg = ref('')
 
 onMounted(() => {
-  if (!twoFactorTempToken.value) {
+  if (!twoFactorTempToken.value || !twoFactorPendingPassword.value) {
     navigateTo('/login')
   }
 })
@@ -30,7 +32,7 @@ const onVerify = async () => {
   errorMsg.value = ''
 
   try {
-    await $fetch(`${config.public.apiBase}/api/auth/2fa/verify`, {
+    const response = await $fetch<any>(`${config.public.apiBase}/api/auth/2fa/verify`, {
       method: 'POST',
       body: { code: code.value },
       headers: {
@@ -39,7 +41,19 @@ const onVerify = async () => {
       credentials: 'include'
     })
 
-    // Limpiar tokens temporales
+    // Descifrar la Master Key con el password almacenado temporalmente
+    if (twoFactorPendingPassword.value && response.protected_master_key) {
+      const masterKey = await decryptMasterKey(
+        response.protected_master_key,
+        twoFactorPendingPassword.value,
+        response.master_key_salt,
+        response.master_key_iv,
+      )
+      setMasterKey(masterKey)
+    }
+
+    // Limpiar estado temporal
+    clearTwoFactorPendingPassword()
     twoFactorTempToken.value = null
     twoFactorEmail.value = null
 
