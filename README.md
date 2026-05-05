@@ -45,7 +45,9 @@ Alcatraz/
 │   │   ├── useCrypto.ts          # Cifrado/descifrado AES-256-GCM
 │   │   ├── useVault.ts           # CRUD de ítems de la bóveda
 │   │   ├── useMasterPassword.ts  # Estado en memoria de la master password
-│   │   └── useUser.ts            # Datos del usuario autenticado
+│   │   ├── useUser.ts            # Datos del usuario autenticado
+│   │   ├── useAutoLock.ts        # Bloqueo automático por inactividad
+│   │   └── usePasswordGenerator.ts # Generador seguro de contraseñas
 │   ├── layouts/
 │   │   ├── default.vue           # Layout público (header + footer)
 │   │   └── vault.vue             # Layout de la bóveda (sin header)
@@ -64,8 +66,12 @@ Alcatraz/
 │   │       ├── new.vue           # Crear nuevo ítem
 │   │       ├── [id].vue          # Ver/editar un ítem
 │   │       └── perfil.vue        # Perfil del usuario
-│   └── types/
-│       └── vault.ts              # Tipos TypeScript de la bóveda
+│   ├── types/
+│   │   └── vault.ts              # Tipos TypeScript de la bóveda
+│   └── utils/
+│       └── securityScore.ts      # Utilidad de fuerza de contraseña
+├── i18n/
+│   └── locales/                  # Archivos de idioma (es.json, en.json)
 ├── server/
 │   └── api/auth/
 │       ├── [...].ts              # NuxtAuthHandler (GitHub + Google OAuth)

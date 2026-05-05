@@ -12,6 +12,8 @@ Composables de Vue que encapsulan la lógica de negocio de Alcatraz. Cada compos
 | `useVault` | CRUD completo de ítems de la bóveda |
 | `useMasterPassword` | Estado en memoria de la contraseña maestra |
 | `useUser` | Datos del usuario autenticado (email, avatar, fecha) |
+| `useAutoLock` | Bloqueo automático de la bóveda por inactividad |
+| `usePasswordGenerator` | Generador seguro de contraseñas aleatorias usando Web Crypto API |
 
 ---
 
@@ -137,3 +139,28 @@ Obtiene y cachea datos del usuario autenticado.
 | `loading` | Estado de carga |
 
 **Método:** `fetchUser()` — solo hace fetch una vez (cacheado en `useState`).
+
+---
+
+## `useAutoLock()`
+
+Gestiona el temporizador de inactividad de la bóveda.
+
+**Propósito:** Si el usuario no interactúa con la aplicación durante un tiempo (por defecto 5 minutos), se elimina la contraseña maestra de la memoria y se redirige a `/login/unlock` para asegurar que nadie más pueda acceder.
+
+**Eventos de inactividad:** Escucha `mousemove`, `keydown`, `wheel`, `touchstart`, `pointerdown` y cambios de visibilidad de la pestaña (`visibilitychange`).
+
+---
+
+## `usePasswordGenerator()`
+
+Utilidad para generar contraseñas seguras y fuertes aleatoriamente desde el lado del cliente utilizando `window.crypto.getRandomValues()` en lugar del débil `Math.random()`.
+
+**Propiedades:**
+- `password` (Ref)
+- `length` (Ref)
+- `includeUppercase`, `includeNumbers`, `includeSymbols` (Refs booleanos)
+
+**Métodos:**
+- `generatePassword()`: Genera una nueva contraseña y actualiza el estado.
+- `copyToClipboard()`: Copia la contraseña generada al portapapeles.

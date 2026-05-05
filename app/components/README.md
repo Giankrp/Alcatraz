@@ -9,6 +9,9 @@ components/
 ├── AuthHeader.vue          # Header de autenticación
 ├── SecurityCard.vue        # Card informativa (landing)
 ├── Footer.vue              # Pie de página global
+├── LocaleSwitcher.vue      # Selector de idioma
+├── profile/                # Componentes del perfil de usuario
+│   └── TwoFactorSetup.vue  # Configuración de 2FA
 └── vault/forms/            # Formularios de la bóveda
     ├── TypeSelector.vue    # Selector de tipo de ítem
     ├── FormLayout.vue      # Layout compartido para forms
@@ -84,6 +87,20 @@ Pie de página global con 4 columnas:
 | **Legal** | Privacidad, Términos, Cookies, Licencias |
 
 Se renderiza solo en el layout `default` y se oculta automáticamente en rutas `/boveda/*`.
+
+---
+
+### `LocaleSwitcher.vue`
+
+Selector de idioma desplegable que permite cambiar dinámicamente entre los idiomas soportados (por ejemplo, Español e Inglés) usando Nuxt i18n.
+
+---
+
+## Componentes de Perfil (`profile/`)
+
+### `TwoFactorSetup.vue`
+
+Componente dedicado a la configuración del segundo factor de autenticación (2FA). Gestiona la obtención del código QR, el secreto de TOTP y la verificación para activar el 2FA en la cuenta del usuario.
 
 ---
 

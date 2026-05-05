@@ -81,7 +81,7 @@ flowchart TD
 
 - **Layout:** default
 - **Middleware:** —
-- Tres planes: Solo (€10/mes), Pro (€20/mes), Empresarial (€59/usuario/mes)
+- Tres planes obtenidos vía internacionalización (`i18n`): Free, Premium, Family.
 - Usa `UPricingPlans` de `@nuxt/ui`
 - Background con efectos blur radiales
 

@@ -13,11 +13,12 @@ app/
 │   ├── SecurityCard.vue
 │   ├── Footer.vue
 │   └── vault/forms/          # Formularios del vault (6)
-├── composables/              # Lógica de negocio (6)
+├── composables/              # Lógica de negocio (8)
 ├── layouts/                  # default + vault
 ├── middleware/               # auth + guest
 ├── pages/                    # Todas las vistas
-└── types/                    # Tipos TypeScript
+├── types/                    # Tipos TypeScript
+└── utils/                    # Funciones y utilidades de ayuda
 ```
 
 ## Dependencias clave
