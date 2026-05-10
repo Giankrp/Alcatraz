@@ -296,12 +296,16 @@
             "lastUpdated": "Última actualización: Abril 2026",
             "sections": [
                 {
-                    "title": "Uso del Servicio",
-                    "content": "Alcatraz es una herramienta para la gestión de seguridad personal. Eres responsable de mantener la seguridad de tu contraseña maestra."
+                    "title": "1. Custodia de la Contraseña Maestra",
+                    "content": "Se informa explícitamente al usuario de que la plataforma no almacena, procesa, ni transmite su Contraseña Maestra. Por lo tanto, el sistema carece de los mecanismos tradicionales de \"Recuperar contraseña\" mediante un enlace al correo electrónico. Si el usuario olvida esta clave, el proveedor del servicio no tiene capacidad matemática ni técnica para descifrar su bóveda."
                 },
                 {
-                    "title": "Limitación de Responsabilidad",
-                    "content": "Debido a nuestra arquitectura de cifrado, si pierdes tu contraseña maestra y no tienes tu clave de recuperación, no podremos recuperar tus datos."
+                    "title": "2. Uso de la Clave de Recuperación (Recovery Key)",
+                    "content": "Para mitigar el punto anterior, el sistema provee al usuario de una única Clave de Recuperación de 128 bits generada localmente durante la activación de la cuenta. Los Términos y Condiciones estipulan que es responsabilidad exclusiva y estricta del usuario custodiar esta clave en un entorno físico o digital seguro y ajeno a la plataforma."
+                },
+                {
+                    "title": "3. Exención de responsabilidad por pérdida de datos",
+                    "content": "Al aceptar los términos, el usuario comprende que Alcatraz proporciona la herramienta criptográfica, pero no actúa como garante de disponibilidad en caso de negligencia del usuario. La pérdida simultánea de la Contraseña Maestra y de la Clave de Recuperación resultará en la pérdida permanente e irrecuperable de todos los ítems almacenados en la bóveda, eximiendo a la plataforma de cualquier responsabilidad."
                 }
             ]
         },

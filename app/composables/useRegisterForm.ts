@@ -96,23 +96,52 @@ export function useRegisterForm() {
     const error = ref(false);
     const generatedRecoveryKey = ref("");
     const showRecoveryKey = ref(false);
+    const showTerms = ref(false);
+    const isRegistering = ref(false);
+    const pendingRegistrationData = ref<{ email?: string; password?: string } | null>(null);
+
+    const termsAccepted = ref({
+        masterPassword: false,
+        recoveryKey: false,
+        dataLoss: false,
+    });
+
+    const allTermsAccepted = computed(() => 
+        termsAccepted.value.masterPassword && 
+        termsAccepted.value.recoveryKey && 
+        termsAccepted.value.dataLoss
+    );
 
     const completeRegistration = async () => {
         await navigateTo("/login");
     };
 
     const onSubmit = async (event: FormSubmitEvent<any>): Promise<void> => {
+        pendingRegistrationData.value = event.data;
+        showTerms.value = true;
+    };
+
+    const cancelRegistration = () => {
+        showTerms.value = false;
+        pendingRegistrationData.value = null;
+        termsAccepted.value = { masterPassword: false, recoveryKey: false, dataLoss: false };
+    };
+
+    const confirmRegistration = async (): Promise<void> => {
+        if (!pendingRegistrationData.value || !allTermsAccepted.value) return;
+
         clearVault();
         user.value = null;
         profile.value = null;
 
-        const { email, password } = event.data;
+        const { email, password } = pendingRegistrationData.value;
         const config = useRuntimeConfig();
 
         submitted.value = false;
+        isRegistering.value = true;
         try {
             // 1. Generamos el hash determinista para el Login
-            const authHash = await hashMasterPassword(password, email);
+            const authHash = await hashMasterPassword(password!, email!);
 
             // 2. Generamos una Master Key aleatoria para este usuario
             const masterKey = generateMasterKey();
@@ -120,7 +149,7 @@ export function useRegisterForm() {
             // 3. Ciframos la Master Key con el password del usuario
             const protectedKeyData = await encryptMasterKey(
                 masterKey,
-                password,
+                password!,
             );
 
             // 4. Generamos y ciframos con la Recovery Key
@@ -132,7 +161,7 @@ export function useRegisterForm() {
 
             // 5. Enviamos todo al backend
             const body = {
-                email,
+                email: email!,
                 password: authHash,
                 protected_master_key: protectedKeyData.protected_master_key,
                 master_key_iv: protectedKeyData.master_key_iv,
@@ -152,12 +181,16 @@ export function useRegisterForm() {
             console.log("Registered successfully with Protected Master Key.");
 
             generatedRecoveryKey.value = recoveryKey;
+            showTerms.value = false;
             showRecoveryKey.value = true;
             submitted.value = true;
         } catch (e) {
             console.error("Error registering:", e);
             error.value = true;
             submitted.value = false;
+            showTerms.value = false;
+        } finally {
+            isRegistering.value = false;
         }
     };
 
@@ -175,8 +208,14 @@ export function useRegisterForm() {
         error,
         generatedRecoveryKey,
         showRecoveryKey,
+        showTerms,
+        termsAccepted,
+        allTermsAccepted,
+        isRegistering,
         completeRegistration,
         onSubmit,
+        confirmRegistration,
+        cancelRegistration,
         resetFeedback,
     };
 }

@@ -296,12 +296,16 @@
             "lastUpdated": "Last updated: April 2026",
             "sections": [
                 {
-                    "title": "Service Use",
-                    "content": "Alcatraz is a tool for personal security management. You are responsible for maintaining the security of your master password."
+                    "title": "1. Custody of the Master Password",
+                    "content": "The user is explicitly informed that the platform does not store, process, or transmit their Master Password. Therefore, the system lacks traditional \"Password Recovery\" mechanisms via email links. If the user forgets this key, the service provider has no mathematical or technical capacity to decrypt their vault."
                 },
                 {
-                    "title": "Limitation of Liability",
-                    "content": "Due to our encryption architecture, if you lose your master password and do not have your recovery key, we will not be able to recover your data."
+                    "title": "2. Use of the Recovery Key",
+                    "content": "To mitigate the previous point, the system provides the user with a single 128-bit Recovery Key generated locally during account activation. The Terms and Conditions stipulate that it is the user's strict and exclusive responsibility to safely custody this key in a secure physical or digital environment independent of the platform."
+                },
+                {
+                    "title": "3. Exemption of liability for data loss",
+                    "content": "By accepting the terms, the user understands that Alcatraz provides the cryptographic tool, but does not act as a guarantor of availability in the event of user negligence. The simultaneous loss of the Master Password and the Recovery Key will result in the permanent and irrecoverable loss of all items stored in the vault, exempting the platform from any liability."
                 }
             ]
         },

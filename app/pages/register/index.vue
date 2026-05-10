@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { useRegisterForm } from "~/composables/useRegisterForm"
 
-const { t, schema, fields, providers, submitted, error, generatedRecoveryKey, showRecoveryKey, completeRegistration, onSubmit, resetFeedback } = useRegisterForm()
+const { 
+  t, schema, fields, providers, submitted, error, generatedRecoveryKey, showRecoveryKey, 
+  showTerms, termsAccepted, allTermsAccepted, isRegistering,
+  completeRegistration, confirmRegistration, cancelRegistration, onSubmit, resetFeedback 
+} = useRegisterForm()
 const hasSavedKey = ref(false)
 
 useHead(() => ({
@@ -61,6 +65,67 @@ useHead(() => ({
               >
                 Ir al Inicio de Sesión
               </UButton>
+            </div>
+          </template>
+
+          <template v-else-if="showTerms">
+            <div class="space-y-6 animate-fade-in">
+              <div class="mx-auto size-16 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center mb-6">
+                <UIcon name="i-heroicons-document-text" class="size-8 text-emerald-500" />
+              </div>
+              <h2 class="text-2xl font-bold uppercase tracking-widest text-emerald-500 text-center">Términos y Condiciones</h2>
+              <p class="text-sm text-zinc-400 leading-relaxed text-center">
+                Debido a la naturaleza criptográfica de la aplicación y a la imposibilidad técnica del servidor para acceder a los datos en texto plano, los Términos y Condiciones de Alcatraz establecen un modelo de responsabilidad compartida con el usuario final. Este modelo se basa en tres pilares fundamentales que el usuario debe aceptar obligatoriamente durante el proceso de registro: 
+              </p>
+              
+              <div class="space-y-4 text-left mt-6">
+                <UCheckbox v-model="termsAccepted.masterPassword" :ui="{ label: 'text-zinc-300 text-xs sm:text-sm' }">
+                  <template #label>
+                    <div class="flex flex-col gap-1">
+                      <span class="font-bold text-emerald-400">1. Custodia de la Contraseña Maestra:</span>
+                      <span class="text-zinc-400">La plataforma no almacena ni transmite tu Contraseña Maestra. No existe la opción de "Recuperar contraseña". Si la olvidas, es matemáticamente imposible descifrar tu bóveda.</span>
+                    </div>
+                  </template>
+                </UCheckbox>
+                
+                <UCheckbox v-model="termsAccepted.recoveryKey" :ui="{ label: 'text-zinc-300 text-xs sm:text-sm' }">
+                  <template #label>
+                    <div class="flex flex-col gap-1">
+                      <span class="font-bold text-emerald-400">2. Uso de la Clave de Recuperación:</span>
+                      <span class="text-zinc-400">Se generará localmente una Clave de Recuperación única de 128 bits. Es tu responsabilidad exclusiva y estricta custodiar esta clave en un entorno físico o digital seguro y ajeno a la plataforma.</span>
+                    </div>
+                  </template>
+                </UCheckbox>
+                
+                <UCheckbox v-model="termsAccepted.dataLoss" :ui="{ label: 'text-zinc-300 text-xs sm:text-sm' }">
+                  <template #label>
+                    <div class="flex flex-col gap-1">
+                      <span class="font-bold text-emerald-400">3. Exención de responsabilidad:</span>
+                      <span class="text-zinc-400">Alcatraz proporciona la herramienta, pero no actúa como garante. La pérdida simultánea de tu Contraseña Maestra y tu Clave de Recuperación resultará en la pérdida total e irrecuperable de tus datos.</span>
+                    </div>
+                  </template>
+                </UCheckbox>
+              </div>
+
+              <div class="flex gap-4 mt-8">
+                <UButton 
+                  block 
+                  variant="outline"
+                  class="flex-1 border-emerald-500/30 hover:bg-emerald-500/10 text-zinc-300 h-12 rounded-lg font-bold tracking-widest uppercase text-xs"
+                  @click="cancelRegistration"
+                >
+                  Cancelar
+                </UButton>
+                <UButton 
+                  block 
+                  class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-black h-12 rounded-lg font-bold tracking-widest uppercase text-xs disabled:opacity-50"
+                  :disabled="!allTermsAccepted || isRegistering"
+                  :loading="isRegistering"
+                  @click="confirmRegistration"
+                >
+                  Aceptar
+                </UButton>
+              </div>
             </div>
           </template>
 
