@@ -17,7 +17,6 @@ export default defineNuxtConfig({
         classSuffix: "",
     },
     auth: {
-        baseURL: "http://localhost:3000/api/auth",
         provider: {
             type: "authjs",
         },
@@ -25,7 +24,13 @@ export default defineNuxtConfig({
     },
     runtimeConfig: {
         public: {
-            apiBase: "http://localhost:8080", // Se puede sobrescribir con NUXT_PUBLIC_API_BASE en .env,
+            apiBase: "", // Se puede sobrescribir con NUXT_PUBLIC_API_BASE en .env,
+            auth: {
+                // @ts-ignore
+                baseURL: "",
+                // @ts-ignore
+                origin: "",
+            },
         },
         secret: "",
         auth: {
@@ -38,6 +43,9 @@ export default defineNuxtConfig({
                 clientSecret: "",
             },
         },
+     
+        
+        
     },
     app: {
         head: {
