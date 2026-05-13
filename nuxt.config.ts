@@ -23,15 +23,10 @@ export default defineNuxtConfig({
         globalAppMiddleware: false,
     },
     runtimeConfig: {
-        public: {
-            apiBase: "", // Se puede sobrescribir con NUXT_PUBLIC_API_BASE en .env,
-            auth: {
-                // @ts-ignore
-                baseURL: "",
-                // @ts-ignore
-                origin: "",
-            },
-        },
+        // Config privada (solo server). Sobrescribir con NUXT_BACKEND_BASE en producción.
+        // En prod: https://alcatraz-back.vercel.app
+        // En dev: http://localhost:8080 (cuando se usa el proxy local)
+        backendBase: "",
         secret: "",
         auth: {
             github: {
@@ -43,9 +38,17 @@ export default defineNuxtConfig({
                 clientSecret: "",
             },
         },
-     
-        
-        
+        public: {
+            // En producción, setear a "/api/go" para rutear por el proxy Nuxt.
+            // En dev, setear a "http://localhost:8080" para llamadas directas al backend.
+            apiBase: "",
+            auth: {
+                // @ts-ignore
+                baseURL: "",
+                // @ts-ignore
+                origin: "",
+            },
+        },
     },
     app: {
         head: {
