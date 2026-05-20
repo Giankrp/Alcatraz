@@ -18,7 +18,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const auth = useAuthStore()
 
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
-    return navigateTo('/login')
+    return navigateTo("/login")
   }
 })
 ```
@@ -46,7 +46,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const auth = useAuthStore()
 
   if (!auth.isAdmin) {
-    return navigateTo('/')
+    return navigateTo("/")
   }
 })
 ```
@@ -55,9 +55,9 @@ Apply in page:
 
 ```vue
 <script setup lang="ts">
-definePageMeta({
-  middleware: ['admin']
-})
+  definePageMeta({
+    middleware: ["admin"],
+  })
 </script>
 ```
 
@@ -69,13 +69,13 @@ export default defineNuxtRouteMiddleware((to, from) => {
   return
 
   // Redirect
-  return navigateTo('/login')
+  return navigateTo("/login")
 
   // Abort navigation
   return abortNavigation()
 
   // Abort with error
-  return abortNavigation('Not authorized')
+  return abortNavigation("Not authorized")
 })
 ```
 
@@ -93,11 +93,11 @@ Plugins extend Vue app with global functionality. Run during app initialization.
 
 ```ts
 // plugins/my-plugin.ts
-export default defineNuxtPlugin((nuxtApp) => {
+export default defineNuxtPlugin(nuxtApp => {
   return {
     provide: {
-      hello: (name: string) => `Hello ${name}!`
-    }
+      hello: (name: string) => `Hello ${name}!`,
+    },
   }
 })
 ```
@@ -106,23 +106,23 @@ Use in components:
 
 ```vue
 <script setup lang="ts">
-const { $hello } = useNuxtApp()
-console.log($hello('World')) // "Hello World!"
+  const { $hello } = useNuxtApp()
+  console.log($hello("World")) // "Hello World!"
 </script>
 ```
 
 ### Plugin with Vue Plugin
 
 ```ts
-import type { PluginOptions } from 'vue-toastification'
+import type { PluginOptions } from "vue-toastification"
 // plugins/toast.client.ts
-import Toast from 'vue-toastification'
-import 'vue-toastification/dist/index.css'
+import Toast from "vue-toastification"
+import "vue-toastification/dist/index.css"
 
-export default defineNuxtPlugin((nuxtApp) => {
+export default defineNuxtPlugin(nuxtApp => {
   nuxtApp.vueApp.use(Toast, {
-    position: 'top-right',
-    timeout: 3000
+    position: "top-right",
+    timeout: 3000,
   } as PluginOptions)
 })
 ```
@@ -131,13 +131,13 @@ export default defineNuxtPlugin((nuxtApp) => {
 
 ```ts
 // plugins/init.ts
-export default defineNuxtPlugin((nuxtApp) => {
-  nuxtApp.hook('app:created', () => {
-    console.log('App created')
+export default defineNuxtPlugin(nuxtApp => {
+  nuxtApp.hook("app:created", () => {
+    console.log("App created")
   })
 
-  nuxtApp.hook('page:finish', () => {
-    console.log('Page finished loading')
+  nuxtApp.hook("page:finish", () => {
+    console.log("Page finished loading")
   })
 })
 ```
@@ -174,13 +174,13 @@ plugins/
 
 ```ts
 // plugins/api.ts
-export default defineNuxtPlugin(async (nuxtApp) => {
-  const config = await fetch('/api/config').then(r => r.json())
+export default defineNuxtPlugin(async nuxtApp => {
+  const config = await fetch("/api/config").then(r => r.json())
 
   return {
     provide: {
-      config
-    }
+      config,
+    },
   }
 })
 ```
@@ -221,19 +221,19 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const auth = useAuthStore()
 
   // Public routes
-  const publicRoutes = ['/', '/login', '/register']
+  const publicRoutes = ["/", "/login", "/register"]
   if (publicRoutes.includes(to.path)) {
     return
   }
 
   // Check auth
   if (!auth.isAuthenticated) {
-    return navigateTo('/login')
+    return navigateTo("/login")
   }
 
   // Check role
   if (to.meta.requiresAdmin && !auth.isAdmin) {
-    return abortNavigation('Access denied')
+    return abortNavigation("Access denied")
   }
 })
 ```
@@ -242,7 +242,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
 
 ```ts
 // plugins/api.ts
-export default defineNuxtPlugin((nuxtApp) => {
+export default defineNuxtPlugin(nuxtApp => {
   const config = useRuntimeConfig()
 
   const api = $fetch.create({
@@ -252,21 +252,21 @@ export default defineNuxtPlugin((nuxtApp) => {
       if (auth.token) {
         options.headers = {
           ...options.headers,
-          Authorization: `Bearer ${auth.token}`
+          Authorization: `Bearer ${auth.token}`,
         }
       }
     },
     onResponseError({ response }) {
       if (response.status === 401) {
-        navigateTo('/login')
+        navigateTo("/login")
       }
-    }
+    },
   })
 
   return {
     provide: {
-      api
-    }
+      api,
+    },
   }
 })
 ```

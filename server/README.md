@@ -26,6 +26,7 @@ server/
 Comprueba si existe la cookie `auth_token`. No valida el JWT, solo verifica presencia.
 
 **Respuesta:**
+
 ```json
 { "authenticated": true }
 ```
@@ -39,6 +40,7 @@ Comprueba si existe la cookie `auth_token`. No valida el JWT, solo verifica pres
 Decodifica el payload del JWT almacenado en `auth_token` (sin verificar firma — el backend Go gestiona la autenticación real).
 
 **Respuesta (200):**
+
 ```json
 {
   "email": "user@example.com",
@@ -47,11 +49,13 @@ Decodifica el payload del JWT almacenado en `auth_token` (sin verificar firma �
 ```
 
 **Error (401):**
+
 ```json
 { "statusMessage": "Not authenticated" }
 ```
 
 **Campos extraídos del JWT:**
+
 - `email` → `payload.email` o `payload.sub`
 - `createdAt` → `payload.iat` convertido a ISO string
 
@@ -61,17 +65,19 @@ Decodifica el payload del JWT almacenado en `auth_token` (sin verificar firma �
 
 Handler de NextAuth que gestiona todo el flujo OAuth. Registra dos proveedores:
 
-| Proveedor | Config key |
-|-----------|-----------|
+| Proveedor  | Config key                                           |
+| ---------- | ---------------------------------------------------- |
 | **GitHub** | `runtimeConfig.auth.github.{clientId, clientSecret}` |
 | **Google** | `runtimeConfig.auth.google.{clientId, clientSecret}` |
 
 Las credenciales se inyectan vía variables de entorno:
+
 - `NUXT_AUTH_GITHUB_CLIENT_ID` / `NUXT_AUTH_GITHUB_CLIENT_SECRET`
 - `NUXT_AUTH_GOOGLE_CLIENT_ID` / `NUXT_AUTH_GOOGLE_CLIENT_SECRET`
 - `NUXT_SECRET` — secret de sesión de NextAuth
 
 **Callback URLs:**
+
 - Login OAuth → `/login/unlock` (requiere master password)
 - Register OAuth → `/login/unlock?mode=register`
 

@@ -8,16 +8,16 @@
 
 ## Stack tecnológico
 
-| Capa | Tecnología |
-|------|-----------|
-| **Frontend** | Nuxt 4.2 · Vue 3.5 · TypeScript |
-| **UI** | @nuxt/ui 4.3 · Tailwind CSS 4.1 |
-| **Auth** | @sidebase/nuxt-auth (NextAuth) · OAuth (GitHub, Google) |
-| **Criptografía** | Web Crypto API · AES-256-GCM · PBKDF2 (100 000 iteraciones) |
-| **Backend** | Go (API REST separada) |
-| **Validación** | Zod 4 |
-| **Tipografía** | @nuxt/fonts (Instrument Sans, DM Sans) |
-| **Linting** | oxlint |
+| Capa             | Tecnología                                                                    |
+| ---------------- | ----------------------------------------------------------------------------- |
+| **Frontend**     | Nuxt 4.2 · Vue 3.5 · TypeScript                                               |
+| **UI**           | @nuxt/ui 4.3 · Tailwind CSS 4.1                                               |
+| **Auth**         | @sidebase/nuxt-auth (NextAuth) · OAuth (GitHub, Google)                       |
+| **Criptografía** | Web Crypto API · AES-256-GCM · Argon2id (3 iteraciones, 64 MB, paralelismo 2) |
+| **Backend**      | Go (API REST separada)                                                        |
+| **Validación**   | Zod 4                                                                         |
+| **Tipografía**   | @nuxt/fonts (Instrument Sans, DM Sans)                                        |
+| **Linting**      | oxlint                                                                        |
 
 ---
 
@@ -103,7 +103,7 @@ flowchart TD
     E -->|Middleware auth| G["Dashboard con ítems cifrados"]
 
     subgraph Zero-Knowledge
-        H["useCrypto.encryptData()"] -->|AES-256-GCM + PBKDF2| I["Blob cifrado"]
+        H["useCrypto.encryptData()"] -->|AES-256-GCM + Argon2id| I["Blob cifrado"]
         I -->|Se envía al backend| J["Backend almacena blob opaco"]
         J -->|Se descarga blob| K["useCrypto.decryptData()"]
         K -->|Master password en memoria| L["Datos en claro"]
@@ -122,11 +122,11 @@ flowchart TD
 
 ## Tipos de ítems de la bóveda
 
-| Tipo | Campos sensibles |
-|------|-----------------|
-| `password` | `username`, `password`, `url` |
-| `note` | `note` |
-| `card` | `holder`, `number`, `expiry`, `cvv` |
+| Tipo       | Campos sensibles                                           |
+| ---------- | ---------------------------------------------------------- |
+| `password` | `username`, `password`, `url`                              |
+| `note`     | `note`                                                     |
+| `card`     | `holder`, `number`, `expiry`, `cvv`                        |
 | `identity` | `firstName`, `lastName`, `email`, `phone`, `address`, etc. |
 
 Cada ítem se serializa como JSON, se cifra con AES-256-GCM (salt + iv aleatorios) y se almacena como `{ encrypted_data, iv, salt }`.
@@ -159,15 +159,15 @@ cp .env.example .env
 
 ### Variables de entorno requeridas
 
-| Variable | Descripción |
-|----------|------------|
-| `NUXT_SECRET` | Secret para NextAuth (sesiones) |
-| `NUXT_AUTH_BASE_URL` | URL base de la API de auth |
-| `NUXT_AUTH_GITHUB_CLIENT_ID` | Client ID de GitHub OAuth |
-| `NUXT_AUTH_GITHUB_CLIENT_SECRET` | Client Secret de GitHub OAuth |
-| `NUXT_AUTH_GOOGLE_CLIENT_ID` | Client ID de Google OAuth |
-| `NUXT_AUTH_GOOGLE_CLIENT_SECRET` | Client Secret de Google OAuth |
-| `NUXT_PUBLIC_API_BASE` | URL del backend Go (default: `http://localhost:8080`) |
+| Variable                         | Descripción                                           |
+| -------------------------------- | ----------------------------------------------------- |
+| `NUXT_SECRET`                    | Secret para NextAuth (sesiones)                       |
+| `NUXT_AUTH_BASE_URL`             | URL base de la API de auth                            |
+| `NUXT_AUTH_GITHUB_CLIENT_ID`     | Client ID de GitHub OAuth                             |
+| `NUXT_AUTH_GITHUB_CLIENT_SECRET` | Client Secret de GitHub OAuth                         |
+| `NUXT_AUTH_GOOGLE_CLIENT_ID`     | Client ID de Google OAuth                             |
+| `NUXT_AUTH_GOOGLE_CLIENT_SECRET` | Client Secret de Google OAuth                         |
+| `NUXT_PUBLIC_API_BASE`           | URL del backend Go (default: `http://localhost:8080`) |
 
 > ⚠️ **Nunca subas `.env` al repositorio.** Está en `.gitignore`.
 
@@ -206,17 +206,17 @@ Los estilos globales están en `app/assets/css/main.css` e incluyen:
 
 ## Rutas de la aplicación
 
-| Ruta | Middleware | Layout | Descripción |
-|------|-----------|--------|------------|
-| `/` | — | default | Landing page |
-| `/login` | guest | default | Login (email/pass + OAuth) |
-| `/login/unlock` | — | default | Master password post-OAuth |
-| `/register` | — | default | Registro de usuario |
-| `/pricing` | — | default | Planes y precios |
-| `/boveda` | auth | vault | Dashboard de la bóveda |
-| `/boveda/new` | auth | — | Crear nuevo ítem |
-| `/boveda/[id]` | auth | — | Ver/editar un ítem |
-| `/boveda/perfil` | auth | vault | Perfil y seguridad |
+| Ruta             | Middleware | Layout  | Descripción                |
+| ---------------- | ---------- | ------- | -------------------------- |
+| `/`              | —          | default | Landing page               |
+| `/login`         | guest      | default | Login (email/pass + OAuth) |
+| `/login/unlock`  | —          | default | Master password post-OAuth |
+| `/register`      | —          | default | Registro de usuario        |
+| `/pricing`       | —          | default | Planes y precios           |
+| `/boveda`        | auth       | vault   | Dashboard de la bóveda     |
+| `/boveda/new`    | auth       | —       | Crear nuevo ítem           |
+| `/boveda/[id]`   | auth       | —       | Ver/editar un ítem         |
+| `/boveda/perfil` | auth       | vault   | Perfil y seguridad         |
 
 ---
 
@@ -233,16 +233,16 @@ Los estilos globales están en `app/assets/css/main.css` e incluyen:
 
 ## Troubleshooting
 
-| Problema | Solución |
-|----------|---------|
-| Errores de tipos / auto-imports | `pnpm run postinstall` o `nuxt prepare` |
-| Estilos no aplican | Verificar `css` en `nuxt.config.ts` |
-| OAuth no funciona | Verificar variables `NUXT_AUTH_*` en `.env` |
-| 401 en la bóveda | Verificar que el backend Go esté corriendo y que la cookie `auth_token` se esté estableciendo como `httpOnly` |
-| Iconos no aparecen | Confirmar `@nuxt/ui` activo en `nuxt.config.ts` |
+| Problema                        | Solución                                                                                                      |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Errores de tipos / auto-imports | `pnpm run postinstall` o `nuxt prepare`                                                                       |
+| Estilos no aplican              | Verificar `css` en `nuxt.config.ts`                                                                           |
+| OAuth no funciona               | Verificar variables `NUXT_AUTH_*` en `.env`                                                                   |
+| 401 en la bóveda                | Verificar que el backend Go esté corriendo y que la cookie `auth_token` se esté estableciendo como `httpOnly` |
+| Iconos no aparecen              | Confirmar `@nuxt/ui` activo en `nuxt.config.ts`                                                               |
 
 ---
 
 ## Licencia
 
-MIT — consulta el archivo `LICENSE` para detalles.
+GPLv3 — consulta el archivo `LICENSE` para detalles.

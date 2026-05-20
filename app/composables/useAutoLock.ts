@@ -1,4 +1,4 @@
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted } from "vue"
 
 export const useAutoLock = (timeoutMinutes: number = 5) => {
   const { clearMasterPassword } = useMasterPassword()
@@ -8,7 +8,7 @@ export const useAutoLock = (timeoutMinutes: number = 5) => {
   const lockVault = () => {
     // Si el usuario superó el tiempo inactivo, disparamos el protocolo Zero-Knowledge
     clearMasterPassword()
-    navigateTo('/login/unlock')
+    navigateTo("/login/unlock")
   }
 
   const resetTimer = () => {
@@ -19,7 +19,7 @@ export const useAutoLock = (timeoutMinutes: number = 5) => {
   }
 
   const handleVisibilityChange = () => {
-    if (document.visibilityState === 'hidden') {
+    if (document.visibilityState === "hidden") {
       // Si el usuario cambia de pestaña, seguimos usando el mismo contador (estricto pero flexible)
       // Si excede sus 5 min y vuelve, o si nunca vuelve, se auto-bloquea.
     } else {
@@ -28,7 +28,7 @@ export const useAutoLock = (timeoutMinutes: number = 5) => {
   }
 
   // Lista pura de eventos DOM que denotan "El usuario está vivo e interactuando con la interfaz"
-  const events = ['mousemove', 'keydown', 'wheel', 'touchstart', 'pointerdown']
+  const events = ["mousemove", "keydown", "wheel", "touchstart", "pointerdown"]
 
   onMounted(() => {
     // 1. Iniciamos el cronómetro cuando el composable se monta (ej. entrando a la boveda)
@@ -40,7 +40,7 @@ export const useAutoLock = (timeoutMinutes: number = 5) => {
     })
 
     // 3. Reaccionar a cambios bruscos de la pestaña del navegador
-    document.addEventListener('visibilitychange', handleVisibilityChange)
+    document.addEventListener("visibilitychange", handleVisibilityChange)
   })
 
   onUnmounted(() => {
@@ -52,7 +52,7 @@ export const useAutoLock = (timeoutMinutes: number = 5) => {
     events.forEach(event => {
       window.removeEventListener(event, resetTimer)
     })
-    document.removeEventListener('visibilitychange', handleVisibilityChange)
+    document.removeEventListener("visibilitychange", handleVisibilityChange)
   })
 
   return { resetTimer, lockVault }

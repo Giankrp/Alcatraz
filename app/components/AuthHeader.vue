@@ -1,21 +1,28 @@
 <script setup lang="ts">
-interface Props {
-  title: string
-  subtitle?: string
-  icon?: string
-  align?: 'left' | 'center'
-  inverted?: boolean
-}
+  interface Props {
+    title: string
+    subtitle?: string
+    icon?: string
+    align?: "left" | "center"
+    inverted?: boolean
+  }
 
-const props = defineProps<Props>()
-const alignClass = props.align === 'left' ? 'items-start text-left' : 'items-center text-center'
-const bubbleClass = 'bg-black text-white'
+  const props = defineProps<Props>()
+  const alignClass = props.align === "left" ? "items-start text-left" : "items-center text-center"
+  const bubbleClass = "bg-black text-white"
 </script>
 
 <template>
-  <header :class="['flex flex-col gap-2', alignClass]" aria-label="Encabezado de autenticación" role="banner">
+  <header
+    :class="['flex flex-col gap-2', alignClass]"
+    aria-label="Encabezado de autenticación"
+    role="banner"
+  >
     <div class="flex items-center gap-3" :class="alignClass">
-      <div class="size-10 rounded-xl grid place-items-center shadow-sm border border-black/10" :class="bubbleClass">
+      <div
+        class="size-10 rounded-xl grid place-items-center shadow-sm border border-black/10"
+        :class="bubbleClass"
+      >
         <UIcon :name="icon || 'i-heroicons-lock-closed'" class="size-5" aria-hidden="true" />
       </div>
       <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">{{ title }}</h2>
@@ -28,4 +35,3 @@ const bubbleClass = 'bg-black text-white'
 </template>
 
 <style scoped></style>
-

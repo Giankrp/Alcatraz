@@ -9,15 +9,15 @@ const toast = useToast()
 
 // Add toast
 toast.add({
-  title: 'Success',
-  description: 'Item saved',
-  color: 'success',
-  icon: 'i-heroicons-check-circle',
-  timeout: 5000
+  title: "Success",
+  description: "Item saved",
+  color: "success",
+  icon: "i-heroicons-check-circle",
+  timeout: 5000,
 })
 
 // Remove specific toast
-toast.remove('toast-id')
+toast.remove("toast-id")
 
 // Clear all toasts
 toast.clear()
@@ -34,8 +34,8 @@ const overlay = useOverlay()
 
 // Create modal
 const modal = overlay.create(MyModalComponent, {
-  props: { title: 'Confirm' },
-  modal: true // Default: true
+  props: { title: "Confirm" },
+  modal: true, // Default: true
 })
 
 // Wait for result
@@ -50,8 +50,8 @@ modal.close(returnValue)
 ```vue
 <!-- ConfirmDialog.vue -->
 <script setup>
-const props = defineProps<{ title: string; message: string }>()
-const emit = defineEmits(['confirm', 'cancel'])
+  const props = defineProps<{ title: string; message: string }>()
+  const emit = defineEmits(['confirm', 'cancel'])
 </script>
 
 <template>
@@ -72,11 +72,11 @@ const overlay = useOverlay()
 
 async function confirmDelete() {
   const modal = overlay.create(ConfirmDialog, {
-    props: { title: 'Delete?', message: 'This cannot be undone.' },
+    props: { title: "Delete?", message: "This cannot be undone." },
     events: {
       confirm: () => modal.close(true),
-      cancel: () => modal.close(false)
-    }
+      cancel: () => modal.close(false),
+    },
   })
 
   if (await modal.result) {
@@ -90,32 +90,35 @@ async function confirmDelete() {
 Define keyboard shortcuts.
 
 ```ts
-defineShortcuts({
-  // Single key
-  escape: () => closeModal(),
+defineShortcuts(
+  {
+    // Single key
+    escape: () => closeModal(),
 
-  // Modifier + key (meta = Cmd on Mac, Ctrl on Windows)
-  meta_k: () => openSearch(),
-  meta_shift_p: () => openCommandPalette(),
+    // Modifier + key (meta = Cmd on Mac, Ctrl on Windows)
+    meta_k: () => openSearch(),
+    meta_shift_p: () => openCommandPalette(),
 
-  // Ctrl specific
-  ctrl_s: () => save(),
+    // Ctrl specific
+    ctrl_s: () => save(),
 
-  // Alt/Option
-  alt_n: () => newItem(),
+    // Alt/Option
+    alt_n: () => newItem(),
 
-  // Arrow keys
-  arrowup: () => navigateUp(),
-  arrowdown: () => navigateDown(),
+    // Arrow keys
+    arrowup: () => navigateUp(),
+    arrowdown: () => navigateDown(),
 
-  // With condition
-  meta_enter: {
-    handler: () => submit(),
-    whenever: [isFormValid]
-  }
-}, {
-  layoutIndependent: true // Ignore keyboard layout (v4.3+)
-})
+    // With condition
+    meta_enter: {
+      handler: () => submit(),
+      whenever: [isFormValid],
+    },
+  },
+  {
+    layoutIndependent: true, // Ignore keyboard layout (v4.3+)
+  },
+)
 ```
 
 ### Shortcut Syntax
@@ -133,7 +136,7 @@ defineShortcuts({
 ```ts
 const shortcuts = extractShortcuts({
   meta_k: () => {},
-  escape: () => {}
+  escape: () => {},
 })
 // Returns: { meta_k: { key: 'K', metaKey: true }, ... }
 ```
@@ -158,8 +161,8 @@ Track scroll position for anchor navigation.
 
 ```ts
 const { activeId } = useScrollspy({
-  ids: ['section-1', 'section-2', 'section-3'],
-  offset: 100 // Pixels from top
+  ids: ["section-1", "section-2", "section-3"],
+  offset: 100, // Pixels from top
 })
 
 // activeId.value = 'section-2' (currently visible)
@@ -169,17 +172,13 @@ const { activeId } = useScrollspy({
 
 ```vue
 <script setup>
-const sections = ['intro', 'features', 'pricing']
-const { activeId } = useScrollspy({ ids: sections })
+  const sections = ["intro", "features", "pricing"]
+  const { activeId } = useScrollspy({ ids: sections })
 </script>
 
 <template>
   <nav>
-    <a
-      v-for="id in sections"
-      :href="`#${id}`"
-      :class="{ 'font-bold': activeId === id }"
-    >
+    <a v-for="id in sections" :href="`#${id}`" :class="{ 'font-bold': activeId === id }">
       {{ id }}
     </a>
   </nav>
@@ -192,10 +191,10 @@ Handle file uploads.
 
 ```ts
 const { files, open, reset, remove } = useFileUpload({
-  accept: 'image/*',
+  accept: "image/*",
   multiple: true,
   maxFiles: 5,
-  maxSize: 5 * 1024 * 1024 // 5MB
+  maxSize: 5 * 1024 * 1024, // 5MB
 })
 
 // Open file picker
@@ -215,7 +214,7 @@ remove(index)
 
 ```vue
 <script setup>
-const { files, open, reset } = useFileUpload()
+  const { files, open, reset } = useFileUpload()
 </script>
 
 <template>
@@ -236,32 +235,32 @@ Define/extend locale for i18n.
 ```ts
 // locales/es.ts
 export default defineLocale({
-  name: 'Español',
-  code: 'es',
+  name: "Español",
+  code: "es",
   messages: {
     select: {
-      placeholder: 'Seleccionar...',
-      noResults: 'Sin resultados'
+      placeholder: "Seleccionar...",
+      noResults: "Sin resultados",
     },
     pagination: {
-      previous: 'Anterior',
-      next: 'Siguiente'
-    }
-  }
+      previous: "Anterior",
+      next: "Siguiente",
+    },
+  },
 })
 ```
 
 ### Extend Existing Locale
 
 ```ts
-import en from '@nuxt/ui/locale/en'
+import en from "@nuxt/ui/locale/en"
 
 export default extendLocale(en, {
   messages: {
     select: {
-      placeholder: 'Choose an option...'
-    }
-  }
+      placeholder: "Choose an option...",
+    },
+  },
 })
 ```
 
@@ -269,7 +268,7 @@ export default extendLocale(en, {
 
 ```vue
 <script setup>
-import es from '~/locales/es'
+  import es from "~/locales/es"
 </script>
 
 <template>
@@ -296,10 +295,10 @@ const { name, error, disabled } = useFormField()
 
 ```vue
 <script setup>
-const props = defineProps<{ modelValue: string }>()
-const emit = defineEmits(['update:modelValue'])
+  const props = defineProps<{ modelValue: string }>()
+  const emit = defineEmits(['update:modelValue'])
 
-const { error } = useFormField()
+  const { error } = useFormField()
 </script>
 
 <template>

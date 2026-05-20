@@ -4,15 +4,15 @@ Composables de Vue que encapsulan la lógica de negocio de Alcatraz. Cada compos
 
 ## Resumen
 
-| Composable | Descripción |
-|-----------|------------|
-| `useAuthForm` | Formulario de login (campos, validación, OAuth, submit) |
-| `useRegisterForm` | Formulario de registro (campos, validación, OAuth, submit) |
-| `useCrypto` | Cifrado/descifrado AES-256-GCM con PBKDF2 |
-| `useVault` | CRUD completo de ítems de la bóveda |
-| `useMasterPassword` | Estado en memoria de la contraseña maestra |
-| `useUser` | Datos del usuario autenticado (email, avatar, fecha) |
-| `useAutoLock` | Bloqueo automático de la bóveda por inactividad |
+| Composable             | Descripción                                                      |
+| ---------------------- | ---------------------------------------------------------------- |
+| `useAuthForm`          | Formulario de login (campos, validación, OAuth, submit)          |
+| `useRegisterForm`      | Formulario de registro (campos, validación, OAuth, submit)       |
+| `useCrypto`            | Cifrado/descifrado AES-256-GCM con Argon2id                      |
+| `useVault`             | CRUD completo de ítems de la bóveda                              |
+| `useMasterPassword`    | Estado en memoria de la contraseña maestra                       |
+| `useUser`              | Datos del usuario autenticado (email, avatar, fecha)             |
+| `useAutoLock`          | Bloqueo automático de la bóveda por inactividad                  |
 | `usePasswordGenerator` | Generador seguro de contraseñas aleatorias usando Web Crypto API |
 
 ---
@@ -33,6 +33,7 @@ Gestiona el formulario de inicio de sesión.
 | `resetFeedback()` | Function | Resetea `submitted` y `error` |
 
 **Flujo de `onSubmit`:**
+
 1. Llama a `$fetch(config.public.apiBase + '/api/auth/login')` con `credentials: 'include'`
 2. Guarda la contraseña como master password via `useMasterPassword`
 3. Navega a `/boveda`
@@ -56,25 +57,23 @@ Gestiona el formulario de registro. Estructura similar a `useAuthForm` con campo
 Motor criptográfico del lado del cliente. **Este es el corazón de la arquitectura zero-knowledge.**
 
 **Configuración:**
+
 - Algoritmo: `AES-GCM` (256 bits)
-- Hash: `SHA-256`
-- Iteraciones PBKDF2: `100 000`
+- KDF: `Argon2id` (3 iteraciones, 64 MB memoria, paralelismo 2, hash 32 bytes)
 
 **Métodos disponibles:**
 
-### `encryptData(data: any, masterPassword: string)`
+### `encryptData(data: any, masterKeyBase64: string)`
 
-1. Genera salt aleatorio (16 bytes) e IV aleatorio (12 bytes)
-2. Deriva clave con PBKDF2 (master password + salt)
-3. Cifra `JSON.stringify(data)` con AES-GCM
+1. Genera IV aleatorio (12 bytes)
+2. Cifra `JSON.stringify(data)` con AES-GCM usando la Master Key
 
 **Retorna:** `{ salt: string, iv: string, encrypted_data: string }` (todo en Base64)
 
-### `decryptData(encryptedPackage, masterPassword: string)`
+### `decryptData(encryptedPackage, masterKeyBase64: string)`
 
-1. Decodifica salt, IV y ciphertext de Base64
-2. Deriva la misma clave con PBKDF2
-3. Descifra con AES-GCM
+1. Decodifica IV y ciphertext de Base64
+2. Descifra con AES-GCM usando la Master Key
 
 **Retorna:** Objeto JSON original.
 
@@ -112,10 +111,11 @@ CRUD completo de ítems de la bóveda. Integra `useCrypto` y `useMasterPassword`
 Almacena la contraseña maestra **exclusivamente en memoria** usando `useState`.
 
 ```ts
-const masterPassword = useState<string | null>('master-password', () => null)
+const masterPassword = useState<string | null>("master-password", () => null)
 ```
 
 **Métodos:**
+
 - `setMasterPassword(password)` — se llama tras login exitoso
 - `clearMasterPassword()` — se llama al cerrar sesión
 
@@ -157,10 +157,12 @@ Gestiona el temporizador de inactividad de la bóveda.
 Utilidad para generar contraseñas seguras y fuertes aleatoriamente desde el lado del cliente utilizando `window.crypto.getRandomValues()` en lugar del débil `Math.random()`.
 
 **Propiedades:**
+
 - `password` (Ref)
 - `length` (Ref)
 - `includeUppercase`, `includeNumbers`, `includeSymbols` (Refs booleanos)
 
 **Métodos:**
+
 - `generatePassword()`: Genera una nueva contraseña y actualiza el estado.
 - `copyToClipboard()`: Copia la contraseña generada al portapapeles.

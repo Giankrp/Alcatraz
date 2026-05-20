@@ -152,7 +152,7 @@ export const useCrypto = () => {
       }
     } catch (error) {
       console.error("Encryption error:", error)
-      throw new Error("Encryption failed")
+      throw new Error("Encryption failed", { cause: error })
     }
   }
 
@@ -178,7 +178,7 @@ export const useCrypto = () => {
       return JSON.parse(dec.decode(decryptedBuffer))
     } catch (error) {
       console.error("Decryption error:", error)
-      throw new Error("Decryption failed")
+      throw new Error("Decryption failed", { cause: error })
     }
   }
 

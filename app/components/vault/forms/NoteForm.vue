@@ -1,75 +1,102 @@
 <script setup lang="ts">
-import { z } from 'zod'
-import FormLayout from './FormLayout.vue'
-import type { SelectItem } from '@nuxt/ui';
+  import { z } from "zod"
+  import FormLayout from "./FormLayout.vue"
 
+  const emit = defineEmits(["back", "save"])
 
+  const props = defineProps<{
+    initialData?: any
+    loading?: boolean
+  }>()
 
-const emit = defineEmits(['back', 'save'])
+  const { t } = useI18n()
 
-const props = defineProps<{
-  initialData?: any
-  loading?: boolean
-}>()
+  const schema = z.object({
+    title: z.string().min(1, t("vault.forms.noteForm.zodRequired")),
+    folder: z.string(),
+    note: z.string().optional(),
+  })
 
-const schema = z.object({
-  title: z.string().min(1, 'El título es requerido'),
-  folder: z.string(),
-  note: z.string().optional()
-})
+  const { folders: rawFolders } = useVault()
+  const folderOptions = computed(() =>
+    rawFolders.value.map(f => ({
+      label: f.name,
+      value: f.id,
+    })),
+  )
 
-const { folders: rawFolders } = useVault()
-const folderOptions = computed(() => rawFolders.value.map(f => ({
-  label: f.name,
-  value: f.id
-})))
+  const defaultFolderId = computed(() => rawFolders.value.find(f => f.is_default)?.id || "personal")
 
-const defaultFolderId = computed(() => rawFolders.value.find(f => f.is_default)?.id || 'personal')
+  const state = reactive({
+    title: props.initialData?.title || "",
+    note: props.initialData?.note || "",
+    folder: props.initialData?.folder || defaultFolderId.value,
+  })
 
-const state = reactive({
-  title: props.initialData?.title || '',
-  note: props.initialData?.note || '',
-  folder: props.initialData?.folder || defaultFolderId.value
-})
-
-function handleSaveLayout() {
-  emit('save', { ...state })
-}
+  function handleSaveLayout() {
+    emit("save", { ...state })
+  }
 </script>
 
 <template>
-  <FormLayout :title="initialData ? 'Editar Nota Segura' : 'Nueva Nota Segura'" :can-save="true"
-    :is-editing="!!initialData" :loading="loading" @back="emit('back')" @save="handleSaveLayout">
+  <FormLayout
+    :title="initialData ? $t('vault.forms.noteForm.edit') : $t('vault.forms.noteForm.new')"
+    :can-save="true"
+    :is-editing="!!initialData"
+    :loading="loading"
+    @back="emit('back')"
+    @save="handleSaveLayout"
+  >
     <UForm :schema="schema" :state="state" class="space-y-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <UFormField label="Título" name="title">
-          <UInput v-model="state.title" placeholder="Ej. Códigos de respaldo" icon="i-heroicons-document-text"
+        <UFormField :label="$t('vault.forms.noteForm.titleLabel')" name="title">
+          <UInput
+            v-model="state.title"
+            :placeholder="$t('vault.forms.noteForm.titlePlaceholder')"
+            icon="i-heroicons-document-text"
             variant="none"
             class="bg-white/5 rounded-lg border border-white/5 focus-within:border-white/20 transition-colors"
-            autocomplete="off" />
+            autocomplete="off"
+          />
         </UFormField>
 
-        <UFormField label="Categoría" name="folder">
-          <USelect v-model="state.folder" :items="folderOptions" variant="none"
+        <UFormField :label="$t('vault.forms.noteForm.folderLabel')" name="folder">
+          <USelect
+            v-model="state.folder"
+            :items="folderOptions"
+            variant="none"
             class="bg-white/5 rounded-lg border border-white/5 focus-within:border-white/20 transition-colors"
-            icon="i-heroicons-folder" :ui="{
-              trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200 ', base: 'bg-white/5'
-            }" />
+            icon="i-heroicons-folder"
+            :ui="{
+              trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200 ',
+              base: 'bg-white/5',
+            }"
+          />
         </UFormField>
       </div>
 
-      <UFormField label="Contenido" name="note">
+      <UFormField :label="$t('vault.forms.noteForm.contentLabel')" name="note">
         <div
-          class="relative bg-white/5 rounded-lg border border-white/5 focus-within:border-white/20 transition-colors group bottom-3">
-          <UTextarea v-model="state.note" :rows="12" placeholder="Escribe tu nota segura aquí..." variant="none"
-            class="w-full bg-transparent placeholder:text-gray-500 focus:ring-0 px-0 py-0 " :ui="{
+          class="relative bg-white/5 rounded-lg border border-white/5 focus-within:border-white/20 transition-colors group bottom-3"
+        >
+          <UTextarea
+            v-model="state.note"
+            :rows="12"
+            :placeholder="$t('vault.forms.noteForm.contentPlaceholder')"
+            variant="none"
+            class="w-full bg-transparent placeholder:text-gray-500 focus:ring-0 px-0 py-0"
+            :ui="{
               base: 'bg-transparent focus:ring-0 border-0 p-4 pb-10',
-            }" autocomplete="off" autoresize />
+            }"
+            autocomplete="off"
+            autoresize
+          />
           <div class="absolute bottom-3 right-4 pointer-events-none">
             <span
-              class="text-xs text-gray-600 flex items-center gap-1.5 transition-colors group-focus-within:text-gray-500">
+              class="text-xs text-gray-600 flex items-center gap-1.5 transition-colors group-focus-within:text-gray-500"
+            >
               <UIcon name="i-heroicons-lock-closed" class="w-3 h-3" />
-              Encriptada de extremo a extremo
+              {{ $t("vault.forms.noteForm.encryptedDesc") }}
             </span>
           </div>
         </div>
@@ -80,9 +107,11 @@ function handleSaveLayout() {
           <UIcon name="i-heroicons-shield-check" class="w-6 h-6 text-white" />
         </div>
         <div>
-          <h4 class="text-sm font-medium text-white mb-1">Nota completamente segura</h4>
+          <h4 class="text-sm font-medium text-white mb-1">
+            {{ $t("vault.forms.noteForm.noticeTitle") }}
+          </h4>
           <p class="text-xs text-gray-400 leading-relaxed">
-            Tu nota será encriptada con cifrado AES-256 antes de ser guardada. Solo tú puedes acceder a su contenido.
+            {{ $t("vault.forms.noteForm.noticeDesc") }}
           </p>
         </div>
       </div>

@@ -10,8 +10,7 @@
   "arrowParens": "avoid",
   "vueIndentScriptAndStyle": true,
   "ignorePatterns": [
-    "**/.nuxt/**",
-    "**/.output/**",
+    "**/.*/**",
     "**/node_modules/**",
     "**/dist/**",
     "**/public/**"

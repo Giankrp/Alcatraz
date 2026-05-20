@@ -1,28 +1,28 @@
 <script setup lang="ts">
-const { locale, locales, setLocale } = useI18n()
-const { profile, updateProfile, user } = useUser()
+  const { locale, locales, setLocale } = useI18n()
+  const { profile, updateProfile, user } = useUser()
 
-const currentLocale = computed(() => locales.value.find(l => l.code === locale.value))
+  const currentLocale = computed(() => locales.value.find(l => l.code === locale.value))
 
-const availableLocales = computed(() => locales.value.filter(l => l.code !== locale.value))
+  const availableLocales = computed(() => locales.value.filter(l => l.code !== locale.value))
 
-const toggleLanguage = async () => {
-  const nextLocale = locale.value === 'es' ? 'en' : 'es'
-  
-  // Update global locale instantly
-  await setLocale(nextLocale)
-  
-  // If user is logged in, sync with profile in the background
-  if (user.value && profile.value) {
-    try {
-      await updateProfile({
-        language: nextLocale
-      })
-    } catch (e) {
-      console.error('Failed to sync language preference:', e)
+  const toggleLanguage = async () => {
+    const nextLocale = locale.value === "es" ? "en" : "es"
+
+    // Update global locale instantly
+    await setLocale(nextLocale)
+
+    // If user is logged in, sync with profile in the background
+    if (user.value && profile.value) {
+      try {
+        await updateProfile({
+          language: nextLocale,
+        })
+      } catch (e) {
+        console.error("Failed to sync language preference:", e)
+      }
     }
   }
-}
 </script>
 
 <template>

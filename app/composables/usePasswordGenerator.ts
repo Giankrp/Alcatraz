@@ -1,15 +1,15 @@
 export const usePasswordGenerator = () => {
-  const password = ref('')
+  const password = ref("")
   const length = ref(16)
   const includeUppercase = ref(true)
   const includeNumbers = ref(true)
   const includeSymbols = ref(true)
 
   // 2. Diccionarios de caracteres
-  const LOWERCASE = 'abcdefghijklmnopqrstuvwxyz'
-  const UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-  const NUMBERS = '0123456789'
-  const SYMBOLS = '!@#$%^&*()_+~`|}{[]:;?><,./-='
+  const LOWERCASE = "abcdefghijklmnopqrstuvwxyz"
+  const UPPERCASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  const NUMBERS = "0123456789"
+  const SYMBOLS = "!@#$%^&*()_+~`|}{[]:;?><,./-="
 
   // 3. Función generadora
   const generatePassword = () => {
@@ -18,16 +18,15 @@ export const usePasswordGenerator = () => {
     if (includeNumbers.value) charset += NUMBERS
     if (includeSymbols.value) charset += SYMBOLS
 
-    if (charset.length === 0) return ''
+    if (charset.length === 0) return ""
 
-    let generatedPassword = ''
+    let generatedPassword = ""
 
     // Usamos crypto para mayor seguridad en lugar de Math.random()
     const randomValues = new Uint32Array(length.value)
     window.crypto.getRandomValues(randomValues)
 
     for (let i = 0; i < length.value; i++) {
-
       // Convertimos el número aleatorio a un índice válido del charset
       const val = randomValues[i]
       if (val === undefined) continue // TS safety (though guaranteed by length loop)
@@ -45,7 +44,7 @@ export const usePasswordGenerator = () => {
       await navigator.clipboard.writeText(password.value)
       return true
     } catch (err) {
-      console.error('Error al copiar: ', err)
+      console.error("Error al copiar: ", err)
       return false
     }
   }
@@ -60,6 +59,6 @@ export const usePasswordGenerator = () => {
     includeNumbers,
     includeSymbols,
     generatePassword,
-    copyToClipboard
+    copyToClipboard,
   }
 }

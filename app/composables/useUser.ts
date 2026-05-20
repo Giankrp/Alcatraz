@@ -1,224 +1,224 @@
-import type { UserProfile, UpdateUserProfileDTO } from '~/types/user'
+import type { UserProfile, UpdateUserProfileDTO } from "~/types/user"
 
 /**
  * useUser - Singleton-style composable for managing user profile and identity.
  * Handles state synchronization between local reactive properties and the backend API.
  */
 export const useUser = () => {
-    // States are persistent across the application thanks to Nuxt's useState keys.
-    const user = useState<{ email: string; createdAt: string | null } | null>('user-data', () => null)
-    const profile = useState<UserProfile | null>('user-profile', () => null)
-    const loading = useState('user-loading', () => false)
-    
-    // 2FA login state
-    const twoFactorTempToken = useState<string | null>('2fa-temp-token', () => null)
-    const twoFactorEmail = useState<string | null>('2fa-email', () => null)
+  // States are persistent across the application thanks to Nuxt's useState keys.
+  const user = useState<{ email: string; createdAt: string | null } | null>("user-data", () => null)
+  const profile = useState<UserProfile | null>("user-profile", () => null)
+  const loading = useState("user-loading", () => false)
 
-    // Config and i18n must be accessed within the setup context.
-    const config = useRuntimeConfig()
-    const { setLocale } = useI18n()
+  // 2FA login state
+  const twoFactorTempToken = useState<string | null>("2fa-temp-token", () => null)
+  const twoFactorEmail = useState<string | null>("2fa-email", () => null)
 
-    /**
-     * fetchUser - Loads the user account (auth) and its associated profile from the API.
-     */
-    const fetchUser = async () => {
-        loading.value = true
-        try {
-            const [userData, profileData] = await Promise.all([
-                $fetch<{ email: string; createdAt: string | null }>(`/api/auth/me`),
-                $fetch<UserProfile>(`${config.public.apiBase}/api/user/profile`, {
-                    credentials: 'include'
-                }).catch(() => null)
-            ])
-            user.value = userData
-            if (profileData) {
-                profile.value = profileData
-                if (profileData.language) {
-                    // Fix ts(2345): Casting specifically to supported locales
-                    await setLocale(profileData.language as 'es' | 'en')
-                }
-            }
-        } catch (e) {
-            console.error('Error fetching user data:', e)
-        } finally {
-            loading.value = false
+  // Config and i18n must be accessed within the setup context.
+  const config = useRuntimeConfig()
+  const { setLocale } = useI18n()
+
+  /**
+   * fetchUser - Loads the user account (auth) and its associated profile from the API.
+   */
+  const fetchUser = async () => {
+    loading.value = true
+    try {
+      const [userData, profileData] = await Promise.all([
+        $fetch<{ email: string; createdAt: string | null }>(`/api/auth/me`),
+        $fetch<UserProfile>(`${config.public.apiBase}/api/user/profile`, {
+          credentials: "include",
+        }).catch(() => null),
+      ])
+      user.value = userData
+      if (profileData) {
+        profile.value = profileData
+        if (profileData.language) {
+          // Fix ts(2345): Casting specifically to supported locales
+          await setLocale(profileData.language as "es" | "en")
         }
+      }
+    } catch (e) {
+      console.error("Error fetching user data:", e)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  /**
+   * updateProfile - Updates the profile on the server and synchronizes the local state instantly.
+   */
+  const updateProfile = async (data: UpdateUserProfileDTO) => {
+    try {
+      const updated = await $fetch<UserProfile>(`${config.public.apiBase}/api/user/profile`, {
+        method: "PUT",
+        body: data,
+        credentials: "include",
+      })
+      // Updating the shared state instantly triggers reactivity across all referencing components.
+      profile.value = updated
+      return updated
+    } catch (e) {
+      console.error("Error updating profile:", e)
+      throw e
+    }
+  }
+
+  /**
+   * changeMasterPassword - Re-encrypts the master key and updates the security configuration in the backend.
+   * Note: This does not re-encrypt the vault items, saving processing power!
+   */
+  const changeMasterPassword = async (currentPassword: string, newPassword: string) => {
+    const { masterKey } = useMasterPassword()
+    const { encryptMasterKey, hashMasterPassword } = useCrypto()
+
+    if (!masterKey.value) {
+      throw new Error("La clave maestra no se encuentra en memoria.")
     }
 
-    /**
-     * updateProfile - Updates the profile on the server and synchronizes the local state instantly.
-     */
-    const updateProfile = async (data: UpdateUserProfileDTO) => {
-        try {
-            const updated = await $fetch<UserProfile>(`${config.public.apiBase}/api/user/profile`, {
-                method: 'PUT',
-                body: data,
-                credentials: 'include'
-            })
-            // Updating the shared state instantly triggers reactivity across all referencing components.
-            profile.value = updated
-            return updated
-        } catch (e) {
-            console.error('Error updating profile:', e)
-            throw e
-        }
+    const emailVal = email.value
+    if (!emailVal) {
+      throw new Error("El correo electrónico no se encuentra disponible.")
     }
 
-    /**
-     * changeMasterPassword - Re-encrypts the master key and updates the security configuration in the backend.
-     * Note: This does not re-encrypt the vault items, saving processing power!
-     */
-    const changeMasterPassword = async (currentPassword: string, newPassword: string) => {
-        const { masterKey } = useMasterPassword()
-        const { encryptMasterKey, hashMasterPassword } = useCrypto()
-        
-        if (!masterKey.value) {
-            throw new Error("La clave maestra no se encuentra en memoria.")
-        }
-        
-        const emailVal = email.value
-        if (!emailVal) {
-            throw new Error("El correo electrónico no se encuentra disponible.")
-        }
+    // Generar hashes de autenticación requeridos por el backend
+    const oldAuthHash = await hashMasterPassword(currentPassword, emailVal)
+    const newAuthHash = await hashMasterPassword(newPassword, emailVal)
 
-        // Generar hashes de autenticación requeridos por el backend
-        const oldAuthHash = await hashMasterPassword(currentPassword, emailVal)
-        const newAuthHash = await hashMasterPassword(newPassword, emailVal)
+    // Cifrar la clave maestra en RAM (que se mantiene igual) pero usando la NUEVA contraseña
+    const cryptoContent = await encryptMasterKey(masterKey.value, newPassword)
 
-        // Cifrar la clave maestra en RAM (que se mantiene igual) pero usando la NUEVA contraseña
-        const cryptoContent = await encryptMasterKey(masterKey.value, newPassword)
-
-        const payload = {
-            old_password: oldAuthHash,
-            new_password: newAuthHash,
-            protected_master_key: cryptoContent.protected_master_key,
-            master_key_iv: cryptoContent.master_key_iv,
-            master_key_salt: cryptoContent.master_key_salt
-        }
-
-        try {
-            await $fetch(`${config.public.apiBase}/api/user/change-password`, {
-                method: 'POST', // Backend route maps to POST /api/user/change-password
-                body: payload,
-                credentials: 'include'
-            })
-        } catch (e) {
-            console.error('Error al cambiar la contraseña maestra:', e)
-            throw e
-        }
+    const payload = {
+      old_password: oldAuthHash,
+      new_password: newAuthHash,
+      protected_master_key: cryptoContent.protected_master_key,
+      master_key_iv: cryptoContent.master_key_iv,
+      master_key_salt: cryptoContent.master_key_salt,
     }
 
-    // Computed properties are derived from the shared useState values.
-    // They reference the SAME global states ('user-profile', etc.).
-    const email = computed(() => user.value?.email || '')
-    
-    const displayName = computed(() => {
-        const name = profile.value?.name?.trim()
-        if (name) return name
-        const e = email.value
-        if (e && e.includes('@')) {
-            const parts = e.split('@')
-            if (parts[0]) return parts[0]
-        }
-        return e || 'Usuario'
-    })
-    
-    const avatarUrl = computed(() => profile.value?.avatar_url || '')
-    const language = computed(() => profile.value?.language || 'es')
-
-    const initials = computed(() => {
-        const name = profile.value?.name?.trim()
-        if (name) {
-            const parts = name.split(/\s+/)
-            const first = parts[0]
-            const second = parts[1]
-            if (parts.length >= 2 && first && second && first[0] && second[0]) {
-                return (first[0] + second[0]).toUpperCase()
-            }
-            if (first && first[0]) return first.slice(0, 2).toUpperCase()
-        }
-        const e = email.value
-        if (!e) return '?'
-        const parts = e.split('@')
-        const local = parts[0] || ''
-        return local.slice(0, 2).toUpperCase()
-    })
-
-    const avatarColor = computed(() => {
-        const seed = profile.value?.name || email.value
-        if (!seed) return 'hsl(160, 60%, 40%)'
-        let hash = 0
-        for (let i = 0; i < seed.length; i++) {
-            hash = seed.charCodeAt(i) + ((hash << 5) - hash)
-        }
-        const hue = Math.abs(hash) % 360
-        return `hsl(${hue}, 55%, 45%)`
-    })
-
-    const createdAt = computed(() => user.value?.createdAt || null)
-    const twoFactorEnabled = computed(() => profile.value?.two_factor_enabled || false)
-
-    const logout = async () => {
-        const { clearVault } = useVault()
-        const { clearMasterPassword, clearUserEmail } = useMasterPassword()
-
-        try {
-            await $fetch(`${config.public.apiBase}/api/auth/logout`, {
-                method: 'POST',
-                credentials: 'include'
-            })
-        } catch (e) {
-            console.error('Logout error:', e)
-        } finally {
-            user.value = null
-            profile.value = null
-            clearVault()
-            clearMasterPassword()
-            clearUserEmail()
-            navigateTo('/login')
-        }
+    try {
+      await $fetch(`${config.public.apiBase}/api/user/change-password`, {
+        method: "POST", // Backend route maps to POST /api/user/change-password
+        body: payload,
+        credentials: "include",
+      })
+    } catch (e) {
+      console.error("Error al cambiar la contraseña maestra:", e)
+      throw e
     }
+  }
 
-    const deleteAccount = async () => {
-        const { clearVault } = useVault()
-        const { clearMasterPassword, clearUserEmail } = useMasterPassword()
+  // Computed properties are derived from the shared useState values.
+  // They reference the SAME global states ('user-profile', etc.).
+  const email = computed(() => user.value?.email || "")
 
-        try {
-            await $fetch(`${config.public.apiBase}/api/user/account`, {
-                method: 'DELETE',
-                credentials: 'include'
-            })
-        } catch (e) {
-            console.error('Delete account error:', e)
-            throw e
-        } finally {
-            user.value = null
-            profile.value = null
-            clearVault()
-            clearMasterPassword()
-            clearUserEmail()
-            navigateTo('/login')
-        }
+  const displayName = computed(() => {
+    const name = profile.value?.name?.trim()
+    if (name) return name
+    const e = email.value
+    if (e && e.includes("@")) {
+      const parts = e.split("@")
+      if (parts[0]) return parts[0]
     }
+    return e || "Usuario"
+  })
 
-    return { 
-        user, 
-        profile,
-        email, 
-        displayName,
-        avatarUrl,
-        language,
-        initials, 
-        avatarColor, 
-        createdAt, 
-        twoFactorEnabled,
-        twoFactorTempToken,
-        twoFactorEmail,
-        loading, 
-        fetchUser,
-        updateProfile,
-        changeMasterPassword,
-        logout,
-        deleteAccount
+  const avatarUrl = computed(() => profile.value?.avatar_url || "")
+  const language = computed(() => profile.value?.language || "es")
+
+  const initials = computed(() => {
+    const name = profile.value?.name?.trim()
+    if (name) {
+      const parts = name.split(/\s+/)
+      const first = parts[0]
+      const second = parts[1]
+      if (parts.length >= 2 && first && second && first[0] && second[0]) {
+        return (first[0] + second[0]).toUpperCase()
+      }
+      if (first && first[0]) return first.slice(0, 2).toUpperCase()
     }
+    const e = email.value
+    if (!e) return "?"
+    const parts = e.split("@")
+    const local = parts[0] || ""
+    return local.slice(0, 2).toUpperCase()
+  })
+
+  const avatarColor = computed(() => {
+    const seed = profile.value?.name || email.value
+    if (!seed) return "hsl(160, 60%, 40%)"
+    let hash = 0
+    for (let i = 0; i < seed.length; i++) {
+      hash = seed.charCodeAt(i) + ((hash << 5) - hash)
+    }
+    const hue = Math.abs(hash) % 360
+    return `hsl(${hue}, 55%, 45%)`
+  })
+
+  const createdAt = computed(() => user.value?.createdAt || null)
+  const twoFactorEnabled = computed(() => profile.value?.two_factor_enabled || false)
+
+  const logout = async () => {
+    const { clearVault } = useVault()
+    const { clearMasterPassword, clearUserEmail } = useMasterPassword()
+
+    try {
+      await $fetch(`${config.public.apiBase}/api/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      })
+    } catch (e) {
+      console.error("Logout error:", e)
+    } finally {
+      user.value = null
+      profile.value = null
+      clearVault()
+      clearMasterPassword()
+      clearUserEmail()
+      navigateTo("/login")
+    }
+  }
+
+  const deleteAccount = async () => {
+    const { clearVault } = useVault()
+    const { clearMasterPassword, clearUserEmail } = useMasterPassword()
+
+    try {
+      await $fetch(`${config.public.apiBase}/api/user/account`, {
+        method: "DELETE",
+        credentials: "include",
+      })
+    } catch (e) {
+      console.error("Delete account error:", e)
+      throw e
+    } finally {
+      user.value = null
+      profile.value = null
+      clearVault()
+      clearMasterPassword()
+      clearUserEmail()
+      navigateTo("/login")
+    }
+  }
+
+  return {
+    user,
+    profile,
+    email,
+    displayName,
+    avatarUrl,
+    language,
+    initials,
+    avatarColor,
+    createdAt,
+    twoFactorEnabled,
+    twoFactorTempToken,
+    twoFactorEmail,
+    loading,
+    fetchUser,
+    updateProfile,
+    changeMasterPassword,
+    logout,
+    deleteAccount,
+  }
 }

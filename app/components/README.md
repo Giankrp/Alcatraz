@@ -79,12 +79,12 @@ Usa la clase `.landing-card` del design system con hover effect (elevación).
 
 Pie de página global con 4 columnas:
 
-| Columna | Enlaces |
-|---------|---------|
-| **Marca** | Logo + descripción |
+| Columna      | Enlaces                                        |
+| ------------ | ---------------------------------------------- |
+| **Marca**    | Logo + descripción                             |
 | **Producto** | Características, Seguridad, Precios, Descargas |
-| **Empresa** | Sobre Nosotros, Blog, Carreras, Contacto |
-| **Legal** | Privacidad, Términos, Cookies, Licencias |
+| **Empresa**  | Sobre Nosotros, Blog, Carreras, Contacto       |
+| **Legal**    | Privacidad, Términos, Cookies, Licencias       |
 
 Se renderiza solo en el layout `default` y se oculta automáticamente en rutas `/boveda/*`.
 
@@ -108,11 +108,11 @@ Componente dedicado a la configuración del segundo factor de autenticación (2F
 
 Formularios para crear y editar los 4 tipos de ítems de la bóveda. Todos emiten los mismos eventos:
 
-| Evento | Payload | Descripción |
-|--------|---------|------------|
-| `@save` | `object` | Datos del formulario listos para guardar |
-| `@back` | — | Navegación hacia atrás |
-| `@select` | `string` | Solo TypeSelector: tipo seleccionado |
+| Evento    | Payload  | Descripción                              |
+| --------- | -------- | ---------------------------------------- |
+| `@save`   | `object` | Datos del formulario listos para guardar |
+| `@back`   | —        | Navegación hacia atrás                   |
+| `@select` | `string` | Solo TypeSelector: tipo seleccionado     |
 
 ### `TypeSelector.vue`
 
@@ -144,7 +144,7 @@ Formulario para identidades con campos: `title`, `firstName`, `lastName`, `email
 
 Todos los formularios (excepto TypeSelector) aceptan:
 
-| Prop | Tipo | Descripción |
-|------|------|------------|
+| Prop          | Tipo                  | Descripción             |
+| ------------- | --------------------- | ----------------------- |
 | `initialData` | `Partial<VaultItem>?` | Datos para modo edición |
-| `loading` | `boolean?` | Estado de guardado |
+| `loading`     | `boolean?`            | Estado de guardado      |

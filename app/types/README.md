@@ -80,7 +80,7 @@ classDiagram
 ### `VaultItemType`
 
 ```ts
-type VaultItemType = 'password' | 'note' | 'card' | 'identity'
+type VaultItemType = "password" | "note" | "card" | "identity"
 ```
 
 ### `VaultItemDTO` (datos del backend)
@@ -93,11 +93,11 @@ Campos comunes a todos los tipos de ítems cuando se trabajan en el frontend.
 
 ### Tipos específicos
 
-| Tipo | Campos exclusivos |
-|------|------------------|
-| `PasswordItem` | `username`, `password?`, `url?` |
-| `NoteItem` | `note` |
-| `CardItem` | `holder`, `number`, `expiry`, `cvv` |
+| Tipo           | Campos exclusivos                                                                         |
+| -------------- | ----------------------------------------------------------------------------------------- |
+| `PasswordItem` | `username`, `password?`, `url?`                                                           |
+| `NoteItem`     | `note`                                                                                    |
+| `CardItem`     | `holder`, `number`, `expiry`, `cvv`                                                       |
 | `IdentityItem` | `firstName`, `lastName`, `email`, `phone`, `address`, `licenseNumber?`, `passportNumber?` |
 
 ### Union type

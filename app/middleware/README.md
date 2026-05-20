@@ -14,10 +14,11 @@ Proteger rutas según el estado de autenticación del usuario antes de que la p�
 
 ```ts
 // Uso en una página:
-definePageMeta({ middleware: 'auth' })
+definePageMeta({ middleware: "auth" })
 ```
 
 **Lógica:**
+
 1. Hace `useFetch('/api/auth/check')` al servidor Nuxt
 2. Si `data.authenticated === false` → `navigateTo('/login')`
 3. Si hay cookie válida → permite el acceso
@@ -32,10 +33,11 @@ definePageMeta({ middleware: 'auth' })
 
 ```ts
 // Uso en una página:
-definePageMeta({ middleware: 'guest' })
+definePageMeta({ middleware: "guest" })
 ```
 
 **Lógica:**
+
 1. Hace `useFetch('/api/auth/check')` al servidor Nuxt
 2. Si `data.authenticated === true` → `navigateTo('/boveda')`
 3. Si no hay cookie → permite el acceso

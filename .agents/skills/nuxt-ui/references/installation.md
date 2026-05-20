@@ -9,15 +9,15 @@ pnpm add @nuxt/ui
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  modules: ['@nuxt/ui'],
-  css: ['~/assets/css/main.css']
+  modules: ["@nuxt/ui"],
+  css: ["~/assets/css/main.css"],
 })
 ```
 
 ```css
 /* assets/css/main.css */
-@import 'tailwindcss';
-@import '@nuxt/ui';
+@import "tailwindcss";
+@import "@nuxt/ui";
 ```
 
 **Critical**: Wrap app in UApp for Toast, Tooltip, and overlays to work:
@@ -45,32 +45,32 @@ pnpm add @nuxt/ui
 ```
 
 ```ts
-import ui from '@nuxt/ui/vite'
-import vue from '@vitejs/plugin-vue'
+import ui from "@nuxt/ui/vite"
+import vue from "@vitejs/plugin-vue"
 // vite.config.ts
-import { defineConfig } from 'vite'
+import { defineConfig } from "vite"
 
 export default defineConfig({
-  plugins: [vue(), ui()]
+  plugins: [vue(), ui()],
 })
 ```
 
 ```ts
-import ui from '@nuxt/ui/vue-plugin'
+import ui from "@nuxt/ui/vue-plugin"
 // main.ts
-import { createApp } from 'vue'
-import App from './App.vue'
-import './assets/main.css'
+import { createApp } from "vue"
+import App from "./App.vue"
+import "./assets/main.css"
 
 const app = createApp(App)
 app.use(ui)
-app.mount('#app')
+app.mount("#app")
 ```
 
 ```css
 /* assets/main.css */
-@import 'tailwindcss';
-@import '@nuxt/ui';
+@import "tailwindcss";
+@import "@nuxt/ui";
 ```
 
 **Critical**: Add `isolate` class to root for overlay stacking:
@@ -100,26 +100,26 @@ components.d.ts
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  modules: ['@nuxt/ui'],
+  modules: ["@nuxt/ui"],
   ui: {
-    prefix: 'U', // Component prefix (default 'U')
+    prefix: "U", // Component prefix (default 'U')
     fonts: true, // Enable @nuxt/fonts
     colorMode: true, // Enable @nuxtjs/color-mode
     theme: {
-      colors: ['primary', 'secondary', 'success', 'info', 'warning', 'error', 'neutral'],
+      colors: ["primary", "secondary", "success", "info", "warning", "error", "neutral"],
       transitions: true, // transition-colors on components
       defaultVariants: {
-        color: 'primary',
-        size: 'md'
+        color: "primary",
+        size: "md",
       },
-      prefix: '' // Tailwind CSS prefix (v4.2+) - ensures prefixed utilities work
+      prefix: "", // Tailwind CSS prefix (v4.2+) - ensures prefixed utilities work
     },
     mdc: false, // Force Prose components
     content: false, // Force UContent* components
     experimental: {
-      componentDetection: false // Tree-shake unused components (v4.1+) - auto-generates CSS only for used components
-    }
-  }
+      componentDetection: false, // Tree-shake unused components (v4.1+) - auto-generates CSS only for used components
+    },
+  },
 })
 ```
 
@@ -128,19 +128,21 @@ export default defineNuxtConfig({
 ```ts
 // vite.config.ts
 ui({
-  prefix: 'U',
+  prefix: "U",
   colorMode: true,
   inertia: true, // Inertia.js support
   theme: {
-    colors: ['primary', 'secondary', 'success', 'info', 'warning', 'error', 'neutral'],
+    colors: ["primary", "secondary", "success", "info", "warning", "error", "neutral"],
     transitions: true,
-    defaultVariants: { color: 'primary', size: 'md' },
-    prefix: ''
+    defaultVariants: { color: "primary", size: "md" },
+    prefix: "",
   },
   ui: {
-    colors: { primary: 'green' }, // Runtime color config
-    button: { /* theme overrides */ }
-  }
+    colors: { primary: "green" }, // Runtime color config
+    button: {
+      /* theme overrides */
+    },
+  },
 })
 ```
 
@@ -177,9 +179,9 @@ Enable `experimental.componentDetection` to auto-generate CSS only for component
 export default defineNuxtConfig({
   ui: {
     experimental: {
-      componentDetection: true
-    }
-  }
+      componentDetection: true,
+    },
+  },
 })
 ```
 
@@ -194,9 +196,9 @@ Avoid style conflicts in complex apps:
 export default defineNuxtConfig({
   ui: {
     theme: {
-      prefix: 'ui-' // Prefixes all Tailwind utilities
-    }
-  }
+      prefix: "ui-", // Prefixes all Tailwind utilities
+    },
+  },
 })
 ```
 

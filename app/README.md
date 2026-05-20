@@ -23,13 +23,13 @@ app/
 
 ## Dependencias clave
 
-| Paquete | Uso |
-|---------|-----|
-| `@nuxt/ui` | Componentes UI: `UAuthForm`, `UDashboardGroup`, `UCard`, `UPricingPlans`... |
-| `zod` | Validación de formularios (login, registro) |
-| `@sidebase/nuxt-auth` | Integración con NextAuth para OAuth |
-| `@nuxt/fonts` | Carga automática de Instrument Sans / DM Sans |
-| `@nuxt/image` | Optimización de imágenes |
+| Paquete               | Uso                                                                         |
+| --------------------- | --------------------------------------------------------------------------- |
+| `@nuxt/ui`            | Componentes UI: `UAuthForm`, `UDashboardGroup`, `UCard`, `UPricingPlans`... |
+| `zod`                 | Validación de formularios (login, registro)                                 |
+| `@sidebase/nuxt-auth` | Integración con NextAuth para OAuth                                         |
+| `@nuxt/fonts`         | Carga automática de Instrument Sans / DM Sans                               |
+| `@nuxt/image`         | Optimización de imágenes                                                    |
 
 ## app.vue
 
@@ -37,8 +37,8 @@ Entry point de la aplicación. Fuerza el modo oscuro y renderiza `<NuxtLayout>` 
 
 ```vue
 <script setup>
-const colorMode = useColorMode()
-colorMode.preference = 'dark'
+  const colorMode = useColorMode()
+  colorMode.preference = "dark"
 </script>
 <template>
   <NuxtLayout><NuxtPage /></NuxtLayout>

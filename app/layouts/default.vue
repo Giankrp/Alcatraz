@@ -1,16 +1,24 @@
 <script setup lang="ts">
-const route = useRoute()
-const showHeader = computed(() => !route.path.startsWith('/boveda'))
-const isMobileMenuOpen = ref(false)
+  const route = useRoute()
+  const showHeader = computed(() => !route.path.startsWith("/boveda"))
+  const isMobileMenuOpen = ref(false)
 </script>
 
 <template>
   <div class="min-h-screen bg-black text-white flex flex-col">
-    <header v-if="showHeader" class="sticky top-0 z-20 bg-black/80 backdrop-blur-md border-b border-white/20">
+    <header
+      v-if="showHeader"
+      class="sticky top-0 z-20 bg-black/80 backdrop-blur-md border-b border-white/20"
+    >
       <UContainer class="h-14 flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <UButton icon="i-heroicons-bars-3" variant="ghost" class="md:hidden" @click="isMobileMenuOpen = true"
-            :ui="{ base: 'bg-white' }" />
+          <UButton
+            icon="i-heroicons-bars-3"
+            variant="ghost"
+            class="md:hidden"
+            @click="isMobileMenuOpen = true"
+            :ui="{ base: 'bg-white' }"
+          />
           <div class="size-8 rounded-full grid place-items-center bg-green-500/10 text-green-400">
             <UIcon name="i-heroicons-lock-closed" class="size-4" />
           </div>
@@ -20,16 +28,16 @@ const isMobileMenuOpen = ref(false)
         </div>
 
         <nav class="hidden md:flex items-center gap-8 text-sm">
-          <ULink to="/#caracteristicas">{{ $t('nav.features') }}</ULink>
-          <ULink to="/#seguridad">{{ $t('nav.security') }}</ULink>
-          <ULink to="/pricing">{{ $t('nav.pricing') }}</ULink>
+          <ULink to="/#caracteristicas">{{ $t("nav.features") }}</ULink>
+          <ULink to="/#seguridad">{{ $t("nav.security") }}</ULink>
+          <ULink to="/pricing">{{ $t("nav.pricing") }}</ULink>
         </nav>
 
         <div class="flex items-center gap-3">
           <LocaleSwitcher class="mr-2" />
-          <ULink to="/login" class="hidden sm:block text-sm">{{ $t('nav.login') }}</ULink>
+          <ULink to="/login" class="hidden sm:block text-sm">{{ $t("nav.login") }}</ULink>
           <UButton to="/login" size="sm" class="btn-accent text-sm py-1.5! min-h-0!">
-            {{ $t('nav.getStarted') }}
+            {{ $t("nav.getStarted") }}
           </UButton>
         </div>
       </UContainer>
@@ -48,25 +56,46 @@ const isMobileMenuOpen = ref(false)
             <UIcon name="i-heroicons-lock-closed" class="size-5 text-green-400" />
             <span class="font-bold text-lg">Alcatraz</span>
           </div>
-          <UButton icon="i-heroicons-x-mark" variant="ghost" @click="isMobileMenuOpen = false"
-            :ui="{ base: 'bg-white' }" />
+          <UButton
+            icon="i-heroicons-x-mark"
+            variant="ghost"
+            @click="isMobileMenuOpen = false"
+            :ui="{ base: 'bg-white' }"
+          />
         </div>
         <nav class="flex flex-col gap-2 p-4">
-          <ULink to="/#caracteristicas" class="p-2 hover:bg-green-500/10 hover:text-green-400 transition-colors rounded-md" @click="isMobileMenuOpen = false">
-            {{ $t('nav.features') }}</ULink>
-          <ULink to="/#seguridad" class="p-2 hover:bg-green-500/10 hover:text-green-400 transition-colors rounded-md" @click="isMobileMenuOpen = false">
-            {{ $t('nav.security') }}
+          <ULink
+            to="/#caracteristicas"
+            class="p-2 hover:bg-green-500/10 hover:text-green-400 transition-colors rounded-md"
+            @click="isMobileMenuOpen = false"
+          >
+            {{ $t("nav.features") }}</ULink
+          >
+          <ULink
+            to="/#seguridad"
+            class="p-2 hover:bg-green-500/10 hover:text-green-400 transition-colors rounded-md"
+            @click="isMobileMenuOpen = false"
+          >
+            {{ $t("nav.security") }}
           </ULink>
-          <ULink to="/pricing" class="p-2 hover:bg-green-500/10 hover:text-green-400 transition-colors rounded-md" @click="isMobileMenuOpen = false">
-            {{ $t('nav.pricing') }}
+          <ULink
+            to="/pricing"
+            class="p-2 hover:bg-green-500/10 hover:text-green-400 transition-colors rounded-md"
+            @click="isMobileMenuOpen = false"
+          >
+            {{ $t("nav.pricing") }}
           </ULink>
           <div class="h-px bg-white/10 my-2"></div>
           <div class="flex items-center justify-between p-2">
             <span class="text-xs uppercase tracking-widest text-zinc-600 font-bold">Idioma</span>
             <LocaleSwitcher />
           </div>
-          <ULink to="/login" class="p-2 hover:bg-green-500/10 hover:text-green-400 transition-colors rounded-md" @click="isMobileMenuOpen = false">
-            {{ $t('nav.login') }}
+          <ULink
+            to="/login"
+            class="p-2 hover:bg-green-500/10 hover:text-green-400 transition-colors rounded-md"
+            @click="isMobileMenuOpen = false"
+          >
+            {{ $t("nav.login") }}
           </ULink>
         </nav>
       </div>
