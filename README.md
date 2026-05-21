@@ -169,7 +169,6 @@ cp .env.example .env
 | `NUXT_AUTH_GOOGLE_CLIENT_SECRET` | Client Secret de Google OAuth                         |
 | `NUXT_PUBLIC_API_BASE`           | URL del backend Go (default: `http://localhost:8080`) |
 
-> ⚠️ **Nunca subas `.env` al repositorio.** Está en `.gitignore`.
 
 ---
 
