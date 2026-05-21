@@ -1,632 +1,672 @@
 {
-  "profile": {
-    "title": "Profile",
-    "description": "Manage your profile and security settings in Alcatraz.",
-    "back": "SYSTEM / BACK",
-    "header": {
-      "node": "NODE",
-      "secureAccess": "SECURE ACCESS"
-    },
-    "identity": {
-      "title": "IDENTITY SETTINGS",
-      "nameLabel": "PUBLIC NAME",
-      "languageLabel": "INTERFACE LANGUAGE",
-      "avatarLabel": "AVATAR URL",
-      "avatarHelp": "Minimum resolution of 400x400px is recommended.",
-      "saveButton": "SAVE IDENTITY",
-      "success": "Profile updated",
-      "successDesc": "Your identity changes have been saved successfully.",
-      "error": "Error",
-      "errorDesc": "Could not update profile."
-    },
-    "security": {
-      "title": "SECURITY AND ACCESS",
-      "masterPassword": "Master Password",
-      "update": "UPDATE",
-      "twoFactor": "Two-Factor Authentication",
-      "twoFactorActive": "ACTIVE AND SECURE",
-      "twoFactorInactive": "DISABLED (VULNERABLE)"
-    },
-    "stats": {
-      "title": "USAGE STATISTICS",
-      "items": "Encrypted Items",
-      "memberSince": "VAULT MEMBER SINCE",
-      "dateUnknown": "Unknown"
-    },
-    "management": {
-      "title": "DATA MANAGEMENT",
-      "export": "EXPORT",
-      "exportDesc": "AES-256 Encrypted JSON",
-      "import": "IMPORT",
-      "importDesc": "External sync",
-      "exportSuccess": "Data exported",
-      "exportSuccessDesc": "Your local backup has been downloaded successfully.",
-      "importSuccess": "Import successful",
-      "importSuccessDesc": "Restored {count} records successfully.",
-      "importError": "Import error",
-      "importErrorDesc": "Invalid JSON file."
-    },
-    "devices": {
-      "title": "ACTIVE DEVICES",
-      "active": "ACTIVE",
-      "history": "HISTORY",
-      "lastActive": "Last active 2h ago",
-      "now": "Now"
-    },
-    "danger": {
-      "title": "Risk Zone",
-      "desc": "Account deletion is irreversible. All encrypted assets will be permanently purged from the server.",
-      "deleteButton": "EXECUTE ACCOUNT DELETION",
-      "modalTitle": "Confirm Destruction?",
-      "modalDesc": "This action is irreversible and will permanently purge all your assets. The node will cease activity immediately.",
-      "confirmDelete": "YES, DELETE EVERYTHING",
-      "cancel": "CANCEL"
-    },
-    "modals": {
-      "passwordTitle": "Master Password",
-      "passwordCurrent": "Current Password",
-      "passwordNew": "New Password",
-      "passwordConfirm": "Confirm",
-      "passwordSave": "ENCRYPT & UPDATE",
-      "exportVerify": "Verify Identity",
-      "exportAuth": "Node authorization is required to decrypt and export the local vault.",
-      "exportPassword": "Master Password",
-      "exportButton": "AUTHORIZE DOWNLOAD",
-      "masterPasswordError": "Incorrect master password"
-    }
-  },
-  "auth": {
-    "2fa": {
-      "title": "2FA Verification",
-      "verify": "Verify Identity",
-      "backup": "Use backup code",
-      "totp": "Use authenticator code",
-      "backupHelp": "Enter one of your 8-character backup codes",
-      "totpHelp": "Enter the 6-digit code from your app",
-      "error": "Invalid or expired code",
-      "success": "Login successful"
-    },
-    "setup": {
-      "title": "Enable 2FA",
-      "desc": "Add an extra layer of security. You will need an app like Google Authenticator or Authy to generate codes.",
-      "button": "Setup now",
-      "scan": "Scan the code",
-      "manual": "Or enter the secret manually:",
-      "verify": "Verification code",
-      "activate": "Enable protection",
-      "back": "Back",
-      "enabled": "2FA Enabled!",
-      "important": "IMPORTANT: Save these backup codes. They are the only way to access if you lose your device.",
-      "copy": "Copy",
-      "download": "Download",
-      "finish": "I have saved the codes"
-    },
-    "fields": {
-      "email": "Email address",
-      "password": "Password",
-      "remember": "Remember me",
-      "name": "Full name",
-      "terms": "I accept terms and conditions"
-    },
-    "validation": {
-      "email": "Enter a valid email",
-      "passwordMin": "Minimum 8 characters",
-      "passwordMatch": "Passwords do not match",
-      "required": "Field required"
-    }
-  },
-  "nav": {
-    "features": "Features",
-    "security": "Security",
-    "pricing": "Pricing",
-    "login": "Login",
-    "getStarted": "Get Started Free"
-  },
-  "footer": {
-    "rights": "© {year} Alcatraz. All rights reserved.",
-    "privacy": "Privacy",
-    "terms": "Terms",
-    "contact": "Contact"
-  },
-  "landing": {
-    "hero": {
-      "badge": "Maximum Protection Security",
-      "title": "Your secrets under",
-      "titleAccent": "maximum security",
-      "desc": "Like the world's most secure prison, Alcatraz protects your passwords and notes with military-grade encryption. No one enters, no one leaves without your authorization.",
-      "ctaStart": "Start Now",
-      "ctaDemo": "View Demo"
-    },
-    "stats": {
-      "encryption": "AES Encryption",
-      "notes": "Encrypted notes",
-      "notesCount": "Unlimited",
-      "architecture": "Architecture",
-      "architectureDesc": "Zero-knowledge"
-    },
-    "features": {
-      "title": "Everything you need to stay safe",
-      "desc": "Features designed to protect your most valuable information",
-      "manager": {
-        "title": "Password Manager",
-        "desc": "Store and generate secure passwords with a single click. Smart autofill across all your websites."
-      },
-      "notes": {
-        "title": "Encrypted Notes",
-        "desc": "Save sensitive information like card numbers, codes, and documents with end-to-end encryption."
-      },
-      "multiplatform": {
-        "title": "Multiplatform",
-        "desc": "Access from iOS, Android, Windows, Mac, and Linux. Instant synchronization."
-      },
-      "backup": {
-        "title": "Automatic Backup",
-        "desc": "Encrypted automatic cloud backup. Never lose your information."
-      },
-      "biometric": {
-        "title": "Biometric Authentication",
-        "desc": "Unlock with fingerprint or face recognition. Hassle-free security."
-      },
-      "audit": {
-        "title": "Security Audit",
-        "desc": "Analyze the strength of your passwords and receive alerts of known breaches."
-      }
-    },
-    "security": {
-      "title": "Security at every step",
-      "desc": "Your privacy is our priority. We implement the highest security standards.",
-      "featured": {
-        "title": "End-to-End Encryption",
-        "desc": "We use AES-256 encryption, the same standard used by banks and governments. Your data is encrypted on your device before being sent to the cloud.",
-        "list": [
-          "AES-256 encryption at rest and in transit",
-          "Key derivation with Argon2id",
-          "Two-factor authentication (2FA) available"
-        ]
-      },
-      "cards": {
-        "zeroKnowledge": {
-          "title": "Zero-Knowledge Architecture",
-          "desc": "Not even we can see your data. Only you have access to your information."
+    "profile": {
+        "title": "Profile",
+        "description": "Manage your profile and security settings in Alcatraz.",
+        "back": "SYSTEM / BACK",
+        "header": {
+            "node": "NODE",
+            "secureAccess": "SECURE ACCESS"
         },
-        "infrastructure": {
-          "title": "Secure Infrastructure",
-          "desc": "Certified data centers with 24/7 monitoring and regular audits."
+        "identity": {
+            "title": "IDENTITY SETTINGS",
+            "nameLabel": "PUBLIC NAME",
+            "languageLabel": "INTERFACE LANGUAGE",
+            "avatarLabel": "AVATAR URL",
+            "avatarHelp": "Minimum resolution of 400x400px is recommended.",
+            "saveButton": "SAVE IDENTITY",
+            "success": "Profile updated",
+            "successDesc": "Your identity changes have been saved successfully.",
+            "error": "Error",
+            "errorDesc": "Could not update profile."
         },
-        "openSource": {
-          "title": "Open Source",
-          "desc": "Total transparency: our code is audited by the community."
+        "security": {
+            "title": "SECURITY AND ACCESS",
+            "masterPassword": "Master Password",
+            "update": "UPDATE",
+            "twoFactor": "Two-Factor Authentication",
+            "twoFactorActive": "ACTIVE AND SECURE",
+            "twoFactorInactive": "DISABLED (VULNERABLE)"
+        },
+        "stats": {
+            "title": "USAGE STATISTICS",
+            "items": "Encrypted Items",
+            "memberSince": "VAULT MEMBER SINCE",
+            "dateUnknown": "Unknown"
+        },
+        "management": {
+            "title": "DATA MANAGEMENT",
+            "export": "EXPORT",
+            "exportDesc": "AES-256 Encrypted JSON",
+            "import": "IMPORT",
+            "importDesc": "External sync",
+            "exportSuccess": "Data exported",
+            "exportSuccessDesc": "Your local backup has been downloaded successfully.",
+            "importSuccess": "Import successful",
+            "importSuccessDesc": "Restored {count} records successfully.",
+            "importError": "Import error",
+            "importErrorDesc": "Invalid JSON file."
+        },
+        "devices": {
+            "title": "ACTIVE DEVICES",
+            "active": "ACTIVE",
+            "history": "HISTORY",
+            "lastActive": "Last active 2h ago",
+            "now": "Now"
+        },
+        "danger": {
+            "title": "Risk Zone",
+            "desc": "Account deletion is irreversible. All encrypted assets will be permanently purged from the server.",
+            "deleteButton": "EXECUTE ACCOUNT DELETION",
+            "deleteConfirmHelp": "To confirm deletion, type {text} in the following field. This action is irreversible.",
+            "deleteWord": "DELETE",
+            "deleteWordError": "You must type DELETE to confirm",
+            "deleteError": "An error occurred while trying to delete the account.",
+            "modalTitle": "Confirm Destruction?",
+            "modalDesc": "This action is irreversible and will permanently purge all your assets. The node will cease activity immediately.",
+            "confirmDelete": "YES, DELETE EVERYTHING",
+            "cancel": "CANCEL"
+        },
+        "modals": {
+            "passwordTitle": "Master Password",
+            "passwordCurrent": "Current Password",
+            "passwordNew": "New Password",
+            "passwordConfirm": "Confirm",
+            "passwordSave": "ENCRYPT & UPDATE",
+            "exportVerify": "Verify Identity",
+            "exportAuth": "Node authorization is required to decrypt and export the local vault.",
+            "exportPassword": "Master Password",
+            "exportButton": "AUTHORIZE DOWNLOAD",
+            "masterPasswordError": "Incorrect master password"
         }
-      }
     },
-    "cta": {
-      "title": "Start protecting your data today",
-      "desc": "Join over 100,000 users. Free 30-day trial, no card required.",
-      "start": "Get Started Free",
-      "sales": "Talk to Sales",
-      "benefits": ["No credit card required", "Cancel anytime", "24/7 Support"]
-    }
-  },
-  "pricing": {
-    "title": "Plans and Pricing",
-    "desc": "Choose the security that best fits your needs.",
-    "monthly": "Monthly",
-    "yearly": "Yearly",
-    "save": "Save 20%",
-    "plans": {
-      "free": {
-        "name": "Personal",
-        "price": "0",
-        "desc": "For individuals looking for essential security.",
-        "button": "Start Free"
-      },
-      "premium": {
-        "name": "Premium",
-        "price": "3.99",
-        "desc": "Advanced security for demanding users.",
-        "button": "Get Premium"
-      },
-      "family": {
-        "name": "Family",
-        "price": "7.99",
-        "desc": "Protection for your whole family (up to 6 users).",
-        "button": "Get Family"
-      }
-    }
-  },
-  "login": {
-    "title": "Login",
-    "desc": "Welcome back. We protect your data with maximum security.",
-    "meta": {
-      "desc": "Access your secure vault for passwords and encrypted notes in Alcatraz."
+    "auth": {
+        "2fa": {
+            "title": "2FA Verification",
+            "verify": "Verify Identity",
+            "backup": "Use backup code",
+            "totp": "Use authenticator code",
+            "backupHelp": "Enter one of your 8-character backup codes",
+            "totpHelp": "Enter the 6-digit code from your app",
+            "error": "Invalid or expired code",
+            "success": "Login successful"
+        },
+        "setup": {
+            "title": "Enable 2FA",
+            "desc": "Add an extra layer of security. You will need an app like Google Authenticator or Authy to generate codes.",
+            "button": "Setup now",
+            "scan": "Scan the code",
+            "manual": "Or enter the secret manually:",
+            "verify": "Verification code",
+            "activate": "Enable protection",
+            "back": "Back",
+            "enabled": "2FA Enabled!",
+            "important": "IMPORTANT: Save these backup codes. They are the only way to access if you lose your device.",
+            "copy": "Copy",
+            "download": "Download",
+            "finish": "I have saved the codes"
+        },
+        "fields": {
+            "email": "Email address",
+            "password": "Password",
+            "remember": "Remember me",
+            "name": "Full name",
+            "terms": "I accept terms and conditions"
+        },
+        "validation": {
+            "email": "Enter a valid email",
+            "passwordMin": "Minimum 8 characters",
+            "passwordMatch": "Passwords do not match",
+            "required": "Field required"
+        }
     },
-    "alerts": {
-      "success": "Access granted",
-      "successDesc": "You have logged in successfully.",
-      "error": "Login error",
-      "errorDesc": "Incorrect username or password."
+    "nav": {
+        "features": "Features",
+        "security": "Security",
+        "pricing": "Pricing",
+        "login": "Login",
+        "getStarted": "Get Started Free"
     },
-    "form": {
-      "separator": "or continue with",
-      "submit": "Access",
-      "forgot": "Forgot your password?",
-      "noAccount": "Don't have an account?",
-      "register": "Sign up"
-    }
-  },
-  "register": {
-    "title": "Create Account",
-    "desc": "Join Alcatraz and secure your digital life today.",
-    "meta": {
-      "desc": "Create your Alcatraz account to manage your passwords securely."
+    "footer": {
+        "rights": "© {year} Alcatraz. All rights reserved.",
+        "privacy": "Privacy",
+        "terms": "Terms",
+        "contact": "Contact",
+        "about": "About Us",
+        "company": "Company",
+        "legal": "Legal",
+        "product": "Product",
+        "downloads": "Downloads",
+        "blog": "Blog",
+        "careers": "Careers",
+        "cookies": "Cookies",
+        "licenses": "Licenses"
     },
-    "alerts": {
-      "success": "Account created",
-      "successDesc": "You have registered successfully."
+    "landing": {
+        "hero": {
+            "badge": "Maximum Protection Security",
+            "title": "Your secrets under",
+            "titleAccent": "maximum security",
+            "desc": "Like the world's most secure prison, Alcatraz protects your passwords and notes with military-grade encryption. No one enters, no one leaves without your authorization.",
+            "ctaStart": "Start Now",
+            "ctaDemo": "View Demo"
+        },
+        "stats": {
+            "encryption": "AES Encryption",
+            "notes": "Encrypted notes",
+            "notesCount": "Unlimited",
+            "architecture": "Architecture",
+            "architectureDesc": "Zero-knowledge"
+        },
+        "features": {
+            "title": "Everything you need to stay safe",
+            "desc": "Features designed to protect your most valuable information",
+            "manager": {
+                "title": "Password Manager",
+                "desc": "Store and generate secure passwords with a single click. Smart autofill across all your websites."
+            },
+            "notes": {
+                "title": "Encrypted Notes",
+                "desc": "Save sensitive information like card numbers, codes, and documents with end-to-end encryption."
+            },
+            "multiplatform": {
+                "title": "Multiplatform",
+                "desc": "Access from iOS, Android, Windows, Mac, and Linux. Instant synchronization."
+            },
+            "backup": {
+                "title": "Automatic Backup",
+                "desc": "Encrypted automatic cloud backup. Never lose your information."
+            },
+            "biometric": {
+                "title": "Biometric Authentication",
+                "desc": "Unlock with fingerprint or face recognition. Hassle-free security."
+            },
+            "audit": {
+                "title": "Security Audit",
+                "desc": "Analyze the strength of your passwords and receive alerts of known breaches."
+            }
+        },
+        "security": {
+            "title": "Security at every step",
+            "desc": "Your privacy is our priority. We implement the highest security standards.",
+            "featured": {
+                "title": "End-to-End Encryption",
+                "desc": "We use AES-256 encryption, the same standard used by banks and governments. Your data is encrypted on your device before being sent to the cloud.",
+                "list": [
+                    "AES-256 encryption at rest and in transit",
+                    "Key derivation with Argon2id",
+                    "Two-factor authentication (2FA) available"
+                ]
+            },
+            "cards": {
+                "zeroKnowledge": {
+                    "title": "Zero-Knowledge Architecture",
+                    "desc": "Not even we can see your data. Only you have access to your information."
+                },
+                "infrastructure": {
+                    "title": "Secure Infrastructure",
+                    "desc": "Certified data centers with 24/7 monitoring and regular audits."
+                },
+                "openSource": {
+                    "title": "Open Source",
+                    "desc": "Total transparency: our code is audited by the community."
+                }
+            }
+        },
+        "cta": {
+            "title": "Start protecting your data today",
+            "desc": "Join over 100,000 users. Free 30-day trial, no card required.",
+            "start": "Get Started Free",
+            "sales": "Talk to Sales",
+            "benefits": [
+                "No credit card required",
+                "Cancel anytime",
+                "24/7 Support"
+            ]
+        }
     },
-    "form": {
-      "separator": "or sign up with",
-      "submit": "Create account",
-      "hasAccount": "Already have an account?",
-      "login": "Login"
+    "pricing": {
+        "title": "Plans and Pricing",
+        "desc": "Choose the security that best fits your needs.",
+        "monthly": "Monthly",
+        "yearly": "Yearly",
+        "save": "Save 20%",
+        "plans": {
+            "free": {
+                "name": "Personal",
+                "price": "0",
+                "desc": "For individuals looking for essential security.",
+                "button": "Start Free"
+            },
+            "premium": {
+                "name": "Premium",
+                "price": "3.99",
+                "desc": "Advanced security for demanding users.",
+                "button": "Get Premium"
+            },
+            "family": {
+                "name": "Family",
+                "price": "7.99",
+                "desc": "Protection for your whole family (up to 6 users).",
+                "button": "Get Family"
+            }
+        }
+    },
+    "login": {
+        "title": "Login",
+        "desc": "Welcome back. We protect your data with maximum security.",
+        "meta": {
+            "desc": "Access your secure vault for passwords and encrypted notes in Alcatraz."
+        },
+        "alerts": {
+            "success": "Access granted",
+            "successDesc": "You have logged in successfully.",
+            "error": "Login error",
+            "errorDesc": "Incorrect username or password."
+        },
+        "form": {
+            "separator": "or continue with",
+            "submit": "Access",
+            "forgot": "Forgot your password?",
+            "noAccount": "Don't have an account?",
+            "register": "Sign up"
+        }
+    },
+    "register": {
+        "title": "Create Account",
+        "desc": "Join Alcatraz and secure your digital life today.",
+        "meta": {
+            "desc": "Create your Alcatraz account to manage your passwords securely."
+        },
+        "alerts": {
+            "success": "Account created",
+            "successDesc": "You have registered successfully."
+        },
+        "form": {
+            "separator": "or sign up with",
+            "submit": "Create account",
+            "hasAccount": "Already have an account?",
+            "login": "Login"
+        },
+        "recovery": {
+            "title": "Registration Completed!",
+            "descPart1": "This is your",
+            "descPart2": "Recovery Key",
+            "descPart3": "It is the",
+            "descPart4": "only way",
+            "descPart5": "to recover your account if you forget your Master Password. Keep it in a safe and secret place.",
+            "checkbox": "I have saved this key in a secure place",
+            "button": "Go to Login"
+        },
+        "terms": {
+            "title": "Terms and Conditions",
+            "desc": "Due to the cryptographic nature of the application and the technical impossibility for the server to access plaintext data, Alcatraz Terms and Conditions establish a shared responsibility model with the final user. This model is based on three fundamental pillars that the user must accept during the registration process:",
+            "t1": "1. Master Password Custody:",
+            "d1": "The platform does not store or transmit your Master Password. There is no \"Forgot Password\" option. If you forget it, it is mathematically impossible to decrypt your vault.",
+            "t2": "2. Recovery Key Usage:",
+            "d2": "A unique 128-bit Recovery Key will be generated locally. It is your exclusive and strict responsibility to keep this key in a secure physical or digital environment independent of the platform.",
+            "t3": "3. Exemption of liability:",
+            "d3": "Alcatraz provides the cryptographic tool, but does not act as a guarantor. The simultaneous loss of your Master Password and your Recovery Key will result in the total and irrecoverable loss of your data.",
+            "cancel": "Cancel",
+            "accept": "Accept"
+        },
+        "errorAlert": {
+            "title": "Registration error",
+            "desc": "An error occurred while trying to register the account. Check your details or try with another email."
+        }
+    },
+    "legal": {
+        "privacy": {
+            "title": "Privacy Policy",
+            "lastUpdated": "Last updated: April 2026",
+            "intro": "At Alcatraz, your privacy is our absolute priority. Our zero-knowledge architecture ensures that only you have access to your data.",
+            "sections": [
+                {
+                    "title": "Data Collection",
+                    "content": "We do not collect or store your master passwords, encryption keys, or vault data in plain text."
+                },
+                {
+                    "title": "Use of Information",
+                    "content": "We only use minimum technical data to ensure service operation and synchronization between devices."
+                }
+            ]
+        },
+        "terms": {
+            "title": "Terms of Service",
+            "lastUpdated": "Last updated: April 2026",
+            "sections": [
+                {
+                    "title": "1. Custody of the Master Password",
+                    "content": "The user is explicitly informed that the platform does not store, process, or transmit their Master Password. Therefore, the system lacks traditional \"Password Recovery\" mechanisms via email links. If the user forgets this key, the service provider has no mathematical or technical capacity to decrypt their vault."
+                },
+                {
+                    "title": "2. Use of the Recovery Key",
+                    "content": "To mitigate the previous point, the system provides the user with a single 128-bit Recovery Key generated locally during account activation. The Terms and Conditions stipulate that it is the user's strict and exclusive responsibility to safely custody this key in a secure physical or digital environment independent of the platform."
+                },
+                {
+                    "title": "3. Exemption of liability for data loss",
+                    "content": "By accepting the terms, the user understands that Alcatraz provides the cryptographic tool, but does not act as a guarantor of availability in the event of user negligence. The simultaneous loss of the Master Password and the Recovery Key will result in the permanent and irrecoverable loss of all items stored in the vault, exempting the platform from any liability."
+                }
+            ]
+        },
+        "contact": {
+            "title": "Contact",
+            "desc": "Have questions or need help? We're here for you.",
+            "form": {
+                "name": "Name",
+                "email": "Email address",
+                "subject": "Subject",
+                "message": "Message",
+                "submit": "Send Message"
+            },
+            "toast": {
+                "success": "Message sent",
+                "successDesc": "Thank you for contacting us. We will reply to you shortly."
+            },
+            "community": {
+                "title": "Community",
+                "desc": "Official Discord"
+            }
+        },
+        "licenses": {
+            "title": "Software Licenses",
+            "lastUpdated": "Last updated: May 2026",
+            "intro": "Alcatraz is an open source project published under the terms of the GNU General Public License version 3 (GPLv3). We believe in transparency and user sovereignty over their own data.",
+            "gplDescription": "The GNU General Public License (GPL) ensures the software remains free and open source for all its users. Being copyleft, any derivative works of Alcatraz must also be released under the same license."
+        },
+        "about": {
+            "title": "About Us",
+            "project": {
+                "title": "The Alcatraz Project",
+                "description": "Alcatraz Project is a secure management platform for credentials and encrypted notes, designed to protect sensitive information through modern security standards and development best practices.",
+                "technologies": "The project integrates current technologies recognized for their performance and reliability: Nuxt for the web interface, Flutter for the multiplatform mobile application, Go with Echo as a high-performance backend, and PostgreSQL as a robust and widely adopted database in professional environments.",
+                "objective": "The main objective is to build a system that combines security, speed, and ease of use, implementing modern encryption techniques, secure authentication protocols, and verification mechanisms that ensure user data is never stored in plain text and cannot be accessed without authorization.",
+                "vision": "Through this architecture, Alcatraz seeks not only to offer a useful tool but also to demonstrate the effective integration of contemporary technologies applied to an environment where security is the fundamental priority."
+            },
+            "importance": {
+                "title": "Why a credential manager?",
+                "context": "Currently, the number of digital services we use daily has grown exponentially. Bank accounts, work platforms, social networks, educational services, mobile applications, and professional tools require the creation of unique credentials to ensure secure access. However, proper management of these credentials continues to be one of the weakest points in user security.",
+                "risks": "Insecure practices such as using repeated passwords, reusing keys between different services, or storing sensitive information in unencrypted notes remain very common. This makes users vulnerable targets to attacks such as phishing, credential stuffing, or unauthorized access after a data breach.",
+                "solution": "A credential manager emerges as a direct and effective solution to this problem. Its main function is to allow the user to generate, store, and manage strong passwords without needing to remember them manually, keeping them protected through robust encryption techniques. Furthermore, offering a secure environment to store encrypted notes complements this idea, allowing sensitive information such as recovery keys, tokens, digital wallet addresses, or personal data to be saved with the same level of protection.",
+                "educational": "Opting to develop one's own manager, instead of relying exclusively on commercial solutions, allows for the practical study and application of advanced security, cryptography, software architecture, and data protection concepts. At the same time, it provides the user with a transparent platform in its operation, where information is not processed by third parties and total control of the data remains in their hands.",
+                "conclusion": "For these reasons, a credential manager is not only a useful tool for the end user but also an ideal environment to demonstrate the real application of modern computer security techniques, becoming a fundamental piece within the Alcatraz Project."
+            },
+            "author": {
+                "title": "The Author",
+                "name": "Gian Carlo Ruiz Patiño",
+                "bio": "I am a student about to graduate from DAM (Multi-platform Applications Development). This project represents my final degree project and my commitment to digital security."
+            }
+        }
+    },
+    "vault": {
+        "sidebar": {
+            "allItems": "All items",
+            "trash": "Trash",
+            "categories": "CATEGORIES",
+            "passwords": "Passwords",
+            "cards": "Credit cards",
+            "notes": "Secure notes",
+            "documents": "Documents",
+            "identities": "Identity",
+            "folders": "Folders",
+            "expand": "Expand sidebar",
+            "collapse": "Collapse sidebar",
+            "show": "Show sidebar",
+            "hide": "Hide sidebar",
+            "manageFolders": "Manage folders",
+            "logout": "Log out"
+        },
+        "dashboard": {
+            "title": "Secure Vault",
+            "securityStatus": "SECURITY STATUS",
+            "optimized": "OPTIMIZED",
+            "optimizedDesc": "Active and validated encryption protocols.",
+            "search": "SEARCH IN VAULT...",
+            "newItem": "NEW ITEM",
+            "empty": "No items in this category",
+            "emptyDesc": "Start by adding passwords, notes, or credit cards using the button above.",
+            "actions": {
+                "edit": "Edit",
+                "delete": "Delete",
+                "copy": "Copy"
+            }
+        },
+        "folderModal": {
+            "title": "Manage Folders",
+            "newFolder": "New Folder",
+            "namePlaceholder": "Folder name...",
+            "create": "Create",
+            "delete": "Delete folder",
+            "deleteDesc": "Deleting the folder will move the items inside it to Personal. Do you want to continue?",
+            "deleteConfirm": "Delete",
+            "cancel": "Cancel"
+        },
+        "itemDetails": {
+            "back": "Back to Vault",
+            "encryptedNode": "Encrypted Node",
+            "title": "Item Details",
+            "folder": "Category",
+            "username": "Username",
+            "password": "Password",
+            "notes": "Note",
+            "copied": "Copied",
+            "copiedDesc": "{field} copied to clipboard",
+            "copyError": "Copy error",
+            "copyErrorDesc": "Could not copy to clipboard",
+            "deleted": "Permanently deleted",
+            "deletedDesc": "The item has been deleted forever",
+            "trashed": "Moved to Trash",
+            "trashedDesc": "The item has been moved to trash",
+            "restored": "Item Restored",
+            "restoredDesc": "The item has been returned to your main vault",
+            "error": "Error",
+            "errorRequest": "Could not process request",
+            "errorDecrypt": "Could not decrypt item",
+            "errorRestore": "Could not restore item",
+            "updated": "Updated",
+            "updatedDesc": "The item has been updated successfully",
+            "time": {
+                "justNow": "just now",
+                "minutes": "{count} minutes ago",
+                "hours": "{count} hours ago",
+                "days": "{count} days ago",
+                "months": "{count} months ago",
+                "years": "{count} years ago",
+                "unknown": "Unknown"
+            },
+            "securityIntegrity": "Item Integrity",
+            "passwordStrength": "Password Encryption",
+            "strengthRobust": "Robust",
+            "strengthVulnerable": "Vulnerable",
+            "created": "Created",
+            "modified": "Modified",
+            "visibility": "Visibility",
+            "privateNode": "PRIVATE NODE",
+            "encryptionProps": "Encryption Props",
+            "restaurar": "Restore",
+            "deletePermanent": "Delete Permanently",
+            "moveToTrash": "Move to Trash",
+            "confirmTitle": "Confirm Deletion?",
+            "confirmDesc": "Are you sure you want to delete this item?",
+            "deletePermanentQuestion": "Delete forever?",
+            "moveToTrashQuestion": "Move to trash?",
+            "deletePermanentWarning": "This action is irreversible and the data will be lost.",
+            "moveToTrashWarning": "You can restore this item from the trash later.",
+            "cancel": "Cancel"
+        },
+        "types": {
+            "password": {
+                "label": "Password",
+                "desc": "Save login credentials"
+            },
+            "note": {
+                "label": "Secure Note",
+                "desc": "Sensitive encrypted information"
+            },
+            "card": {
+                "label": "Payment Card",
+                "desc": "Credit or debit cards"
+            },
+            "identity": {
+                "label": "Identity",
+                "desc": "Passports, licenses, etc."
+            }
+        },
+        "forms": {
+            "cancel": "Cancel",
+            "cancelEdit": "Cancel Edit",
+            "backToVault": "Back to Vault",
+            "whatToSave": "What do you want to save?",
+            "selectTypeDesc": "Select the type of element you want to add to your vault.",
+            "create": "Create",
+            "update": "Update information",
+            "passwordForm": {
+                "edit": "Edit Password",
+                "new": "New Password",
+                "titleLabel": "Item name",
+                "titlePlaceholder": "e.g. Google, Netflix",
+                "folderLabel": "Category",
+                "usernameLabel": "Username / Email",
+                "usernamePlaceholder": "user{'@'}example.com",
+                "passwordLabel": "Password",
+                "passwordPlaceholder": "••••••••",
+                "lengthLabel": "Length",
+                "uppercaseLabel": "Uppercase (A-Z)",
+                "numbersLabel": "Numbers (0-9)",
+                "symbolsLabel": "Symbols (!{'@'}#)",
+                "useBtn": "Use password",
+                "urlLabel": "URL (Optional)",
+                "urlPlaceholder": "https://...",
+                "noticeTitle": "Encrypted password",
+                "noticeDesc": "Your credentials are encrypted locally with AES-256 before being sent to the server. We never store your password in plain text.",
+                "zodRequired": "Name is required",
+                "zodEmail": "Must be a valid email",
+                "zodUrl": "Must be a valid URL"
+            },
+            "noteForm": {
+                "edit": "Edit Secure Note",
+                "new": "New Secure Note",
+                "titleLabel": "Title",
+                "titlePlaceholder": "e.g. Backup codes",
+                "folderLabel": "Category",
+                "contentLabel": "Content",
+                "contentPlaceholder": "Write your secure note here...",
+                "noticeTitle": "Fully secure note",
+                "noticeDesc": "Your note will be encrypted with AES-256 encryption before being saved. Only you can access its content.",
+                "zodRequired": "Title is required",
+                "encryptedDesc": "End-to-end encrypted"
+            },
+            "identityForm": {
+                "edit": "Edit Identity",
+                "new": "New Identity",
+                "titleLabel": "Identity name",
+                "titlePlaceholder": "e.g. Personal Passport",
+                "folderLabel": "Category",
+                "firstNameLabel": "First Name",
+                "firstNamePlaceholder": "John",
+                "lastNameLabel": "Last Name",
+                "lastNamePlaceholder": "Doe",
+                "emailLabel": "Email",
+                "emailPlaceholder": "john{'@'}example.com",
+                "phoneLabel": "Phone",
+                "phonePlaceholder": "+1 234 567 890",
+                "licenseLabel": "Driver's license",
+                "licensePlaceholder": "A-12345678",
+                "passportLabel": "Passport",
+                "passportPlaceholder": "P-87654321",
+                "addressLabel": "Address",
+                "addressPlaceholder": "123 Fake Street...",
+                "noticeTitle": "Protected identity",
+                "noticeDesc": "Your personal data is encrypted and secure. We never share your information with third parties.",
+                "zodRequired": "Name is required"
+            },
+            "cardForm": {
+                "edit": "Edit Card",
+                "new": "New Card",
+                "previewTitle": "ENCRYPTED CREDIT ASSET",
+                "holderLabel": "Cardholder",
+                "holderPlaceholder": "FIRSTNAME LASTNAME",
+                "expiryLabel": "Expiration",
+                "expiryPlaceholder": "MM/YY",
+                "cvvLabel": "CVV / CVC",
+                "cvvPlaceholder": "123",
+                "securityCode": "Security code",
+                "interactivePreview": "Interactive preview",
+                "titleLabel": "Friendly name",
+                "titlePlaceholder": "e.g. Gold Visa",
+                "numberLabel": "Card number",
+                "numberPlaceholder": "0000 0000 0000 0000",
+                "folderLabel": "Category",
+                "noticeTitle": "Financial data protected",
+                "noticeDesc": "Your information is encrypted with military-grade encryption locally before being saved on the server.",
+                "zodRequired": "Name is required",
+                "zodNumber": "Card number must have 16 digits",
+                "zodExpiry": "Expiration date must have 5 digits",
+                "zodCvv": "CVV must have 3 digits"
+            }
+        }
     },
     "recovery": {
-      "title": "Registration Completed!",
-      "descPart1": "This is your",
-      "descPart2": "Recovery Key",
-      "descPart3": "It is the",
-      "descPart4": "only way",
-      "descPart5": "to recover your account if you forget your Master Password. Keep it in a safe and secret place.",
-      "checkbox": "I have saved this key in a secure place",
-      "button": "Go to Login"
-    },
-    "terms": {
-      "title": "Terms and Conditions",
-      "desc": "Due to the cryptographic nature of the application and the technical impossibility for the server to access plaintext data, Alcatraz Terms and Conditions establish a shared responsibility model with the final user. This model is based on three fundamental pillars that the user must accept during the registration process:",
-      "t1": "1. Master Password Custody:",
-      "d1": "The platform does not store or transmit your Master Password. There is no \"Forgot Password\" option. If you forget it, it is mathematically impossible to decrypt your vault.",
-      "t2": "2. Recovery Key Usage:",
-      "d2": "A unique 128-bit Recovery Key will be generated locally. It is your exclusive and strict responsibility to keep this key in a secure physical or digital environment independent of the platform.",
-      "t3": "3. Exemption of liability:",
-      "d3": "Alcatraz provides the cryptographic tool, but does not act as a guarantor. The simultaneous loss of your Master Password and your Recovery Key will result in the total and irrecoverable loss of your data.",
-      "cancel": "Cancel",
-      "accept": "Accept"
-    },
-    "errorAlert": {
-      "title": "Registration error",
-      "desc": "An error occurred while trying to register the account. Check your details or try with another email."
-    }
-  },
-  "legal": {
-    "privacy": {
-      "title": "Privacy Policy",
-      "lastUpdated": "Last updated: April 2026",
-      "intro": "At Alcatraz, your privacy is our absolute priority. Our zero-knowledge architecture ensures that only you have access to your data.",
-      "sections": [
-        {
-          "title": "Data Collection",
-          "content": "We do not collect or store your master passwords, encryption keys, or vault data in plain text."
+        "title": "Recover Account",
+        "step": "Step {step} of 3",
+        "backToLogin": "Back to Login",
+        "emailLabel": "Email Address",
+        "emailPlaceholder": "you{'@'}email.com",
+        "emailHelp": "Enter the email address associated with your account. We will need to check if you have an active recovery setup.",
+        "next": "Next",
+        "accountLocated": "Account located",
+        "recoveryKeyLabel": "Recovery Key",
+        "recoveryKeyPlaceholder": "RK-XXXX-XXXX-XXXX-XXXX",
+        "recoveryKeyHelp": "Enter the secret key provided during registration.",
+        "decryptVault": "Decrypt Vault",
+        "keyValidated": "Key validated",
+        "keyValidatedDesc": "We have successfully accessed your vault. Now you can set up a new master password.",
+        "newPasswordLabel": "New Master Password",
+        "newPasswordPlaceholder": "••••••••",
+        "confirmPasswordLabel": "Confirm Password",
+        "confirmPasswordPlaceholder": "••••••••",
+        "resetPassword": "Reset Password",
+        "toast": {
+            "success": "Account recovered",
+            "successDesc": "Your master password has been reset. You can now log in."
         },
-        {
-          "title": "Use of Information",
-          "content": "We only use minimum technical data to ensure service operation and synchronization between devices."
+        "errors": {
+            "invalidEmail": "Please enter a valid email address.",
+            "userNotFound": "No user was found with that email, or they do not have a recovery key set up.",
+            "connection": "Error connecting to server.",
+            "invalidFormat": "The recovery key format is invalid.",
+            "incorrectKey": "The recovery key is incorrect.",
+            "passwordLength": "The password must be at least 8 characters long.",
+            "passwordMismatch": "Passwords do not match.",
+            "resetError": "Error resetting password."
         }
-      ]
     },
-    "terms": {
-      "title": "Terms of Service",
-      "lastUpdated": "Last updated: April 2026",
-      "sections": [
-        {
-          "title": "1. Custody of the Master Password",
-          "content": "The user is explicitly informed that the platform does not store, process, or transmit their Master Password. Therefore, the system lacks traditional \"Password Recovery\" mechanisms via email links. If the user forgets this key, the service provider has no mathematical or technical capacity to decrypt their vault."
-        },
-        {
-          "title": "2. Use of the Recovery Key",
-          "content": "To mitigate the previous point, the system provides the user with a single 128-bit Recovery Key generated locally during account activation. The Terms and Conditions stipulate that it is the user's strict and exclusive responsibility to safely custody this key in a secure physical or digital environment independent of the platform."
-        },
-        {
-          "title": "3. Exemption of liability for data loss",
-          "content": "By accepting the terms, the user understands that Alcatraz provides the cryptographic tool, but does not act as a guarantor of availability in the event of user negligence. The simultaneous loss of the Master Password and the Recovery Key will result in the permanent and irrecoverable loss of all items stored in the vault, exempting the platform from any liability."
+    "unlock": {
+        "titleCreate": "Create master password",
+        "titleUnlock": "Unlock vault",
+        "descCreate": "Choose a master password to encrypt your vault",
+        "descUnlock": "Enter your master password to continue",
+        "verifying": "Verifying account...",
+        "emailLabel": "Account",
+        "masterPasswordLabel": "Master password",
+        "confirmPasswordLabel": "Confirm master password",
+        "helpTextCreate": "This password CANNOT be recovered. It is the only key to decrypt your vault.",
+        "helpTextUnlock": "Your master password is never sent to third parties. It is only used to decrypt your vault.",
+        "buttonCreate": "Create account and access",
+        "buttonUnlock": "Unlock",
+        "hasAccount": "Already have an account?",
+        "otherAccount": "Other account?",
+        "backToLogin": "Back to login",
+        "modalTitle": "Account Created!",
+        "modalDescPart1": "Save this",
+        "modalDescPart2": "Recovery Key",
+        "modalDescPart3": ". It is the only way to recover your vault if you forget your master password.",
+        "checkboxLabel": "I have saved this key in a secure place",
+        "buttonEnter": "Enter My Vault",
+        "errors": {
+            "passwordMin": "Master password must be at least 8 characters long.",
+            "passwordMismatch": "Passwords do not match.",
+            "registerError": "Error creating account. An account with that email might already exist.",
+            "incorrectPassword": "Incorrect credentials. Please verify your master password."
         }
-      ]
-    },
-    "contact": {
-      "title": "Contact",
-      "desc": "Have questions or need help? We're here for you.",
-      "form": {
-        "name": "Name",
-        "email": "Email address",
-        "subject": "Subject",
-        "message": "Message",
-        "submit": "Send Message"
-      },
-      "toast": {
-        "success": "Message sent",
-        "successDesc": "Thank you for contacting us. We will reply to you shortly."
-      },
-      "community": {
-        "title": "Community",
-        "desc": "Official Discord"
-      }
-    },
-    "licenses": {
-      "title": "Software Licenses",
-      "lastUpdated": "Last updated: May 2026",
-      "intro": "Alcatraz is an open source project published under the terms of the GNU General Public License version 3 (GPLv3). We believe in transparency and user sovereignty over their own data.",
-      "gplDescription": "The GNU General Public License (GPL) ensures the software remains free and open source for all its users. Being copyleft, any derivative works of Alcatraz must also be released under the same license."
     }
-  },
-  "vault": {
-    "sidebar": {
-      "allItems": "All items",
-      "trash": "Trash",
-      "categories": "CATEGORIES",
-      "passwords": "Passwords",
-      "cards": "Credit cards",
-      "notes": "Secure notes",
-      "documents": "Documents",
-      "identities": "Identity",
-      "folders": "Folders",
-      "expand": "Expand sidebar",
-      "collapse": "Collapse sidebar",
-      "show": "Show sidebar",
-      "hide": "Hide sidebar",
-      "manageFolders": "Manage folders",
-      "logout": "Log out"
-    },
-    "dashboard": {
-      "title": "Secure Vault",
-      "securityStatus": "SECURITY STATUS",
-      "optimized": "OPTIMIZED",
-      "optimizedDesc": "Active and validated encryption protocols.",
-      "search": "SEARCH IN VAULT...",
-      "newItem": "NEW ITEM",
-      "empty": "No items in this category",
-      "emptyDesc": "Start by adding passwords, notes, or credit cards using the button above.",
-      "actions": {
-        "edit": "Edit",
-        "delete": "Delete",
-        "copy": "Copy"
-      }
-    },
-    "folderModal": {
-      "title": "Manage Folders",
-      "newFolder": "New Folder",
-      "namePlaceholder": "Folder name...",
-      "create": "Create",
-      "delete": "Delete folder",
-      "deleteDesc": "Deleting the folder will move the items inside it to Personal. Do you want to continue?",
-      "deleteConfirm": "Delete",
-      "cancel": "Cancel"
-    },
-    "itemDetails": {
-      "back": "Back to Vault",
-      "encryptedNode": "Encrypted Node",
-      "title": "Item Details",
-      "folder": "Category",
-      "username": "Username",
-      "password": "Password",
-      "notes": "Note",
-      "copied": "Copied",
-      "copiedDesc": "{field} copied to clipboard",
-      "copyError": "Copy error",
-      "copyErrorDesc": "Could not copy to clipboard",
-      "deleted": "Permanently deleted",
-      "deletedDesc": "The item has been deleted forever",
-      "trashed": "Moved to Trash",
-      "trashedDesc": "The item has been moved to trash",
-      "restored": "Item Restored",
-      "restoredDesc": "The item has been returned to your main vault",
-      "error": "Error",
-      "errorRequest": "Could not process request",
-      "errorDecrypt": "Could not decrypt item",
-      "errorRestore": "Could not restore item",
-      "updated": "Updated",
-      "updatedDesc": "The item has been updated successfully",
-      "time": {
-        "justNow": "just now",
-        "minutes": "{count} minutes ago",
-        "hours": "{count} hours ago",
-        "days": "{count} days ago",
-        "months": "{count} months ago",
-        "years": "{count} years ago",
-        "unknown": "Unknown"
-      },
-      "securityIntegrity": "Item Integrity",
-      "passwordStrength": "Password Encryption",
-      "strengthRobust": "Robust",
-      "strengthVulnerable": "Vulnerable",
-      "created": "Created",
-      "modified": "Modified",
-      "visibility": "Visibility",
-      "privateNode": "PRIVATE NODE",
-      "encryptionProps": "Encryption Props",
-      "restaurar": "Restore",
-      "deletePermanent": "Delete Permanently",
-      "moveToTrash": "Move to Trash",
-      "confirmTitle": "Confirm Deletion?",
-      "confirmDesc": "Are you sure you want to delete this item?",
-      "deletePermanentQuestion": "Delete forever?",
-      "moveToTrashQuestion": "Move to trash?",
-      "deletePermanentWarning": "This action is irreversible and the data will be lost.",
-      "moveToTrashWarning": "You can restore this item from the trash later.",
-      "cancel": "Cancel"
-    },
-    "types": {
-      "password": {
-        "label": "Password",
-        "desc": "Save login credentials"
-      },
-      "note": {
-        "label": "Secure Note",
-        "desc": "Sensitive encrypted information"
-      },
-      "card": {
-        "label": "Payment Card",
-        "desc": "Credit or debit cards"
-      },
-      "identity": {
-        "label": "Identity",
-        "desc": "Passports, licenses, etc."
-      }
-    },
-    "forms": {
-      "cancel": "Cancel",
-      "cancelEdit": "Cancel Edit",
-      "backToVault": "Back to Vault",
-      "whatToSave": "What do you want to save?",
-      "selectTypeDesc": "Select the type of element you want to add to your vault.",
-      "create": "Create",
-      "update": "Update information",
-      "passwordForm": {
-        "edit": "Edit Password",
-        "new": "New Password",
-        "titleLabel": "Item name",
-        "titlePlaceholder": "e.g. Google, Netflix",
-        "folderLabel": "Category",
-        "usernameLabel": "Username / Email",
-        "usernamePlaceholder": "user{'@'}example.com",
-        "passwordLabel": "Password",
-        "passwordPlaceholder": "••••••••",
-        "lengthLabel": "Length",
-        "uppercaseLabel": "Uppercase (A-Z)",
-        "numbersLabel": "Numbers (0-9)",
-        "symbolsLabel": "Symbols (!{'@'}#)",
-        "useBtn": "Use password",
-        "urlLabel": "URL (Optional)",
-        "urlPlaceholder": "https://...",
-        "noticeTitle": "Encrypted password",
-        "noticeDesc": "Your credentials are encrypted locally with AES-256 before being sent to the server. We never store your password in plain text.",
-        "zodRequired": "Name is required",
-        "zodEmail": "Must be a valid email",
-        "zodUrl": "Must be a valid URL"
-      },
-      "noteForm": {
-        "edit": "Edit Secure Note",
-        "new": "New Secure Note",
-        "titleLabel": "Title",
-        "titlePlaceholder": "e.g. Backup codes",
-        "folderLabel": "Category",
-        "contentLabel": "Content",
-        "contentPlaceholder": "Write your secure note here...",
-        "noticeTitle": "Fully secure note",
-        "noticeDesc": "Your note will be encrypted with AES-256 encryption before being saved. Only you can access its content.",
-        "zodRequired": "Title is required",
-        "encryptedDesc": "End-to-end encrypted"
-      },
-      "identityForm": {
-        "edit": "Edit Identity",
-        "new": "New Identity",
-        "titleLabel": "Identity name",
-        "titlePlaceholder": "e.g. Personal Passport",
-        "folderLabel": "Category",
-        "firstNameLabel": "First Name",
-        "firstNamePlaceholder": "John",
-        "lastNameLabel": "Last Name",
-        "lastNamePlaceholder": "Doe",
-        "emailLabel": "Email",
-        "emailPlaceholder": "john{'@'}example.com",
-        "phoneLabel": "Phone",
-        "phonePlaceholder": "+1 234 567 890",
-        "licenseLabel": "Driver's license",
-        "licensePlaceholder": "A-12345678",
-        "passportLabel": "Passport",
-        "passportPlaceholder": "P-87654321",
-        "addressLabel": "Address",
-        "addressPlaceholder": "123 Fake Street...",
-        "noticeTitle": "Protected identity",
-        "noticeDesc": "Your personal data is encrypted and secure. We never share your information with third parties.",
-        "zodRequired": "Name is required"
-      },
-      "cardForm": {
-        "edit": "Edit Card",
-        "new": "New Card",
-        "previewTitle": "ENCRYPTED CREDIT ASSET",
-        "holderLabel": "Cardholder",
-        "holderPlaceholder": "FIRSTNAME LASTNAME",
-        "expiryLabel": "Expiration",
-        "expiryPlaceholder": "MM/YY",
-        "cvvLabel": "CVV / CVC",
-        "cvvPlaceholder": "123",
-        "securityCode": "Security code",
-        "interactivePreview": "Interactive preview",
-        "titleLabel": "Friendly name",
-        "titlePlaceholder": "e.g. Gold Visa",
-        "numberLabel": "Card number",
-        "numberPlaceholder": "0000 0000 0000 0000",
-        "folderLabel": "Category",
-        "noticeTitle": "Financial data protected",
-        "noticeDesc": "Your information is encrypted with military-grade encryption locally before being saved on the server.",
-        "zodRequired": "Name is required",
-        "zodNumber": "Card number must have 16 digits",
-        "zodExpiry": "Expiration date must have 5 digits",
-        "zodCvv": "CVV must have 3 digits"
-      }
-    }
-  },
-  "recovery": {
-    "title": "Recover Account",
-    "step": "Step {step} of 3",
-    "backToLogin": "Back to Login",
-    "emailLabel": "Email Address",
-    "emailPlaceholder": "you{'@'}email.com",
-    "emailHelp": "Enter the email address associated with your account. We will need to check if you have an active recovery setup.",
-    "next": "Next",
-    "accountLocated": "Account located",
-    "recoveryKeyLabel": "Recovery Key",
-    "recoveryKeyPlaceholder": "RK-XXXX-XXXX-XXXX-XXXX",
-    "recoveryKeyHelp": "Enter the secret key provided during registration.",
-    "decryptVault": "Decrypt Vault",
-    "keyValidated": "Key validated",
-    "keyValidatedDesc": "We have successfully accessed your vault. Now you can set up a new master password.",
-    "newPasswordLabel": "New Master Password",
-    "newPasswordPlaceholder": "••••••••",
-    "confirmPasswordLabel": "Confirm Password",
-    "confirmPasswordPlaceholder": "••••••••",
-    "resetPassword": "Reset Password",
-    "toast": {
-      "success": "Account recovered",
-      "successDesc": "Your master password has been reset. You can now log in."
-    },
-    "errors": {
-      "invalidEmail": "Please enter a valid email address.",
-      "userNotFound": "No user was found with that email, or they do not have a recovery key set up.",
-      "connection": "Error connecting to server.",
-      "invalidFormat": "The recovery key format is invalid.",
-      "incorrectKey": "The recovery key is incorrect.",
-      "passwordLength": "The password must be at least 8 characters long.",
-      "passwordMismatch": "Passwords do not match.",
-      "resetError": "Error resetting password."
-    }
-  },
-  "unlock": {
-    "titleCreate": "Create master password",
-    "titleUnlock": "Unlock vault",
-    "descCreate": "Choose a master password to encrypt your vault",
-    "descUnlock": "Enter your master password to continue",
-    "verifying": "Verifying account...",
-    "emailLabel": "Account",
-    "masterPasswordLabel": "Master password",
-    "confirmPasswordLabel": "Confirm master password",
-    "helpTextCreate": "This password CANNOT be recovered. It is the only key to decrypt your vault.",
-    "helpTextUnlock": "Your master password is never sent to third parties. It is only used to decrypt your vault.",
-    "buttonCreate": "Create account and access",
-    "buttonUnlock": "Unlock",
-    "hasAccount": "Already have an account?",
-    "otherAccount": "Other account?",
-    "backToLogin": "Back to login",
-    "modalTitle": "Account Created!",
-    "modalDescPart1": "Save this",
-    "modalDescPart2": "Recovery Key",
-    "modalDescPart3": ". It is the only way to recover your vault if you forget your master password.",
-    "checkboxLabel": "I have saved this key in a secure place",
-    "buttonEnter": "Enter My Vault",
-    "errors": {
-      "passwordMin": "Master password must be at least 8 characters long.",
-      "passwordMismatch": "Passwords do not match.",
-      "registerError": "Error creating account. An account with that email might already exist.",
-      "incorrectPassword": "Incorrect credentials. Please verify your master password."
-    }
-  }
 }
