@@ -111,11 +111,14 @@ export interface CardItem extends BaseVaultItemUI {
 
 export interface IdentityItem extends BaseVaultItemUI {
   item_type: "identity"
+  docType?: string
+  idNumber?: string
   firstName?: string
   lastName?: string
   email?: string
   phone?: string
   address?: string
+  expiry?: string
   licenseNumber?: string
   passportNumber?: string
 }
