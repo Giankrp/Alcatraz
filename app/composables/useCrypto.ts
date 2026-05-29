@@ -133,6 +133,7 @@ export const useCrypto = () => {
    */
   const encryptData = async (data: any, masterKeyBase64: string) => {
     try {
+      const salt = window.crypto.getRandomValues(new Uint8Array(16))
       const iv = window.crypto.getRandomValues(new Uint8Array(12))
       const masterKey = await importRawKey(base64ToBuffer(masterKeyBase64))
 
@@ -146,7 +147,7 @@ export const useCrypto = () => {
       )
 
       return {
-        salt: "static", // El backend lo requiere, pero usamos MK directamente
+        salt: bufferToBase64(salt.buffer),
         iv: bufferToBase64(iv.buffer),
         encrypted_data: bufferToBase64(encryptedContent),
       }
